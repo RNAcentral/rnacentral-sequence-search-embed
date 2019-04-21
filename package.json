@@ -1,0 +1,23 @@
+{
+  "name": "rnacentral-sequence-search-embed",
+  "version": "1.0.0",
+  "description": "Embeddable react component for RNA sequence search.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/RNAcentral/rnacentral-sequence-search-embed.git"
+  },
+  "keywords": [
+    "bioinformatics",
+    "react"
+  ],
+  "author": "Boris A. Burkov",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/RNAcentral/rnacentral-sequence-search-embed/issues"
+  },
+  "homepage": "https://github.com/RNAcentral/rnacentral-sequence-search-embed#readme"
+}
