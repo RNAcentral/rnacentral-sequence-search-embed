@@ -1,13 +1,13 @@
 import React from 'react';
 
-import Facets from 'pages/Result/components/Facets.jsx';
-import Hit from 'pages/Result/components/Hit.jsx';
+import Facets from 'components/SequenceSearch/components/Results/components/Facets.jsx';
+import Hit from 'components/SequenceSearch/components/Results/components/Hit.jsx';
 
-import 'pages/Result/index.scss';
+import 'components/SequenceSearch/components/Results/index.scss';
 import routes from 'services/routes.jsx';
 
 
-class Result extends React.Component {
+class Results extends React.Component {
   constructor(props) {
     super(props);
 
@@ -107,7 +107,7 @@ class Result extends React.Component {
 
     // start loading from the first page again
     let query = this.buildQuery();
-    this.load(this.props.match.params.resultId, query, 0, 20, this.state.ordering, true, false);
+    this.load(this.props.resultId, query, 0, 20, this.state.ordering, true, false);
   }
 
   /**
@@ -136,7 +136,7 @@ class Result extends React.Component {
           (state, props) => (state.start === this.state.start ? { start: this.state.start + this.state.size, status: "loading" } : { status: "loading" }),
           () => {
             let query = this.buildQuery();
-            this.load(this.props.match.params.resultId, query, this.state.start, this.state.size, this.state.ordering, false, false);
+            this.load(this.props.resultId, query, this.state.start, this.state.size, this.state.ordering, false, false);
           }
         );
       }
@@ -159,7 +159,7 @@ class Result extends React.Component {
     if (clearFacets) {
       this.setState({ facets: [], selectedFacets: {} }, () => {
         if (reloadEntries) {
-          this.fetchSearchResults(this.props.match.params.resultId, this.buildQuery(), 0, this.state.size, ordering)
+          this.fetchSearchResults(this.props.resultId, this.buildQuery(), 0, this.state.size, ordering)
             .then(data => {
               let selectedFacets = {};
               data.facets.map((facet) => { selectedFacets[facet.id] = []; });
@@ -200,7 +200,7 @@ class Result extends React.Component {
       });
     } else {
       if (reloadEntries) {
-        this.fetchSearchResults(this.props.match.params.resultId, this.buildQuery(), 0, this.state.size, ordering)
+        this.fetchSearchResults(this.props.resultId, this.buildQuery(), 0, this.state.size, ordering)
           .then(data => {
             this.setState({
               status: data.sequenceSearchStatus === "success" ? "success" : "partial_success",
@@ -236,7 +236,7 @@ class Result extends React.Component {
    * Is called when user tries to reload the facets data after an error.
    */
   onReload() {
-    this.load(this.props.match.params.resultId, this.buildQuery(), 0, this.state.size, this.state.ordering, true, true);
+    this.load(this.props.resultId, this.buildQuery(), 0, this.state.size, this.state.ordering, true, true);
   }
 
   /**
@@ -245,12 +245,12 @@ class Result extends React.Component {
   onSort(event) {
     let ordering = event.target.value;
     this.setState({ ordering: ordering }, () => {
-      this.load(this.props.match.params.resultId, this.buildQuery(), 0, this.state.size, this.state.ordering, true, true);
+      this.load(this.props.resultId, this.buildQuery(), 0, this.state.size, this.state.ordering, true, true);
     });
   }
 
   componentDidMount() {
-    this.load(this.props.match.params.resultId, this.buildQuery(), 0, this.state.size, this.state.ordering, true, true);
+    this.load(this.props.resultId, this.buildQuery(), 0, this.state.size, this.state.ordering, true, true);
 
     // When user scrolls down to the bottom of the component, load more entries, if available.
     window.onscroll = this.onScroll;
@@ -278,7 +278,7 @@ class Result extends React.Component {
         {
           this.state.status === "does_not_exist" && (
             <div className="callout alert">
-              <h3>Job with id='{ this.props.match.params.resultId }' does not exist.</h3>
+              <h3>Job with id='{ this.props.resultId }' does not exist.</h3>
             </div>
           )
         }
@@ -308,4 +308,4 @@ class Result extends React.Component {
   }
 }
 
-export default Result;
+export default Results;

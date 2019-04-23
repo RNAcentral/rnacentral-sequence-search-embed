@@ -2,13 +2,10 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import {BrowserRouter as Router, Route, Link, browserHistory} from 'react-router-dom';
 
-import Layout from 'components/Layout/index.jsx';
+import SequenceSearch from 'components/SequenceSearch/index.jsx';
 
 
 ReactDOM.render(
-  <Router history={browserHistory}>
-    <Route path="/" component={Layout} >
-    </Route>
-  </Router>,
+  <SequenceSearch/>,
   document.querySelector('div#main')
 );

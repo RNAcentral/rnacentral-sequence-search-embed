@@ -1,12 +1,11 @@
 import React from 'react';
-import { withRouter } from 'react-router-dom';
 
 import routes from 'services/routes.jsx';
 
-import 'pages/Search/index.scss';
+import 'components/SequenceSearch/components/SearchForm/index.scss';
 
 
-class Search extends React.Component {
+class SearchForm extends React.Component {
   constructor(props) {
     super(props);
 
@@ -25,34 +24,6 @@ class Search extends React.Component {
     this.onExampleSequence = this.onExampleSequence.bind(this);
     this.onClearSequence = this.onClearSequence.bind(this);
     this.onFileUpload = this.onFileUpload.bind(this);
-  }
-
-  onSubmit(event) {
-    event.preventDefault();
-
-    // if sequence is not given - ignore submit
-    if (this.state.sequence) {
-      fetch(routes.submitJob(), {
-        method: 'post',
-        headers: {
-          'Accept': 'application/json, text/plain, */*',
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          query: this.state.sequence,
-          databases: Object.keys(this.state.selectedDatabases).filter(key => this.state.selectedDatabases[key])
-        })
-      })
-      .then(function (response) {
-        if (response.ok) {
-          return response.json();
-        } else {
-          throw new Error(response.statusText);
-        }
-      })
-      .then(data => this.props.history.push(`/job/${data.job_id}`))
-      .catch(error => this.setState({submissionError: error.toString()}));
-    }
   }
 
   onSequenceTextareaChange(event) {
@@ -190,4 +161,4 @@ class Search extends React.Component {
 
 }
 
-export default withRouter(Search);
+export default SearchForm;
