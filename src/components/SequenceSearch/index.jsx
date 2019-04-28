@@ -63,6 +63,9 @@ class SequenceSearch extends React.Component {
     }
   }
 
+
+
+
   render() {
     return [
       <SearchForm key={`searchForm`} status={this.state.status} />,

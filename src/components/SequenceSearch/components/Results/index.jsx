@@ -12,8 +12,6 @@ class Results extends React.Component {
     super(props);
 
     this.state = {
-      status: "loading",
-      sequence: "",
       entries: [],
       facets: [],
       hitCount: 0,
@@ -266,14 +264,6 @@ class Results extends React.Component {
               <p>Search results might be incomplete, you might want to retry running the search.</p>
             </div>
           )
-        }
-        { (this.state.status === "success" || this.state.status === "partial_success" ) &&
-          [
-            <h1 key={`success-header`}>Sequence:</h1>,
-            <pre key={`success-pre`} className="callout sequence">
-              { this.state.sequence }
-            </pre>
-          ]
         }
         {
           this.state.status === "does_not_exist" && (
