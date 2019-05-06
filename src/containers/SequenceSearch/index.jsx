@@ -11,8 +11,8 @@ import 'EBI-Icon-fonts/fonts.css';
 import 'animate.css/animate.min.css';
 import 'styles/style.scss';
 
-import Results from 'components/SequenceSearch/components/Results/index.jsx';
-import SearchForm from 'components/SequenceSearch/components/SearchForm/index.jsx';
+import Results from 'containers/SequenceSearch/components/Results/index.jsx';
+import SearchForm from 'containers/SequenceSearch/components/SearchForm/index.jsx';
 import routes from "services/routes.jsx";
 
 

@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 
-import SequenceSearch from 'components/SequenceSearch/index.jsx';
+import SequenceSearch from 'containers/SequenceSearch/index.jsx';
 import configureStore from 'store/configureStore.js';
 
 

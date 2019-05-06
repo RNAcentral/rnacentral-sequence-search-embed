@@ -1,7 +1,5 @@
 import React from 'react';
 
-import routes from 'services/routes.jsx';
-
 
 class Result extends React.Component {
   constructor(props) {

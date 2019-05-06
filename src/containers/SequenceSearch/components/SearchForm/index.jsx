@@ -2,7 +2,7 @@ import React from 'react';
 
 import routes from 'services/routes.jsx';
 
-import 'components/SequenceSearch/components/SearchForm/index.scss';
+import 'containers/SequenceSearch/components/SearchForm/index.scss';
 
 
 class SearchForm extends React.Component {

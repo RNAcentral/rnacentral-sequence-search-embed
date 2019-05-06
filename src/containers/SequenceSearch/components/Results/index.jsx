@@ -1,9 +1,9 @@
 import React from 'react';
 
-import Facets from 'components/SequenceSearch/components/Results/components/Facets.jsx';
-import Hit from 'components/SequenceSearch/components/Results/components/Hit.jsx';
+import Facets from 'containers/SequenceSearch/components/Results/components/Facets.jsx';
+import Hit from 'containers/SequenceSearch/components/Results/components/Hit.jsx';
 
-import 'components/SequenceSearch/components/Results/index.scss';
+import 'containers/SequenceSearch/components/Results/index.scss';
 import routes from 'services/routes.jsx';
 
 
