@@ -1,5 +1,6 @@
-import initialState from './initialState';
+import initialState from '../store/initialState';
 import {FETCH_STUFF, RECEIVE_STUFF} from '../actions/actionTypes';
+
 
 export default function stuff(state = initialState.stuff, action) {
   let newState;
