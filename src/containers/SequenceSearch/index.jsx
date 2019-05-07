@@ -14,62 +14,18 @@ import 'styles/style.scss';
 import Results from 'containers/SequenceSearch/components/Results/index.jsx';
 import SearchForm from 'containers/SequenceSearch/components/SearchForm/index.jsx';
 import routes from "services/routes.jsx";
-
-
-let statusChoices = {
-  notSubmitted: "notSubmitted",
-  submitted: "submitted",
-  loading: "loading",
-  error: "error"
-};
+import {connect} from "react-redux";
 
 
 class SequenceSearch extends React.Component {
   constructor(props) {
     super(props);
-
-    this.state = {
-      status: statusChoices.notSubmitted,
-      jobId: null,
-      submissionError: null
-    };
   }
-
-  onSubmit(event) {
-    event.preventDefault();
-
-    // if sequence is not given - ignore submit
-    if (this.state.sequence) {
-      fetch(routes.submitJob(), {
-        method: 'post',
-        headers: {
-          'Accept': 'application/json, text/plain, */*',
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          query: this.state.sequence,
-          databases: Object.keys(this.state.selectedDatabases).filter(key => this.state.selectedDatabases[key])
-        })
-      })
-      .then(function (response) {
-        if (response.ok) {
-          return response.json();
-        } else {
-          throw response;
-        }
-      })
-      .then(data => this.setState({jobId: data.job_id}))
-      .catch(error => this.setState({status: error, submissionError: response.statusText}));
-    }
-  }
-
-
-
 
   render() {
     return [
-      <SearchForm key={`searchForm`} status={this.state.status} />,
-      <Results key={`results`} status={this.state.status} jobId={this.state.jobId} />
+      <SearchForm key={`searchForm`} />,
+      <Results key={`results`} />
     ]
   }
 
@@ -80,4 +36,18 @@ class SequenceSearch extends React.Component {
 
 }
 
-export default SequenceSearch;
+const mapStateToProps = (state) => ({
+  status: state.status,
+  jobId: state.jobId,
+  submissionError: state.submissionError
+});
+
+function mapDispatchToProps(dispatch) {
+  return {};
+}
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(SequenceSearch);
+

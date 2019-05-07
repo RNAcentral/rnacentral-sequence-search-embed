@@ -1,4 +1,5 @@
 import React from 'react';
+import {connect} from 'react-redux';
 
 import Facets from 'containers/SequenceSearch/components/Results/components/Facets.jsx';
 import Hit from 'containers/SequenceSearch/components/Results/components/Hit.jsx';
@@ -10,26 +11,6 @@ import routes from 'services/routes.jsx';
 class Results extends React.Component {
   constructor(props) {
     super(props);
-
-    this.state = {
-      entries: [],
-      facets: [],
-      hitCount: 0,
-      start: 0,
-      size: 20,
-      ordering: "e_value",
-      selectedFacets: {},  // e.g. { facetId1: [facetValue1.value, facetValue2.value], facetId2: [facetValue3.value] }
-      alignmentsCollapsed: true,
-      textSearchError: false
-    };
-
-    this.onToggleAlignmentsCollapsed = this.onToggleAlignmentsCollapsed.bind(this);
-    this.load = this.load.bind(this);
-    this.onReload = this.onReload.bind(this);
-    this.onSort = this.onSort.bind(this);
-    this.onScroll = this.onScroll.bind(this);
-    this.toggleFacet = this.toggleFacet.bind(this);
-    this.fetchSearchResultsExceptionHandler = this.fetchSearchResultsExceptionHandler.bind(this);
   }
 
   /**
@@ -106,39 +87,6 @@ class Results extends React.Component {
     // start loading from the first page again
     let query = this.buildQuery();
     this.load(this.props.resultId, query, 0, 20, this.state.ordering, true, false);
-  }
-
-  /**
-   * Collapses/displays alignments in search results
-   */
-  onToggleAlignmentsCollapsed() {
-    $('.alignment').toggleClass('alignment-collapsed');
-    this.setState({ alignmentsCollapsed: !this.state.alignmentsCollapsed });
-  }
-
-  /**
-   * Checks that the page was scrolled down to the bottom.
-   * Load more entries, if available then.
-   *
-   * Mostly stolen from: https://alligator.io/react/react-infinite-scroll/
-   * Cross-browser compatibility: https://codingrepo.com/javascript/2015/10/10/javascript-infinite-scroll-with-cross-browser/
-   */
-  onScroll() {
-    let windowHeight = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
-    let scrollPosition = window.scrollY || window.pageYOffset || document.documentElement.scrollTop;
-
-    // Checks that the page has scrolled to the bottom
-    if (windowHeight + scrollPosition + 10 >= document.documentElement.offsetHeight) {
-      if (this.state.status === "success" && this.state.entries.length < this.state.hitCount) {
-        this.setState(
-          (state, props) => (state.start === this.state.start ? { start: this.state.start + this.state.size, status: "loading" } : { status: "loading" }),
-          () => {
-            let query = this.buildQuery();
-            this.load(this.props.resultId, query, this.state.start, this.state.size, this.state.ordering, false, false);
-          }
-        );
-      }
-    }
   }
 
   /**
@@ -230,23 +178,6 @@ class Results extends React.Component {
     }
   }
 
-  /**
-   * Is called when user tries to reload the facets data after an error.
-   */
-  onReload() {
-    this.load(this.props.resultId, this.buildQuery(), 0, this.state.size, this.state.ordering, true, true);
-  }
-
-  /**
-   * Is called when user selects a different sorting order.
-   */
-  onSort(event) {
-    let ordering = event.target.value;
-    this.setState({ ordering: ordering }, () => {
-      this.load(this.props.resultId, this.buildQuery(), 0, this.state.size, this.state.ordering, true, true);
-    });
-  }
-
   componentDidMount() {
     this.load(this.props.resultId, this.buildQuery(), 0, this.state.size, this.state.ordering, true, true);
 
@@ -298,4 +229,20 @@ class Results extends React.Component {
   }
 }
 
-export default Results;
+function mapStateToProps(state) {
+
+}
+
+function mapDispatchToProps(dispatch) {
+  return {
+    onToggleAlignmentsCollapsed : () => dispatch({ type: 'TOGGLE_ALIGNMENTS_COLLAPSED' }),
+    onReload : () => dispatch({ type: 'RELOAD_RESULTS' }),
+    onSort : () => dispatch({ type: 'SORT_RESULTS' }),
+    onScroll : () => dispatch({ type: 'SCROLL_RESULTS' })
+  }
+}
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(Results);

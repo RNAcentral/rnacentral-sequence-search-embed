@@ -1,8 +1,10 @@
 import React from 'react';
+import {dispatch} from 'redux';
 
 import routes from 'services/routes.jsx';
 
 import 'containers/SequenceSearch/components/SearchForm/index.scss';
+import {fetchRNAcentralDatabases} from "../../../../actions/actions";
 
 
 class SearchForm extends React.Component {
@@ -138,27 +140,19 @@ class SearchForm extends React.Component {
   }
 
   componentDidMount() {
-    fetch(routes.rnacentralDatabases())
-      .then(response => response.json())
-      .then(data => {
-
-        let rnacentralDatabases = data.map(database => database.id);
-
-        let selectedDatabases = {};
-        data.map(database => { selectedDatabases[database.id] = false });
-
-        let rnacentralDatabaseLabels = {};
-        data.map(database => { rnacentralDatabaseLabels[database.id] =  database.label });
-
-        this.setState({
-          rnacentralDatabases: rnacentralDatabases,
-          selectedDatabases: selectedDatabases,
-          rnacentralDatabaseLabels: rnacentralDatabaseLabels
-        });
-
-      });
+    this.props.fetchRNAcentralDatabases();
   }
 
 }
+
+const mapStateToProps = (state) => ({
+
+});
+
+const mapDispatchToProps = (dispatch) => ({
+  onSumbit: () => dispatch({ type: 'SUBMIT' }),
+  fetchRNAcentralDatabases: fetchRNAcentralDatabases,
+});
+
 
 export default SearchForm;

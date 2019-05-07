@@ -9,5 +9,5 @@ const store = configureStore();
 
 ReactDOM.render(
   <SequenceSearch store={store}/>,
-  document.querySelector('div#main')
+  document.querySelector('div#sequence-search')
 );
