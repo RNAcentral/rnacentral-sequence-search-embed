@@ -56,9 +56,9 @@ class Results extends React.Component {
   buildQuery() {
     let outputText, outputClauses = [];
 
-    Object.keys(this.state.selectedFacets).map(facetId => {
+    Object.keys(this.props.selectedFacets).map(facetId => {
       let facetText, facetClauses = [];
-      this.state.selectedFacets[facetId].map(facetValueValue => facetClauses.push(`${facetId}:"${facetValueValue}"`));
+      this.props.selectedFacets[facetId].map(facetValueValue => facetClauses.push(`${facetId}:"${facetValueValue}"`));
       facetText = facetClauses.join(" OR ");
 
       if (facetText !== "") outputClauses.push("(" + facetText + ")");
@@ -179,10 +179,12 @@ class Results extends React.Component {
   }
 
   componentDidMount() {
-    this.load(this.props.resultId, this.buildQuery(), 0, this.state.size, this.state.ordering, true, true);
-
-    // When user scrolls down to the bottom of the component, load more entries, if available.
-    window.onscroll = this.onScroll;
+    // TODO: use a constant for status
+    if (this.props.status === 'submitted') {
+      this.props.fetchRNAcentralDatabases();
+      //     this.load(this.props.resultId, this.buildQuery(), 0, this.state.size, this.state.ordering, true, true);
+    }
+    // TODO: re-enable scroll
   }
 
   render() {

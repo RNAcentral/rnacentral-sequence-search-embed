@@ -10,8 +10,6 @@ import {fetchRNAcentralDatabases} from "../../../../actions/actions";
 
 class SearchForm extends React.Component {
   render() {
-    console.log(`this.props.status =`);
-    console.log(this.props.status);
     return (
       <div className="row">
         <div className="col-lg-12">
