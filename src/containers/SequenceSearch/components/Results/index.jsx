@@ -189,7 +189,7 @@ class Results extends React.Component {
     return (
       <div className="row">
         {
-          this.state.status === "partial_success" && (
+          this.props.status === "partial_success" && (
             <div className="callout alert">
               <h3>Search against some databases failed.</h3>
               <p>Search results might be incomplete, you might want to retry running the search.</p>
@@ -197,14 +197,14 @@ class Results extends React.Component {
           )
         }
         {
-          this.state.status === "does_not_exist" && (
+          this.props.status === "does_not_exist" && (
             <div className="callout alert">
               <h3>Job with id='{ this.props.resultId }' does not exist.</h3>
             </div>
           )
         }
         {
-          this.state.status === "error" && (
+          this.props.status === "error" && (
             <div className="callout alert">
               <h3>Server got itself into a trouble.</h3>
               <a href="mailto:rnacentral@gmail.com">Contact us</a> if the problem persists.
@@ -212,16 +212,16 @@ class Results extends React.Component {
           )
         }
         {
-          (this.state.status === "loading" || this.state.status === "success" || this.state.status === "partial_success") && [
-            <h1 key={`results-header`} className="margin-top-large margin-bottom-large">Results: { this.state.status === "loading" ? <i className="icon icon-functional spin" data-icon="s"/> : <small>{ this.state.hitCount } total</small> }</h1>,
+          (this.props.status === "loading" || this.props.status === "success" || this.props.status === "partial_success") && [
+            <h1 key={`results-header`} className="margin-top-large margin-bottom-large">Results: { this.props.status === "loading" ? <i className="icon icon-functional spin" data-icon="s"/> : <small>{ this.props.hitCount } total</small> }</h1>,
             <div key={`results-div`} className="small-12 medium-10 medium-push-2 columns">
               <section>
-                { this.state.entries.map((entry, index) => (
-                <ul key={`${entry}_${index}`}><Hit entry={entry} alignmentsCollapsed={this.state.alignmentsCollapsed} onToggleAlignmentsCollapsed={ this.onToggleAlignmentsCollapsed } /></ul>
+                { this.props.entries.map((entry, index) => (
+                <ul key={`${entry}_${index}`}><Hit entry={entry} alignmentsCollapsed={this.props.alignmentsCollapsed} onToggleAlignmentsCollapsed={ this.onToggleAlignmentsCollapsed } /></ul>
                 )) }
               </section>
             </div>,
-            <Facets key={`results-facets`} facets={ this.state.facets } selectedFacets={ this.state.selectedFacets } toggleFacet={ this.toggleFacet } onReload={ this.onReload } ordering={ this.state.ordering } onSort={ this.onSort } textSearchError={ this.state.textSearchError } />
+            <Facets key={`results-facets`} facets={ this.props.facets } selectedFacets={ this.props.selectedFacets } toggleFacet={ this.toggleFacet } onReload={ this.onReload } ordering={ this.props.ordering } onSort={ this.onSort } textSearchError={ this.props.textSearchError } />
           ]
         }
       </div>
@@ -230,7 +230,15 @@ class Results extends React.Component {
 }
 
 function mapStateToProps(state) {
-
+  return {
+    status: state.status,
+    sequence: state.sequence,
+    entries: state.entries,
+    facets: state.facets,
+    hitCount: state.hitCount,
+    ordering: state.ordering,
+    textSearchError: state.textSearchError
+  };
 }
 
 function mapDispatchToProps(dispatch) {

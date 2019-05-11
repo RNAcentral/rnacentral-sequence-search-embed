@@ -1,5 +1,6 @@
 import React from 'react';
 import {dispatch} from 'redux';
+import {connect} from 'react-redux';
 
 import routes from 'services/routes.jsx';
 
@@ -8,77 +9,9 @@ import {fetchRNAcentralDatabases} from "../../../../actions/actions";
 
 
 class SearchForm extends React.Component {
-  constructor(props) {
-    super(props);
-
-    this.state = {
-      rnacentralDatabases: [],
-      rnacentralDatabaseLabels: {},
-      databasesCollapsed: true,
-      selectedDatabases: {},
-      sequence: "",
-      submissionError: ""
-    };
-
-    this.onSelectAllDatabases = this.onSelectAllDatabases.bind(this);
-    this.onDeselectAllDatabases = this.onDeselectAllDatabases.bind(this);
-    this.onToggleDatabasesCollapsed = this.onToggleDatabasesCollapsed.bind(this);
-    this.onExampleSequence = this.onExampleSequence.bind(this);
-    this.onClearSequence = this.onClearSequence.bind(this);
-    this.onFileUpload = this.onFileUpload.bind(this);
-  }
-
-  onSequenceTextareaChange(event) {
-    this.setState({sequence: event.target.value.toUpperCase()});
-  }
-
-  onDatabaseCheckboxToggle(event) {
-    let selectedDatabases = { ...this.state.selectedDatabases };
-    selectedDatabases[event.target.id] = !selectedDatabases[event.target.id];
-    this.setState({ selectedDatabases: selectedDatabases });
-  }
-
-  onSelectAllDatabases(event) {
-    let selectedDatabases = {};
-    this.state.rnacentralDatabases.map(db => { selectedDatabases[db] = true; });
-    this.setState({ selectedDatabases: selectedDatabases });
-  }
-
-  onDeselectAllDatabases(event) {
-    let selectedDatabases = {};
-    this.state.rnacentralDatabases.map(db => { selectedDatabases[db] = false; });
-    this.setState({ selectedDatabases: selectedDatabases });
-  }
-
-  onToggleDatabasesCollapsed(event) {
-    $('#rnacentralDatabaseCollapsible').toggleClass('databases-collapsed');
-    this.setState({ databasesCollapsed: !this.state.databasesCollapsed });
-  }
-
-  onExampleSequence(sequence) {
-    this.setState({sequence: sequence});
-  }
-
-  onClearSequence(event) {
-    this.setState({sequence: ""});
-  }
-
-  onFileUpload(event) {
-    // TODO: fasta parsing
-    // TODO: exception handling - user closed the dialog
-    // TODO: exception handling - this is not a proper fasta file
-
-    let fileReader = new FileReader();
-
-    fileReader.onloadend = (event) => {
-      let fileContent = event.target.result;
-      this.setState({sequence: fileContent});
-    };
-
-    fileReader.readAsText(event.target.files[0]);
-  }
-
   render() {
+    console.log(`this.props.status =`);
+    console.log(this.props.status);
     return (
       <div className="row">
         <div className="col-lg-12">
@@ -96,24 +29,24 @@ class SearchForm extends React.Component {
                         Examples: <a onClick={ e => this.onExampleSequence("CUAUACAAUCUACUGUCUUUC") }>miRNA hsa-let-7a-1</a> <small>(URS000004F5D8)</small>, <a onClick={ e => this.onExampleSequence("UGCCUGGCGGCCGUAGCGCGGUGGUCCCACCUGACCCCAUGCCGAACUCAGAAGUGAAACGCCGUAGCGCCGAUGGUAGUGUGGGGUCUCCCCAUGCGAGAGUAGGGAACUGCCAGGCAU") }> 5S rRNA</a> <small>(URS0000049E57)</small>, <a onClick={ e => this.onExampleSequence("AGACCCGGCACCCGCGCAACGGAGGAGGGGCGCUGUGCCCUCUCCCCAACGGCGGUCAGCUUGGAACGCCUGCCCGGCGCACGCCCGGGGCCGGGGAGCCGAACUCGGUGCCAGCCGCACCCGGGCGGGUUGCUGGUGCGCCCUCCCCUCGCCCCCGUCCCUGGGGUCCUUGACCCAGGCUCUUGGGGCUAGCCUAUCUUCUGAGGAGCACAAGGUCCCUGGGGGCUCAGGGAAGAGAAAUUGGAGAAAGGGGGAGGAAGCCCCCAAGAUGGAUCACCCAUUGCCUGGUUUCGCAGGAGACUGUCCGCCUUCAGUUCUCCAGCAGCUCGGGGAUCAUGGCCCACUGAACCCCCAAGCGCUUUCACCCGAACCCAAGGAGGACGACCAGGAAAGACGGGAACUCGCGUAGACACGCCCGGAAGCCCUUGUCAUGUAAAUAGCUGUCGGGGACUGGUGUAUUGUCGCCGCCCCAGCCGGCGGGACCUGGGGCGAAUCCACACCCAUUGUCUGCUGCCCAAGGGGCCUCCGGCUGGGGGGCGCGGCUGCGGAGUUCAAAAGGGGUAUGAGCAGGAGGGGUGUACUUUUAGUUCAUUAAGUUUUAAUUACAGGAGUGCUACAAGAACACAUUCUUCAGGUUUAAAAAGAUAUUAAAAUAUUACAUAAGAGACCUCCCCUCCCUGGCCCACCUCCAGCCUCUUAAAAAUUUAGUGUGUCGCCUUUUAGACACUUUCUCAAAGCUUCACUUAUUUAACAGGCACUUAAGGAGCACCUACCUGUGCCAGAAACUCUCCAAAUAUUAACUCAACCUGACACCGACUCAGUGUGGCCGAAUAUUACUCUCCCCAUUUUACAGAGCGGGCAGCUGGUCAAGGAAGUCGCUUGUUGAAAGUCACACAGUGGUGGAGCCUGUGUGCCAACCCAGGACCCUGGGGAGCUGCCUCCCCCUCUCCCACGUAGUCCUGAUUCUUUAAGUGUCCACAUAUUCCUGUAAUGCCUGGAGUUUCAGUAAUUAGCAGGGACUUAGUGUGUUCAGAGAAAAAAAAAGCUUUUAAAAAUUAUUGUUACUGUGUUUGUAACAGUUUGGAUAGAGAAGGAAAAGCUGGAAUUUGGGAAGUGAAGGUGGCCUCGGGGUAGAACUUACCUAGACCAGAGCGAAUUCAUCCUGAAGAACUCAGAGAAAGCCGGUGCAGGAAGUGGGUUCCCGCUCUCCCUGCACAGGCACAGUGAUGCUGCCAGAGCUCUCCCAGAAAGACCAGGAGGCUUGUUCUGGAGAAGUCAAGCCCAGGGAUGUGGCUCAGGCUGGUCCAAGCUCUUUGGAGGAGUCCAAGCGUGCCCAGCCCAGAGGGAGGUUCAGAGGCACUGACCGUCUUCUGUUUGGGAGGAGAAGCUCACUCUUGGAGCCACAGCCAGCACUAGGUCAGGACCCAGGCCCCGGCCCAGGAGUGGGGCAAUACCCAGCGUCUACCCCAGAUGGCACCCUGCUGUGAACUGGGCGCCCUCAGCCCCUGCCUUGAGGAAGGGGCAAUACCACCAGCGUGUCUUUUAUCAGGGAAGAUAUUGCUGCAGUUUGGCCGCUGCAACUUAAGAGAAAAGCUAAGGGGUCCCCCAGCAUCCCUUGGGGUGCCACUGCAAAUACUGGCUGGGCCUGGAGAUGACCUGGGUCCCAUUCACUUCCUAGGGUGAAGGAGGUCAUCAUUACCACCCCUGCUUUCAGCCAUUUCUUCAUUCAUUCAAUCAACAAACUGGCUGAGCUGCAACCCUGAGCCGGGGAAUUCAGCCACUCCAGACACAGCCCCUGCCCUCCGGGAAGUCUCGGGAGACCUGGCUAGUCUGGCUGGGAGAAGUCACACGUUGAUUGUCUUGGAAGUGAGAUGGCAUUUACACAAUGGAGGCUGCACUGCCAGCAGGCAAAAAUAACCAGUUAAUUCAGUGGCUUAAAGAAACCAAACCUACCCACAACGCUUGACCUCCCAUUGAUCCAUCUGCGACACCGGCAGUGGCUACCAUUUAUUGAGUGCUGAUGGUGUCACCUGGGAUUGACUUAGUGGUCUCUGGCGCUAGUUCCGAAGUUGAUUCUGUCUGGAGAGCUUAAUGCAGUGUUCAGACCUCAGGGUCCGAACCUGAGGGUCACCCAAAGAUGAGUGGGACAUAGCUGUGUGACCUCGGCUGAGUGCUUUCACCUCUCCAACCUCAGUUUCCUCUUCUGCAAAAUGGGGUGGCUUCAUGGCACCUUCACGUGGUGUGAUUGCGAGGAAUGAAGGGAUCGAUGCCUUGCAAGUAGAGGAGAAGGGGCCGGAUACAUCUUAGUUGUUAUGUUAUUUAAUCAUCUUGGCAACCCCGGGAGGGAGGAACCACUAUCAUUUUAUUUUCCAUUUUGCAGUUGAGGACAAUGAUGAUUCCAGCACAGACAGGGCCCCUGACGGGGCAGUAGGAAAGGAGAAUUGCUUUGGAAGGAGCAUAGGCUGGACUGCCAGCACUCAUAGGAGGCUUCGUGUGUGCCCAGGACUGCGAGAAUUAAAUACAGGACACCCAGUUCAGUUUGAAUUUCAGAUAAACUAUGAAUAAUGAUUAGUGUAAGUAUAUCUCAAUUUAACUGGAAAAAAAAAAAAAAAAAA") }>NKILA lncRNA</a> <small>(URS00008120E1)</small> | <a id="clearSequence" onClick={ this.onClearSequence }>Clear sequence</a>
                       </label>
                     </p>
-                    <textarea id="sequence" name="sequence" rows="7" value={this.state.sequence} onChange={(e) => this.onSequenceTextareaChange(e)} />
+                    <textarea id="sequence" name="sequence" rows="7" value={this.props.sequence} onChange={(e) => this.onSequenceTextareaChange(e)} />
                     <p>
                       Or upload a file:
                       <input id="sequence-file" name="sequence-file" type="file" accept=".fasta" onChange={this.onFileUpload} />
                     </p>
                   </fieldset>
                 </div>
-                { this.state.submissionError && <div className="callout alert">
+                { this.props.submissionError && <div className="callout alert">
                   <h3>Form submission failed</h3>
-                  { this.state.submissionError }
+                  { this.props.submissionError }
                 </div>}
                 <div>
                   <fieldset>
-                    <h4><a onClick={ this.onToggleDatabasesCollapsed }><small>{ this.state.databasesCollapsed ? <i className="icon icon-functional" data-icon="9" /> : <i className="icon icon-functional" data-icon="8"/> } search against specific RNA databases</small></a></h4>
+                    <h4><a onClick={ this.onToggleDatabasesCollapsed }><small>{ this.props.databasesCollapsed ? <i className="icon icon-functional" data-icon="9" /> : <i className="icon icon-functional" data-icon="8"/> } search against specific RNA databases</small></a></h4>
                     <div id="rnacentralDatabaseCollapsible" className="databases-collapsed">
                       <ul id="rnacentralDatabases" className="facets">
-                        {this.state.rnacentralDatabases.map(database =>
-                          <li key={database}><span className="facet"><input id={database} type="checkbox" checked={this.state.selectedDatabases[database]} onChange={(e) => this.onDatabaseCheckboxToggle(e)} /><label htmlFor={database}>{ this.state.rnacentralDatabaseLabels[database] }</label></span></li>
+                        {this.props.rnacentralDatabases.map(database =>
+                          <li key={database}><span className="facet"><input id={database} type="checkbox" checked={this.props.selectedDatabases[database]} onChange={(e) => this.onDatabaseCheckboxToggle(e)} /><label htmlFor={database}>{ this.props.rnacentralDatabaseLabels[database] }</label></span></li>
                         )}
                       </ul>
                       <p>
@@ -146,13 +79,32 @@ class SearchForm extends React.Component {
 }
 
 const mapStateToProps = (state) => ({
-
+  status: state.status,
+  sequence: state.sequence,
+  entries: state.entries,
+  facets: state.facets,
+  hitCount: state.hitCount,
+  ordering: state.ordering,
+  textSearchError: state.textSearchError,
+  rnacentralDatabases: state.rnacentralDatabases,
+  databasesCollapsed: state.databasesCollapsed
 });
 
 const mapDispatchToProps = (dispatch) => ({
   onSumbit: () => dispatch({ type: 'SUBMIT' }),
+  onSequenceTextareaChange: () => dispatch({ type: 'TEXTAREA_CHANGE', }),
+  onDatabaseCheckboxToggle: () => dispatch({ type: 'TOGGLE_DATABASE_CHECKBOX' }),
+  onSelectAllDatabases: () => dispatch({ type: 'SELECT_ALL_DATABASES' }),
+  onDeselectAllDatabases: () => dispatch({ type: 'DESELECT_ALL_DATABASES' }),
+  onToggleDatabasesCollapsed: () => dispatch({ type: 'TOGGLE_DATABASES_COLLAPSED' }),
+  onExampleSequence: () => dispatch({ type: 'EXAMPLE_SEQUENCE', sequence: '' }),
+  onClearSequence: () => dispatch({ type: 'CLEAR_SEQUENCE' }),
+  onFileUpload: () => dispatch({ type: 'FILE_UPLOAD' }),
   fetchRNAcentralDatabases: fetchRNAcentralDatabases,
 });
 
 
-export default SearchForm;
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(SearchForm);

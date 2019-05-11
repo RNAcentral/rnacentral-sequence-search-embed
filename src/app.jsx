@@ -1,5 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
+import {Provider} from 'react-redux';
 
 import SequenceSearch from 'containers/SequenceSearch/index.jsx';
 import configureStore from 'store/configureStore.js';
@@ -8,6 +9,8 @@ import configureStore from 'store/configureStore.js';
 const store = configureStore();
 
 ReactDOM.render(
-  <SequenceSearch store={store}/>,
+  <Provider store={store}>
+    <SequenceSearch/>
+  </Provider>,
   document.querySelector('div#sequence-search')
 );

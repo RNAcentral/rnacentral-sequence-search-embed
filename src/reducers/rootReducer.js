@@ -11,7 +11,7 @@ import {
 import initialState from "../store/initialState";
 
 
-onSubmit = function (event) {
+let onSubmit = function (event) {
   event.preventDefault();
 
   // if sequence is not given - ignore submit
@@ -43,14 +43,14 @@ onSubmit = function (event) {
 /**
  * Is called when user tries to reload the facets data after an error.
  */
-onReload = function () {
+let onReload = function () {
   this.load(this.props.resultId, this.buildQuery(), 0, this.state.size, this.state.ordering, true, true);
 };
 
 /**
  * Is called when user selects a different sorting order.
  */
-onSort = function (event) {
+let onSort = function (event) {
   let ordering = event.target.value;
   this.setState({ ordering: ordering }, () => {
     this.load(this.props.resultId, this.buildQuery(), 0, this.state.size, this.state.ordering, true, true);
@@ -60,7 +60,7 @@ onSort = function (event) {
 /**
  * Collapses/displays alignments in search results
  */
-onToggleAlignmentsCollapsed = function () {
+let onToggleAlignmentsCollapsed = function () {
   $('.alignment').toggleClass('alignment-collapsed');
   this.setState({ alignmentsCollapsed: !this.state.alignmentsCollapsed });
 };
@@ -72,7 +72,7 @@ onToggleAlignmentsCollapsed = function () {
  * Mostly stolen from: https://alligator.io/react/react-infinite-scroll/
  * Cross-browser compatibility: https://codingrepo.com/javascript/2015/10/10/javascript-infinite-scroll-with-cross-browser/
  */
-onScroll = function () {
+let onScroll = function () {
   let windowHeight = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
   let scrollPosition = window.scrollY || window.pageYOffset || document.documentElement.scrollTop;
 
@@ -88,6 +88,59 @@ onScroll = function () {
       );
     }
   }
+};
+
+
+//
+
+let onSequenceTextareaChange = function (event) {
+  this.setState({sequence: event.target.value.toUpperCase()});
+};
+
+let onDatabaseCheckboxToggle = function (event) {
+  let selectedDatabases = { ...this.props.selectedDatabases };
+  selectedDatabases[event.target.id] = !selectedDatabases[event.target.id];
+  this.setState({ selectedDatabases: selectedDatabases });
+};
+
+let onSelectAllDatabases = function (event) {
+  let selectedDatabases = {};
+  this.state.rnacentralDatabases.map(db => { selectedDatabases[db] = true; });
+  this.setState({ selectedDatabases: selectedDatabases });
+};
+
+let onDeselectAllDatabases = function (event) {
+  let selectedDatabases = {};
+  this.state.rnacentralDatabases.map(db => { selectedDatabases[db] = false; });
+  this.setState({ selectedDatabases: selectedDatabases });
+};
+
+let onToggleDatabasesCollapsed = function (event) {
+  $('#rnacentralDatabaseCollapsible').toggleClass('databases-collapsed');
+  this.setState({ databasesCollapsed: !this.state.databasesCollapsed });
+};
+
+let onExampleSequence = function (sequence) {
+  this.setState({sequence: sequence});
+};
+
+let onClearSequence = function (event) {
+  this.setState({sequence: ""});
+};
+
+let onFileUpload = function (event) {
+  // TODO: fasta parsing
+  // TODO: exception handling - user closed the dialog
+  // TODO: exception handling - this is not a proper fasta file
+
+  let fileReader = new FileReader();
+
+  fileReader.onloadend = (event) => {
+    let fileContent = event.target.result;
+    this.setState({sequence: fileContent});
+  };
+
+  fileReader.readAsText(event.target.files[0]);
 };
 
 
@@ -115,7 +168,9 @@ const rootReducer = function (state = initialState, action) {
       return newState;
 
     case FETCH_RNACENTRAL_DATABASES:
-      if (action.status === 'success') {
+      if (!action.status) {
+        ; // do nothing, all the logic is in action creator
+      } else if (action.status === 'success') {
         let data = action.data;
 
         let rnacentralDatabases = data.map(database => database.id);
