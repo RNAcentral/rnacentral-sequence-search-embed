@@ -22,3 +22,42 @@ export function fetchRNAcentralDatabases() {
   }
 }
 
+export function textareaChange() {
+  return {type: types.TEXT_AREA_CHANGE, value: value}
+}
+
+export function onSumbit() {
+  return {type: types.SUBMIT_JOB}
+}
+
+export function onSequenceTextAreaChange() {
+  return {type: types.TEXTAREA_CHANGE}
+}
+
+export function onDatabaseCheckboxToggle() {
+  return {type: types.TOGGLE_DATABASE_CHECKBOX}
+}
+
+export function onSelectAllDatabases() {
+  return {type: types.SELECT_ALL_DATABASES}
+}
+
+export function onDeselectAllDatabases() {
+  return {type: types.DESELECT_ALL_DATABASES}
+}
+
+export function onToggleDatabasesCollapsed() {
+  return {type: types.TOGGLE_DATABASES_COLLAPSED}
+}
+
+export function onExampleSequence(sequence) {
+  return {type: types.EXAMPLE_SEQUENCE, sequence: sequence}
+}
+
+export function onClearSequence() {
+  return {type: types.CLEAR_SEQUENCE}
+}
+
+export function onFileUpload () {
+  return {type: types.FILE_UPLOAD}
+}
