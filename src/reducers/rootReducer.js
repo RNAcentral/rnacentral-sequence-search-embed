@@ -148,23 +148,101 @@ const rootReducer = function (state = initialState, action) {
   let newState;
 
   switch (action.type) {
+
+    // results
+    case FETCH_RESULTS:
+      if (!action.status) {
+        ; // do nothing, all the logic is in action creator
+      } else if (action.status === 'success') {
+        let data = action.data;
+
+        Object.assign({}, newState, {
+          status: data.sequenceSearchStatus === "success" ? "success" : "partial_success",
+          sequence: data.sequence,
+          entries: [...data.entries],
+          facets: [...data.facets],
+          hitCount: data.hitCount,
+          start: start,
+          size: size,
+          ordering: ordering,
+          selectedFacets: selectedFacets,
+          textSearchError: data.textSearchError
+        });
+
+      } else if (action.status === 'error') {
+        Object.assign({}, newState, {
+          status: data.sequenceSearchStatus === "error",
+          sequence: data.sequence,
+          entries: [...data.entries],
+          facets: [...data.facets],
+          hitCount: data.hitCount,
+          start: start,
+          size: size,
+          ordering: ordering,
+          selectedFacets: selectedFacets,
+          textSearchError: data.textSearchError
+        });
+      }
+
+      return newState;
+
     case TOGGLE_ALIGNMENTS_COLLAPSED:
-      return action;
-
-    case RELOAD_RESULTS:
-      newState = action.stuff;
+      $('.alignment').toggleClass('alignment-collapsed');
+      Object.assign({}, newState, {
+        alignmentCollapsed: !state.alignmentsCollapsed
+      });
       return newState;
 
-    case SCROLL_RESULTS:
+    case TOGGLE_FACET:
       return newState;
 
-    case SORT_RESULTS:
-      return newState;
 
+    // submission form
     case SUBMIT_JOB:
       return newState;
 
-    case FETCH_RESULTS:
+    case TEXTAREA_CHANGE:
+      return newState;
+
+    case TOGGLE_DATABASE_CHECKBOX:
+      return newState;
+
+    case SELECT_ALL_DATABASES:
+      let selectedDatabases = {};
+      state.rnacentralDatabases.map(db => { selectedDatabases[db] = true; });
+
+      Object.assign({}, newState, {
+        selectedDatabases: selectedDatabases
+      });
+
+      return newState;
+
+    case DESELECT_ALL_DATABASES:
+      let selectedDatabases = {};
+      this.state.rnacentralDatabases.map(db => { selectedDatabases[db] = false; });
+
+      Object.assign({}, newState, {
+        selectedDatabases: selectedDatabases
+      });
+
+      return newState;
+
+    case TOGGLE_DATABASES_COLLAPSED:
+      return newState;
+
+    case EXAMPLE_SEQUENCE:
+      Object.assign({}, newState, {
+        sequence: action.sequence,
+      });
+      return newState;
+
+    case CLEAR_SEQUENCE:
+      Object.assign({}, newState, {
+        sequence: ""
+      });
+      return newState;
+
+    case FILE_UPLOAD:
       return newState;
 
     case FETCH_RNACENTRAL_DATABASES:
