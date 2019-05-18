@@ -208,21 +208,15 @@ const rootReducer = function (state = initialState, action) {
       return newState;
 
     case SELECT_ALL_DATABASES:
-      let selectedDatabases = {};
-      state.rnacentralDatabases.map(db => { selectedDatabases[db] = true; });
-
       Object.assign({}, newState, {
-        selectedDatabases: selectedDatabases
+        selectedDatabases: Object.assign({}, ...this.state.rnacentralDatabases.map(e => ({[e]: true})))
       });
 
       return newState;
 
     case DESELECT_ALL_DATABASES:
-      let selectedDatabases = {};
-      this.state.rnacentralDatabases.map(db => { selectedDatabases[db] = false; });
-
       Object.assign({}, newState, {
-        selectedDatabases: selectedDatabases
+        selectedDatabases: Object.assign({}, ...this.state.rnacentralDatabases.map(e => ({[e]: false})))
       });
 
       return newState;
