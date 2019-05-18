@@ -1,13 +1,5 @@
 import routes from "../services/routes.jsx";
-import {
-  TOGGLE_ALIGNMENTS_COLLAPSED,
-  RELOAD_RESULTS,
-  SCROLL_RESULTS,
-  SORT_RESULTS,
-  SUBMIT_JOB,
-  FETCH_RESULTS,
-  FETCH_RNACENTRAL_DATABASES
-} from "../actions/actionTypes";
+import * as actions from "../actions/actionTypes";
 import initialState from "../store/initialState";
 
 
@@ -150,13 +142,13 @@ const rootReducer = function (state = initialState, action) {
   switch (action.type) {
 
     // results
-    case FETCH_RESULTS:
+    case actions.FETCH_RESULTS:
       if (!action.status) {
         ; // do nothing, all the logic is in action creator
       } else if (action.status === 'success') {
         let data = action.data;
 
-        Object.assign({}, newState, {
+        newState = Object.assign({}, state, {
           status: data.sequenceSearchStatus === "success" ? "success" : "partial_success",
           sequence: data.sequence,
           entries: [...data.entries],
@@ -170,7 +162,7 @@ const rootReducer = function (state = initialState, action) {
         });
 
       } else if (action.status === 'error') {
-        Object.assign({}, newState, {
+        newState = Object.assign({}, state, {
           status: data.sequenceSearchStatus === "error",
           sequence: data.sequence,
           entries: [...data.entries],
@@ -186,60 +178,56 @@ const rootReducer = function (state = initialState, action) {
 
       return newState;
 
-    case TOGGLE_ALIGNMENTS_COLLAPSED:
+    case actions.TOGGLE_ALIGNMENTS_COLLAPSED:
       $('.alignment').toggleClass('alignment-collapsed');
-      Object.assign({}, newState, {
+      return Object.assign({}, state, {
         alignmentCollapsed: !state.alignmentsCollapsed
       });
-      return newState;
 
-    case TOGGLE_FACET:
+    case actions.TOGGLE_FACET:
       return newState;
 
 
     // submission form
-    case SUBMIT_JOB:
+    case actions.SUBMIT_JOB:
       return newState;
 
-    case TEXTAREA_CHANGE:
+    case actions.TEXTAREA_CHANGE:
       return newState;
 
-    case TOGGLE_DATABASE_CHECKBOX:
+    case actions.TOGGLE_DATABASE_CHECKBOX:
       return newState;
 
-    case SELECT_ALL_DATABASES:
-      Object.assign({}, newState, {
+    case actions.SELECT_ALL_DATABASES:
+      return Object.assign({}, state, {
         selectedDatabases: Object.assign({}, ...this.state.rnacentralDatabases.map(e => ({[e]: true})))
       });
 
-      return newState;
-
-    case DESELECT_ALL_DATABASES:
-      Object.assign({}, newState, {
+    case actions.DESELECT_ALL_DATABASES:
+      return Object.assign({}, state, {
         selectedDatabases: Object.assign({}, ...this.state.rnacentralDatabases.map(e => ({[e]: false})))
       });
 
-      return newState;
+    case actions.TOGGLE_DATABASES_COLLAPSED:
+      $('#rnacentralDatabaseCollapsible').toggleClass('databases-collapsed');
+      return Object.assign({}, state, {
+        databasesCollapsed: !state.databasesCollapsed
+      });
 
-    case TOGGLE_DATABASES_COLLAPSED:
-      return newState;
-
-    case EXAMPLE_SEQUENCE:
-      Object.assign({}, newState, {
+    case actions.EXAMPLE_SEQUENCE:
+      return Object.assign({}, state, {
         sequence: action.sequence,
       });
-      return newState;
 
-    case CLEAR_SEQUENCE:
-      Object.assign({}, newState, {
+    case actions.CLEAR_SEQUENCE:
+      return Object.assign({}, state, {
         sequence: ""
       });
+
+    case actions.FILE_UPLOAD:
       return newState;
 
-    case FILE_UPLOAD:
-      return newState;
-
-    case FETCH_RNACENTRAL_DATABASES:
+    case actions.FETCH_RNACENTRAL_DATABASES:
       if (!action.status) {
         ; // do nothing, all the logic is in action creator
       } else if (action.status === 'success') {
@@ -253,7 +241,7 @@ const rootReducer = function (state = initialState, action) {
         let rnacentralDatabaseLabels = {};
         data.map(database => { rnacentralDatabaseLabels[database.id] =  database.label });
 
-        Object.assign({}, newState, {
+        newState = Object.assign({}, state, {
           rnacentralDatabases: rnacentralDatabases,
           selectedDatabases: selectedDatabases,
           rnacentralDatabaseLabels: rnacentralDatabaseLabels,
@@ -261,7 +249,7 @@ const rootReducer = function (state = initialState, action) {
         });
 
       } else if (action.status === 'error') {
-        Object.assign({}, newState, {
+        newState = Object.assign({}, state, {
           rnacentralDatabases: [],
           selectedDatabases: {},
           rnacentralDatabaseLabels: {},

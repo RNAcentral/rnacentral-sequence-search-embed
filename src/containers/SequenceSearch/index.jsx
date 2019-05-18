@@ -36,11 +36,13 @@ class SequenceSearch extends React.Component {
 
 }
 
-const mapStateToProps = (state) => ({
-  status: state.status,
-  jobId: state.jobId,
-  submissionError: state.submissionError
-});
+const mapStateToProps = function (state) {
+  return {
+    status: state.status,
+    jobId: state.jobId,
+    submissionError: state.submissionError
+  }
+};
 
 function mapDispatchToProps(dispatch) {
   return {};
