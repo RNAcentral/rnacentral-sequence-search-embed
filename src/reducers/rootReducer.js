@@ -194,12 +194,12 @@ const rootReducer = function (state = initialState, action) {
       return newState;
 
     case actions.TEXTAREA_CHANGE:
-      return Object.assign({}, state, {
-        sequence: action.sequence
-      });
+      return Object.assign({}, state, { sequence: action.sequence });
 
     case actions.TOGGLE_DATABASE_CHECKBOX:
-      return newState;
+      let selectedDatabases = { ...state.selectedDatabases };
+      selectedDatabases[action.id] = !selectedDatabases[action.id];
+      return Object.assign({}, state,{ selectedDatabases: selectedDatabases });
 
     case actions.SELECT_ALL_DATABASES:
       return Object.assign({}, state, {
