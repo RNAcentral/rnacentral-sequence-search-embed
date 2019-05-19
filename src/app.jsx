@@ -6,7 +6,7 @@ import SequenceSearch from 'containers/SequenceSearch/index.jsx';
 import configureStore from 'store/configureStore.js';
 
 
-const store = configureStore();
+export const store = configureStore();
 
 ReactDOM.render(
   <Provider store={store}>

@@ -25,20 +25,37 @@ export function fetchRNAcentralDatabasesSuccess(data) {
   return {type: types.FETCH_RNACENTRAL_DATABASES, status: 'success', data: data}
 }
 
-export function textareaChange() {
-  return {type: types.TEXT_AREA_CHANGE, value: value}
+export function onSubmit(sequence, selectedDatabases) {
+  return function(dispatch) {
+    fetch(routes.submitJob(), {
+      method: 'post',
+      headers: {
+        'Accept': 'application/json, text/plain, */*',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        query: sequence,
+        databases: Object.keys(selectedDatabases).filter(key => selectedDatabases[key])
+      })
+    })
+    .then(function (response) {
+      if (response.ok) {
+        return response.json();
+      } else {
+        throw response;
+      }
+    })
+    .then(data => dispatch({type: types.SUBMIT_JOB, status: 'success', data: data}))
+    .catch(error => dispatch({type: types.SUBMIT_JOB, status: 'error', response: error}));
+  }
 }
 
-export function onSumbit() {
-  return {type: types.SUBMIT_JOB}
+export function onSequenceTextAreaChange(event) {
+  return {type: types.TEXTAREA_CHANGE, sequence: event.text}
 }
 
-export function onSequenceTextAreaChange(sequence) {
-  return {type: types.TEXTAREA_CHANGE, sequence: sequence}
-}
-
-export function onDatabaseCheckboxToggle() {
-  return {type: types.TOGGLE_DATABASE_CHECKBOX}
+export function onDatabaseCheckboxToggle(event) {
+  return {type: types.TOGGLE_DATABASE_CHECKBOX, id: event.target.id}
 }
 
 export function onSelectAllDatabases() {
@@ -62,5 +79,22 @@ export function onClearSequence() {
 }
 
 export function onFileUpload () {
+  return function(dispatch) {
+    let onFileUpload = function (event) {
+      // TODO: fasta parsing
+      // TODO: exception handling - user closed the dialog
+      // TODO: exception handling - this is not a proper fasta file
+
+      let fileReader = new FileReader();
+
+      fileReader.onloadend = (event) => {
+        let fileContent = event.target.result;
+        dispatch();
+        this.setState({sequence: fileContent});
+      };
+
+      fileReader.readAsText(event.target.files[0]);
+    };
+  }
   return {type: types.FILE_UPLOAD}
 }

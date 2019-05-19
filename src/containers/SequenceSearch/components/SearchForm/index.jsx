@@ -1,11 +1,11 @@
 import React from 'react';
-import {dispatch} from 'redux';
 import {connect} from 'react-redux';
 
 import routes from 'services/routes.jsx';
 
 import 'containers/SequenceSearch/components/SearchForm/index.scss';
-import {fetchRNAcentralDatabases} from "../../../../actions/actions";
+import * as actions from "../../../../actions/actions";
+import {store} from "app.jsx";
 
 
 class SearchForm extends React.Component {
@@ -74,6 +74,14 @@ class SearchForm extends React.Component {
     this.props.fetchRNAcentralDatabases();
   }
 
+  onSubmit(event) {
+    event.preventDefault();
+
+    const state = store.getState();
+    if (state.sequence) {
+      store.dispatch(actions.onSubmit(state.sequence, state.selectedDatabases));
+    }
+  }
 }
 
 const mapStateToProps = (state) => ({
@@ -91,16 +99,15 @@ const mapStateToProps = (state) => ({
 });
 
 const mapDispatchToProps = (dispatch) => ({
-  onSumbit: () => dispatch({ type: 'SUBMIT' }),
-  onSequenceTextareaChange: (e) => dispatch({ type: 'TEXTAREA_CHANGE', sequence: e.text}),
-  onDatabaseCheckboxToggle: (e) => dispatch({ type: 'TOGGLE_DATABASE_CHECKBOX', id: e.target.id }),
-  onSelectAllDatabases: () => dispatch({ type: 'SELECT_ALL_DATABASES' }),
-  onDeselectAllDatabases: () => dispatch({ type: 'DESELECT_ALL_DATABASES' }),
-  onToggleDatabasesCollapsed: () => dispatch({ type: 'TOGGLE_DATABASES_COLLAPSED' }),
-  onExampleSequence: (sequence) => dispatch({ type: 'EXAMPLE_SEQUENCE', sequence: sequence }),
-  onClearSequence: () => dispatch({ type: 'CLEAR_SEQUENCE' }),
-  onFileUpload: () => dispatch({ type: 'FILE_UPLOAD' }),
-  fetchRNAcentralDatabases: fetchRNAcentralDatabases,
+  onSequenceTextareaChange: (event) => dispatch(actions.onSequenceTextAreaChange(event)),
+  onDatabaseCheckboxToggle: (event) => dispatch(actions.onDatabaseCheckboxToggle(event)),
+  onSelectAllDatabases: () => dispatch(actions.onSelectAllDatabases()),
+  onDeselectAllDatabases: () => dispatch(actions.onDeselectAllDatabases()),
+  onToggleDatabasesCollapsed: () => dispatch(actions.onToggleDatabasesCollapsed()),
+  onExampleSequence: (sequence) => dispatch(actions.onExampleSequence(sequence)),
+  onClearSequence: () => dispatch(actions.onClearSequence()),
+  onFileUpload: () => dispatch(actions.onFileUpload()),
+  fetchRNAcentralDatabases: actions.fetchRNAcentralDatabases
 });
 
 

@@ -4,35 +4,6 @@ import * as actionCreators from "../actions/actions";
 import initialState from "../store/initialState";
 
 
-let onSubmit = function (event) {
-  event.preventDefault();
-
-  // if sequence is not given - ignore submit
-  if (this.state.sequence) {
-    fetch(routes.submitJob(), {
-      method: 'post',
-      headers: {
-        'Accept': 'application/json, text/plain, */*',
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        query: this.state.sequence,
-        databases: Object.keys(this.state.selectedDatabases).filter(key => this.state.selectedDatabases[key])
-      })
-    })
-    .then(function (response) {
-      if (response.ok) {
-        return response.json();
-      } else {
-        throw response;
-      }
-    })
-    .then(data => this.setState({jobId: data.job_id}))
-    .catch(error => this.setState({status: error, submissionError: response.statusText}));
-  }
-};
-
-
 /**
  * Is called when user tries to reload the facets data after an error.
  */
@@ -191,7 +162,26 @@ const rootReducer = function (state = initialState, action) {
 
     // submission form
     case actions.SUBMIT_JOB:
-      return newState;
+      switch (action.status) {
+        case 'success':
+          return Object.assign({}, state, {
+            jobId: action.data.job_id,
+            status: action.data.sequenceSearchStatus === "success" ? "success" : "partial_success",
+            sequence: action.data.sequence,
+            entries: [...action.data.entries],
+            facets: [...action.data.facets],
+            hitCount: action.data.hitCount,
+            start: 0,
+            size: 20,
+            ordering: 'e_value',
+            selectedFacets: {},
+            textSearchError: action.data.textSearchError
+          });
+        case 'error':
+          return Object.assign({}, state, {status: "error", submissionError: action.response.statusText});
+        default:
+          return newState;
+      }
 
     case actions.TEXTAREA_CHANGE:
       return Object.assign({}, state, { sequence: action.sequence });

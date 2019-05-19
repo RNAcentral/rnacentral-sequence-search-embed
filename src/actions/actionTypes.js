@@ -6,7 +6,7 @@ export const TOGGLE_FACET = 'TOGGLE_FACET';
 
 
 // submission form
-export const SUBMIT_JOB = 'SUBMIT';
+export const SUBMIT_JOB = 'SUBMIT_JOB';
 export const TEXTAREA_CHANGE = 'TEXTAREA_CHANGE';
 export const TOGGLE_DATABASE_CHECKBOX = 'TOGGLE_DATABASE_CHECKBOX';
 export const SELECT_ALL_DATABASES = 'SELECT_ALL_DATABASES';
