@@ -203,12 +203,12 @@ const rootReducer = function (state = initialState, action) {
 
     case actions.SELECT_ALL_DATABASES:
       return Object.assign({}, state, {
-        selectedDatabases: Object.assign({}, ...this.state.rnacentralDatabases.map(e => ({[e]: true})))
+        selectedDatabases: Object.assign({}, ...state.rnacentralDatabases.map(e => ({[e]: true})))
       });
 
     case actions.DESELECT_ALL_DATABASES:
       return Object.assign({}, state, {
-        selectedDatabases: Object.assign({}, ...this.state.rnacentralDatabases.map(e => ({[e]: false})))
+        selectedDatabases: Object.assign({}, ...state.rnacentralDatabases.map(e => ({[e]: false})))
       });
 
     case actions.TOGGLE_DATABASES_COLLAPSED:
