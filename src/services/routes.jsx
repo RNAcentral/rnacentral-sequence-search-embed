@@ -1,12 +1,15 @@
+let server = 'http://193.62.55.45';
+
+
 module.exports = {
-  rnacentralDatabases: () => `/api/rnacentral-databases`,
-  submitJob:           () => `/api/submit-job`,
-  jobStatus:           (jobId) => `/api/job-status/${jobId}`,
-  jobsStatuses:        () => `/api/jobs-statuses`,
-  jobResult:           (resultId) => `/api/job-result/${resultId}`,
-  facets:              (resultId) => `/api/facets/${resultId}`,
-  facetsSearch:        (resultId, query, start, size, ordering) => `/api/facets-search/${resultId}?query=${query}&start=${start}&size=${size}&ordering=${ordering}`,
-  consumersStatuses:     () => `/api/consumers-statuses`
+  rnacentralDatabases: () => `${server}/api/rnacentral-databases`,
+  submitJob:           () => `${server}/api/submit-job`,
+  jobStatus:           (jobId) => `${server}/api/job-status/${jobId}`,
+  jobsStatuses:        () => `${server}/api/jobs-statuses`,
+  jobResult:           (resultId) => `${server}/api/job-result/${resultId}`,
+  facets:              (resultId) => `${server}/api/facets/${resultId}`,
+  facetsSearch:        (resultId, query, start, size, ordering) => `${server}/api/facets-search/${resultId}?query=${query}&start=${start}&size=${size}&ordering=${ordering}`,
+  consumersStatuses:     () => `${server}/api/consumers-statuses`
   // ebiSearch:           (jobId, query, fields, facetcount, facetfields, size, start) =>
   //   `http://wp-p3s-f8:9050/ebisearch/ws/rest/rnacentral/seqtoolresults` +
   //   `?query=${query}` +

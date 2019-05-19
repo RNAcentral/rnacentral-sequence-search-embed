@@ -85,6 +85,8 @@ const mapStateToProps = (state) => ({
   ordering: state.ordering,
   textSearchError: state.textSearchError,
   rnacentralDatabases: state.rnacentralDatabases,
+  rnacentralDatabaseLabels: state.rnacentralDatabaseLabels,
+  selectedDatabases: state.selectedDatabases,
   databasesCollapsed: state.databasesCollapsed
 });
 

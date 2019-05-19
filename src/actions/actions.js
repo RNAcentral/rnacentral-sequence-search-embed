@@ -7,8 +7,7 @@ export function toggleAlignmentsCollapsed() {
 }
 
 export function fetchRNAcentralDatabases() {
-  return dispatch => {
-    dispatch(requestPosts(subreddit));
+  return function(dispatch) {
     return fetch(routes.rnacentralDatabases(), {
       method: 'GET',
       mode: 'cors',
@@ -18,8 +17,12 @@ export function fetchRNAcentralDatabases() {
       }
     })
     .then(response => response.json())
-    .then(data => dispatch({type: types.FETCH_RNACENTRAL_DATABASES, status: 'success', data: data}));
+    .then(data => dispatch(fetchRNAcentralDatabasesSuccess(data)));
   }
+}
+
+export function fetchRNAcentralDatabasesSuccess(data) {
+  return {type: types.FETCH_RNACENTRAL_DATABASES, status: 'success', data: data}
 }
 
 export function textareaChange() {

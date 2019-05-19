@@ -13,6 +13,8 @@ import 'styles/style.scss';
 
 import Results from 'containers/SequenceSearch/components/Results/index.jsx';
 import SearchForm from 'containers/SequenceSearch/components/SearchForm/index.jsx';
+import * as actions from 'actions/actionTypes';
+import * as actionCreators from 'actions/actions';
 import routes from "services/routes.jsx";
 import {connect} from "react-redux";
 
@@ -32,11 +34,13 @@ class SequenceSearch extends React.Component {
   componentDidMount() {
     $(document).foundation();
     $(document).foundationExtendEBI();
+
+    this.props.fetchRNAcentralDatabases()
   }
 
 }
 
-const mapStateToProps = function (state) {
+function mapStateToProps(state) {
   return {
     status: state.status,
     jobId: state.jobId,
@@ -45,7 +49,9 @@ const mapStateToProps = function (state) {
 };
 
 function mapDispatchToProps(dispatch) {
-  return {};
+  return {
+    fetchRNAcentralDatabases: () => dispatch(actionCreators.fetchRNAcentralDatabases())
+  };
 }
 
 export default connect(
