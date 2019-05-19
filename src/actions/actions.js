@@ -33,8 +33,8 @@ export function onSumbit() {
   return {type: types.SUBMIT_JOB}
 }
 
-export function onSequenceTextAreaChange() {
-  return {type: types.TEXTAREA_CHANGE}
+export function onSequenceTextAreaChange(sequence) {
+  return {type: types.TEXTAREA_CHANGE, sequence: sequence}
 }
 
 export function onDatabaseCheckboxToggle() {

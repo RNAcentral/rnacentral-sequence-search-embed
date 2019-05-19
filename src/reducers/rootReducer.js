@@ -194,7 +194,9 @@ const rootReducer = function (state = initialState, action) {
       return newState;
 
     case actions.TEXTAREA_CHANGE:
-      return newState;
+      return Object.assign({}, state, {
+        sequence: action.sequence
+      });
 
     case actions.TOGGLE_DATABASE_CHECKBOX:
       return newState;
