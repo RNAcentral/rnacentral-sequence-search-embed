@@ -17,12 +17,9 @@ export function fetchRNAcentralDatabases() {
       }
     })
     .then(response => response.json())
-    .then(data => dispatch(fetchRNAcentralDatabasesSuccess(data)));
+    .then(data => dispatch({type: types.FETCH_RNACENTRAL_DATABASES, status: 'success', data: data}))
+    .catch(error => dispatch({type: types.FETCH_RNACENTRAL_DATABASES, status: 'error', data: error}));
   }
-}
-
-export function fetchRNAcentralDatabasesSuccess(data) {
-  return {type: types.FETCH_RNACENTRAL_DATABASES, status: 'success', data: data}
 }
 
 export function onSubmit(sequence, selectedDatabases) {
@@ -47,6 +44,54 @@ export function onSubmit(sequence, selectedDatabases) {
     })
     .then(data => dispatch({type: types.SUBMIT_JOB, status: 'success', data: data}))
     .catch(error => dispatch({type: types.SUBMIT_JOB, status: 'error', response: error}));
+  }
+}
+
+export function fetchStatus(jobId) {
+  return function(dispatch) {
+    fetch(routes.jobStatus(), {
+      method: 'get',
+      headers: {
+        'Accept': 'application/json, text/plain, */*',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        job_id: jobId,
+      })
+    })
+    .then(function(response) {
+      if (response.ok) {
+        return response.json()
+      } else {
+        throw response;
+      }
+    })
+    .then(data => dispatch({type: types.FETCH_STATUS, status: data.status}))  // TODO: improve this
+    .catch(error => dispatch({type: types.FETCH_STATUS, status: 'error'}));
+  }
+}
+
+export function fetchResults(jobId) {
+  return function(dispatch) {
+    fetch(routes.facetsSearch(jobId, buildQuery(), start, size, ordering), {
+      method: 'get',
+      headers: {
+        'Accept': 'application/json, text/plain, */*',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        job_id: jobId,
+      })
+    })
+    .then(function(response) {
+      if (response.ok) {
+        return response.json()
+      } else {
+        throw response;
+      }
+    })
+    .then(data => dispatch({type: types.FETCH_RESULTS, status: data.status}))  // TODO: improve this
+    .catch(error => dispatch({type: types.FETCH_RESULTS, status: 'error'}));
   }
 }
 

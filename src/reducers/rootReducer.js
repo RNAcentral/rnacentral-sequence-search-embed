@@ -159,23 +159,14 @@ const rootReducer = function (state = initialState, action) {
     case actions.TOGGLE_FACET:
       return newState;
 
-
     // submission form
     case actions.SUBMIT_JOB:
       switch (action.status) {
         case 'success':
           return Object.assign({}, state, {
             jobId: action.data.job_id,
-            status: action.data.sequenceSearchStatus === "success" ? "success" : "partial_success",
-            sequence: action.data.sequence,
-            entries: [...action.data.entries],
-            facets: [...action.data.facets],
-            hitCount: action.data.hitCount,
-            start: 0,
-            size: 20,
-            ordering: 'e_value',
-            selectedFacets: {},
-            textSearchError: action.data.textSearchError
+            status: "loading",
+            submissionError: ""
           });
         case 'error':
           return Object.assign({}, state, {status: "error", submissionError: action.response.statusText});
