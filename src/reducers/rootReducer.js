@@ -174,6 +174,25 @@ const rootReducer = function (state = initialState, action) {
           return newState;
       }
 
+    case actions.FETCH_STATUS:
+      let statusTimeout;
+      switch (action.status) {
+        case 'success':
+          return newState;
+        case 'partial_success':
+          return newState;
+        case 'error':
+          return newState;
+        case 'pending':
+          statusTimeout = setTimeout(store.dispatch(actions.fetchStatus(state.jobId)), 2000);
+          return Object.assign({}, state, {statusTimeout: statusTimeout});
+        case 'running':
+          statusTimeout = setTimeout(store.dispatch(actions.fetchStatus(state.jobId)), 2000);
+          return Object.assign({}, state, {statusTimeout: statusTimeout});
+        default:
+          return newState
+      }
+
     case actions.TEXTAREA_CHANGE:
       return Object.assign({}, state, { sequence: action.sequence });
 

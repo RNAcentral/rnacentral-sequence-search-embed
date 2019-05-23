@@ -66,10 +66,17 @@ export function fetchStatus(jobId) {
         throw response;
       }
     })
-    .then(data => dispatch({type: types.FETCH_STATUS, status: data.status}))  // TODO: improve this
+    .then((data) => {
+      if (data.status === 'pending' || data.status === 'running') {
+        let statusTimeout = setTimeout(store.dispatch(actions.fetchStatus(state.jobId)), 2000);
+        dispatch({type: types.SET_STATUS_TIMEOUT, timeout: statusTimeout});
+      }
+    })
     .catch(error => dispatch({type: types.FETCH_STATUS, status: 'error'}));
   }
 }
+
+
 
 export function fetchResults(jobId) {
   return function(dispatch) {
