@@ -72,11 +72,16 @@ export function fetchStatus(jobId) {
         dispatch({type: types.SET_STATUS_TIMEOUT, timeout: statusTimeout});
       }
     })
-    .catch(error => dispatch({type: types.FETCH_STATUS, status: 'error'}));
+    .catch(error => {
+      if (store.getState().hasOwnProperty('statusTimeout')) {
+        store.getState().statusTimeout(); // clear status timeout
+      }
+      dispatch({type: types.FETCH_STATUS, status: 'error'})
+    });
   }
 }
 
-
+// TODO: clear timeout when leaving the page !!!
 
 export function fetchResults(jobId) {
   return function(dispatch) {

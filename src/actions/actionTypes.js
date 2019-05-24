@@ -4,6 +4,9 @@ export const FETCH_RESULTS = 'FETCH_RESULTS';
 export const TOGGLE_ALIGNMENTS_COLLAPSED = 'TOGGLE_ALIGNMENTS_COLLAPSED';
 export const TOGGLE_FACET = 'TOGGLE_FACET';
 
+export const FETCH_STATUS = 'FETCH_STATUS';
+export const SET_STATUS_TIMEOUT = 'SET_STATUS_TIMEOUT';
+
 
 // submission form
 export const SUBMIT_JOB = 'SUBMIT_JOB';
