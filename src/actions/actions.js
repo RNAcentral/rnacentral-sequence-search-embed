@@ -1,6 +1,6 @@
 import * as types from './actionTypes';
 import routes from 'services/routes.jsx';
-
+import {store} from 'app.jsx';
 
 export function toggleAlignmentsCollapsed() {
   return {type: types.TOGGLE_ALIGNMENTS_COLLAPSED };
@@ -25,7 +25,9 @@ export function fetchRNAcentralDatabases() {
 export function onSubmit(sequence, selectedDatabases) {
   return function(dispatch) {
     fetch(routes.submitJob(), {
-      method: 'post',
+      method: 'POST',
+      mode: 'cors',
+      credentials: 'include',
       headers: {
         'Accept': 'application/json, text/plain, */*',
         'Content-Type': 'application/json'
@@ -42,22 +44,24 @@ export function onSubmit(sequence, selectedDatabases) {
         throw response;
       }
     })
-    .then(data => dispatch({type: types.SUBMIT_JOB, status: 'success', data: data}))
+    .then(data => {
+        dispatch({type: types.SUBMIT_JOB, status: 'success', data: data});
+        dispatch(fetchStatus(data.job_id))
+    })
     .catch(error => dispatch({type: types.SUBMIT_JOB, status: 'error', response: error}));
   }
 }
 
 export function fetchStatus(jobId) {
   return function(dispatch) {
-    fetch(routes.jobStatus(), {
-      method: 'get',
+    fetch(routes.jobStatus(jobId), {
+      method: 'GET',
+      mode: 'cors',
+      credentials: 'include',
       headers: {
         'Accept': 'application/json, text/plain, */*',
         'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        job_id: jobId,
-      })
+      }
     })
     .then(function(response) {
       if (response.ok) {
@@ -67,14 +71,16 @@ export function fetchStatus(jobId) {
       }
     })
     .then((data) => {
-      if (data.status === 'pending' || data.status === 'running') {
-        let statusTimeout = setTimeout(store.dispatch(actions.fetchStatus(state.jobId)), 2000);
+      if (data.status === 'started' || data.status === 'pending' || data.status === 'running') {
+        let statusTimeout = setTimeout(() => store.dispatch(fetchStatus(jobId)), 2000);
         dispatch({type: types.SET_STATUS_TIMEOUT, timeout: statusTimeout});
+      } else if (data.status === 'success' || data.status === 'partial_success') {
+        dispatch(fetchResults(jobId));
       }
     })
     .catch(error => {
       if (store.getState().hasOwnProperty('statusTimeout')) {
-        store.getState().statusTimeout(); // clear status timeout
+        clearTimeout(store.getState().statusTimeout); // clear status timeout
       }
       dispatch({type: types.FETCH_STATUS, status: 'error'})
     });
@@ -85,17 +91,37 @@ export function fetchStatus(jobId) {
 
 export function fetchResults(jobId) {
   return function(dispatch) {
-    fetch(routes.facetsSearch(jobId, buildQuery(), start, size, ordering), {
-      method: 'get',
+    /**
+     * Builds text query for sending to text search backend from this.state.selectedFacets
+     * @returns {string | *}
+     */
+    let buildQuery = function () {
+      let state = store.getState();
+      let outputText, outputClauses = [];
+
+      Object.keys(state.selectedFacets).map(facetId => {
+        let facetText, facetClauses = [];
+        state.selectedFacets[facetId].map(facetValueValue => facetClauses.push(`${facetId}:"${facetValueValue}"`));
+        facetText = facetClauses.join(" OR ");
+
+        if (facetText !== "") outputClauses.push("(" + facetText + ")");
+      });
+
+      outputText = outputClauses.join(" AND ");
+      return outputText;
+    };
+
+    fetch(routes.facetsSearch(jobId, buildQuery(), 0, 20, 'e_value'), {
+      method: 'GET',
+      mode: 'cors',
+      credentials: 'include',
       headers: {
         'Accept': 'application/json, text/plain, */*',
         'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        job_id: jobId,
-      })
+      }
     })
     .then(function(response) {
+      console.log(`managed to fetch results`);
       if (response.ok) {
         return response.json()
       } else {
@@ -104,6 +130,12 @@ export function fetchResults(jobId) {
     })
     .then(data => dispatch({type: types.FETCH_RESULTS, status: data.status}))  // TODO: improve this
     .catch(error => dispatch({type: types.FETCH_RESULTS, status: 'error'}));
+
+    if (response.status === 404) {
+      this.setState({ status: "does_not_exist", start: 0 });
+    } else if (response.status === 500) {
+      this.setState({ status: "error", start: 0 });
+    }
   }
 }
 
