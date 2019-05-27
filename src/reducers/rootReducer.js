@@ -115,11 +115,12 @@ const rootReducer = function (state = initialState, action) {
 
     // results
     case actions.FETCH_RESULTS:
+      let data;
       if (!action.status) {
         ; // do nothing, all the logic is in action creator
       } else if (action.status === 'success') {
-        let data = action.data;
-
+        debugger;
+        data = action.data;
         newState = Object.assign({}, state, {
           status: data.sequenceSearchStatus === "success" ? "success" : "partial_success",
           sequence: data.sequence,
@@ -135,16 +136,7 @@ const rootReducer = function (state = initialState, action) {
 
       } else if (action.status === 'error') {
         newState = Object.assign({}, state, {
-          status: data.sequenceSearchStatus === "error",
-          sequence: data.sequence,
-          entries: [...data.entries],
-          facets: [...data.facets],
-          hitCount: data.hitCount,
-          start: start,
-          size: size,
-          ordering: ordering,
-          selectedFacets: selectedFacets,
-          textSearchError: data.textSearchError
+          status: 'error'
         });
       }
 
@@ -175,7 +167,6 @@ const rootReducer = function (state = initialState, action) {
       }
 
     case actions.FETCH_STATUS:
-      let statusTimeout;
       switch (action.status) {
         case 'error':
           return Object.assign({}, state, {status: "error"});

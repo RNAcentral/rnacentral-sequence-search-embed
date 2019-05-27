@@ -45,8 +45,8 @@ function mapStateToProps(state) {
     status: state.status,
     jobId: state.jobId,
     submissionError: state.submissionError
-  }
-};
+  };
+}
 
 function mapDispatchToProps(dispatch) {
   return {

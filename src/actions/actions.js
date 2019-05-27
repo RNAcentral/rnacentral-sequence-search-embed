@@ -121,7 +121,6 @@ export function fetchResults(jobId) {
       }
     })
     .then(function(response) {
-      console.log(`managed to fetch results`);
       if (response.ok) {
         return response.json()
       } else {
@@ -129,7 +128,10 @@ export function fetchResults(jobId) {
       }
     })
     .then(data => dispatch({type: types.FETCH_RESULTS, status: data.status}))  // TODO: improve this
-    .catch(error => dispatch({type: types.FETCH_RESULTS, status: 'error'}));
+    .catch(error => {
+      debugger;
+      dispatch({type: types.FETCH_RESULTS, status: 'error'})
+    });
 
     if (response.status === 404) {
       this.setState({ status: "does_not_exist", start: 0 });
