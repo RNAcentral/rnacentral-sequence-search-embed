@@ -1,4 +1,5 @@
 import React from 'react';
+import {connect} from "react-redux";
 
 
 class Hit extends React.Component {
@@ -48,4 +49,25 @@ class Hit extends React.Component {
   }
 }
 
-export default Hit;
+function mapStateToProps(state) {
+  return {
+    status: state.status,
+    sequence: state.sequence,
+    entries: state.entries,
+    facets: state.facets,
+    selectedFacets: state.selectedFacets,
+    hitCount: state.hitCount,
+    ordering: state.ordering,
+    textSearchError: state.textSearchError
+  };
+}
+
+function mapDispatchToProps(dispatch) {
+  return {
+  }
+}
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(Hit);

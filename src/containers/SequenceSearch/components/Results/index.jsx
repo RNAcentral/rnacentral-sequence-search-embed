@@ -237,6 +237,7 @@ function mapStateToProps(state) {
     sequence: state.sequence,
     entries: state.entries,
     facets: state.facets,
+    selectedFacets: state.selectedFacets,
     hitCount: state.hitCount,
     ordering: state.ordering,
     textSearchError: state.textSearchError
