@@ -112,16 +112,14 @@ const rootReducer = function (state = initialState, action) {
   let newState;
 
   switch (action.type) {
-
     // results
     case actions.FETCH_RESULTS:
       let data;
       if (!action.status) {
-        ; // do nothing, all the logic is in action creator
+        return Object.assign({}, state, {}); // do nothing, all the logic is in action creator
       } else if (action.status === 'success') {
-        debugger;
         data = action.data;
-        newState = Object.assign({}, state, {
+        return Object.assign({}, state, {
           status: data.sequenceSearchStatus === "success" ? "success" : "partial_success",
           sequence: data.sequence,
           entries: [...data.entries],
@@ -135,12 +133,11 @@ const rootReducer = function (state = initialState, action) {
         });
 
       } else if (action.status === 'error') {
-        newState = Object.assign({}, state, {
-          status: 'error'
-        });
+        return Object.assign({}, state, { status: 'error' });
+      } else {
+        console.log('Default');
+        return Object.assign({}, state, {});
       }
-
-      return newState;
 
     case actions.TOGGLE_ALIGNMENTS_COLLAPSED:
       $('.alignment').toggleClass('alignment-collapsed');
@@ -167,11 +164,10 @@ const rootReducer = function (state = initialState, action) {
       }
 
     case actions.FETCH_STATUS:
-      switch (action.status) {
-        case 'error':
-          return Object.assign({}, state, {status: "error"});
-        default:
-          return Object.assign({}, state, {status: action.status})
+      if (action.status === 'error') {
+        return Object.assign({}, state, {status: "error"});
+      } else {
+        return Object.assign({}, state, {status: action.status})
       }
 
     case actions.SET_STATUS_TIMEOUT:

@@ -127,17 +127,10 @@ export function fetchResults(jobId) {
         throw response;
       }
     })
-    .then(data => dispatch({type: types.FETCH_RESULTS, status: data.status}))  // TODO: improve this
+    .then(data => dispatch({type: types.FETCH_RESULTS, status: data.status, data: data}))
     .catch(error => {
-      debugger;
       dispatch({type: types.FETCH_RESULTS, status: 'error'})
     });
-
-    if (response.status === 404) {
-      this.setState({ status: "does_not_exist", start: 0 });
-    } else if (response.status === 500) {
-      this.setState({ status: "error", start: 0 });
-    }
   }
 }
 
