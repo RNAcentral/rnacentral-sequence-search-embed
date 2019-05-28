@@ -127,7 +127,7 @@ export function fetchResults(jobId) {
         throw response;
       }
     })
-    .then(data => dispatch({type: types.FETCH_RESULTS, status: data.status, data: data}))
+    .then(data => dispatch({type: types.FETCH_RESULTS, status: 'success', data: data}))
     .catch(error => {
       dispatch({type: types.FETCH_RESULTS, status: 'error'})
     });

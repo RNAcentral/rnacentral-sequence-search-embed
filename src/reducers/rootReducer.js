@@ -114,22 +114,20 @@ const rootReducer = function (state = initialState, action) {
   switch (action.type) {
     // results
     case actions.FETCH_RESULTS:
-      let data;
       if (!action.status) {
         return Object.assign({}, state, {}); // do nothing, all the logic is in action creator
       } else if (action.status === 'success') {
-        data = action.data;
         return Object.assign({}, state, {
-          status: data.sequenceSearchStatus === "success" ? "success" : "partial_success",
-          sequence: data.sequence,
-          entries: [...data.entries],
-          facets: [...data.facets],
-          hitCount: data.hitCount,
-          start: start,
-          size: size,
-          ordering: ordering,
-          selectedFacets: selectedFacets,
-          textSearchError: data.textSearchError
+          status: action.data.sequenceSearchStatus === "success" ? "success" : "partial_success",
+          sequence: action.data.sequence,
+          entries: [...action.data.entries],
+          facets: [...action.data.facets],
+          hitCount: action.data.hitCount,
+          start: 0,
+          size: 20,
+          ordering: 'e_value',
+          selectedFacets: {},
+          textSearchError: action.data.textSearchError
         });
 
       } else if (action.status === 'error') {
