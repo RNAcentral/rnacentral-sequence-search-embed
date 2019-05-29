@@ -134,6 +134,35 @@ export function fetchResults(jobId) {
   }
 }
 
+export function onToggleFacet(event, jobId, facet, facetValue) {
+    fetch(routes.facetsSearch(jobId, buildQuery(), 0, 20, 'e_value'), {
+      method: 'GET',
+      mode: 'cors',
+      credentials: 'include',
+      headers: {
+        'Accept': 'application/json, text/plain, */*',
+        'Content-Type': 'application/json'
+      }
+    })
+    .then(function(response) {
+      if (response.ok) {
+        return response.json()
+      } else {
+        throw response;
+      }
+    })
+    .then(data => dispatch({type: types.FETCH_RESULTS, status: 'success', data: data}))
+    .catch(error => {
+      dispatch({type: types.FETCH_RESULTS, status: 'error'})
+    });
+
+  return {type: types.TOGGLE_FACET, id: facet.id, value: facetValue.value}
+}
+
+export function onReload() {
+  return {type: types.RELOAD}
+}
+
 export function onSequenceTextAreaChange(event) {
   return {type: types.TEXTAREA_CHANGE, sequence: event.text}
 }

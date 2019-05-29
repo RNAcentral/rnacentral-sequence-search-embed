@@ -1,6 +1,9 @@
 import React from 'react';
 import {connect} from "react-redux";
 
+import * as actions from 'actions/actionTypes';
+import * as actionCreators from 'actions/actions';
+
 
 class Facets extends React.Component {
   constructor(props) {
@@ -82,6 +85,8 @@ function mapStateToProps(state) {
 
 function mapDispatchToProps(dispatch) {
   return {
+    onToggleFacet: (event, jobId, facet, facetValue) => dispatch(actionCreators.onToggleFacet(event, jobId, facet, facetValue)),
+    onReload: () => dispatch(actionCreators.onReload())
   }
 }
 
