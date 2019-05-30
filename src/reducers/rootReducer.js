@@ -137,14 +137,35 @@ const rootReducer = function (state = initialState, action) {
         return Object.assign({}, state, {});
       }
 
+    case actions.FAILED_FETCH_RESULTS:
+      if ('does not exist') {
+        return Object.assign({}, state, {status: "does_not_exist", start: 0});
+      } else if ('error') {
+        return Object.assign({}, state, {status: "error", start: 0});
+      } else {
+        return Object.assign({}, state, {});
+      }
+
+    case actions.TOGGLE_FACET:
+      if (!action.status) {
+        return Object.assign({}, state, {});
+      } else { // success
+        return Object.assign({}, state, {
+          status: action.data.sequenceSearchStatus === "success" ? "success" : "partial_success",
+          sequence: action.data.sequence,
+          entries: [...action.data.entries],
+          facets: [...action.data.facets],
+          hitCount: action.data.hitCount,
+          start: 0,
+          textSearchError: action.data.textSearchError,
+        });
+      }
+
     case actions.TOGGLE_ALIGNMENTS_COLLAPSED:
       $('.alignment').toggleClass('alignment-collapsed');
       return Object.assign({}, state, {
         alignmentCollapsed: !state.alignmentsCollapsed
       });
-
-    case actions.TOGGLE_FACET:
-      return newState;
 
     // submission form
     case actions.SUBMIT_JOB:

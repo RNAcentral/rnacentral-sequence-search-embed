@@ -2,6 +2,28 @@ import * as types from './actionTypes';
 import routes from 'services/routes.jsx';
 import {store} from 'app.jsx';
 
+
+/**
+ * Builds text query for sending to text search backend from this.state.selectedFacets
+ * @returns {string | *}
+ */
+let buildQuery = function () {
+  let state = store.getState();
+  let outputText, outputClauses = [];
+
+  Object.keys(state.selectedFacets).map(facetId => {
+    let facetText, facetClauses = [];
+    state.selectedFacets[facetId].map(facetValueValue => facetClauses.push(`${facetId}:"${facetValueValue}"`));
+    facetText = facetClauses.join(" OR ");
+
+    if (facetText !== "") outputClauses.push("(" + facetText + ")");
+  });
+
+  outputText = outputClauses.join(" AND ");
+  return outputText;
+};
+
+
 export function toggleAlignmentsCollapsed() {
   return {type: types.TOGGLE_ALIGNMENTS_COLLAPSED };
 }
@@ -91,26 +113,6 @@ export function fetchStatus(jobId) {
 
 export function fetchResults(jobId) {
   return function(dispatch) {
-    /**
-     * Builds text query for sending to text search backend from this.state.selectedFacets
-     * @returns {string | *}
-     */
-    let buildQuery = function () {
-      let state = store.getState();
-      let outputText, outputClauses = [];
-
-      Object.keys(state.selectedFacets).map(facetId => {
-        let facetText, facetClauses = [];
-        state.selectedFacets[facetId].map(facetValueValue => facetClauses.push(`${facetId}:"${facetValueValue}"`));
-        facetText = facetClauses.join(" OR ");
-
-        if (facetText !== "") outputClauses.push("(" + facetText + ")");
-      });
-
-      outputText = outputClauses.join(" AND ");
-      return outputText;
-    };
-
     fetch(routes.facetsSearch(jobId, buildQuery(), 0, 20, 'e_value'), {
       method: 'GET',
       mode: 'cors',
@@ -134,29 +136,45 @@ export function fetchResults(jobId) {
   }
 }
 
-export function onToggleFacet(event, jobId, facet, facetValue) {
-    fetch(routes.facetsSearch(jobId, buildQuery(), 0, 20, 'e_value'), {
-      method: 'GET',
-      mode: 'cors',
-      credentials: 'include',
-      headers: {
-        'Accept': 'application/json, text/plain, */*',
-        'Content-Type': 'application/json'
-      }
-    })
-    .then(function(response) {
-      if (response.ok) {
-        return response.json()
-      } else {
-        throw response;
-      }
-    })
-    .then(data => dispatch({type: types.FETCH_RESULTS, status: 'success', data: data}))
-    .catch(error => {
-      dispatch({type: types.FETCH_RESULTS, status: 'error'})
-    });
+export function failedFetchResults(response) {
+  if (response.status === 404) {
+    return { type: types.FAILED_FETCH_RESULTS, status: "does_not_exist", start: 0 };
+  } else if (response.status === 500) {
+    return { type: types.FAILED_FETCH_RESULTS, status: "error", start: 0 };
+  }
+}
 
-  return {type: types.TOGGLE_FACET, id: facet.id, value: facetValue.value}
+export function onToggleFacet(event, jobId, facet, facetValue) {
+  return function (dispatch) {
+    let state = store.getState();
+
+    let selectedFacets = {...state.selectedFacets};
+
+    if (!state.selectedFacets.hasOwnProperty(facet.id)) {  // all values in clicked facet are unchecked
+      selectedFacets[facet.id] = [facetValue.value];
+    } else {
+      let index = state.selectedFacets[facet.id].indexOf(facetValue.value);
+      if (index === -1) {
+        selectedFacets[facet.id].push(facetValue.value);
+      }  // this value is not checked, check it
+      else {
+        selectedFacets[facet.id].splice(index, 1);
+      }  // this value is checked, uncheck it
+    }
+
+    // start loading from the first page again
+    this.fetchSearchResults(jobId, buildQuery(), 0, state.size, state.ordering)
+        .then(data => dispatch({
+          type: types.TOGGLE_FACET,
+          id: facet.id,
+          value: facetValue.value,
+          data: data,
+          status: 'success'
+        }))
+        .catch((response) => dispatch(failedFetchResults(response)));
+
+    return {type: types.TOGGLE_FACET, id: facet.id, value: facetValue.value, data: data};
+  }
 }
 
 export function onReload() {
