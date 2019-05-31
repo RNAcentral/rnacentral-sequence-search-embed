@@ -223,7 +223,7 @@ class Results extends React.Component {
                 )) }
               </section>
             </div>,
-            <Facets key={`results-facets`} facets={ this.props.facets } selectedFacets={ this.props.selectedFacets } toggleFacet={ this.toggleFacet } onReload={ this.onReload } ordering={ this.props.ordering } onSort={ this.onSort } textSearchError={ this.props.textSearchError } />
+            <Facets key={`results-facets`} facets={ this.props.facets } selectedFacets={ this.props.selectedFacets } toggleFacet={ this.toggleFacet } ordering={ this.props.ordering } textSearchError={ this.props.textSearchError } />
           ]
         }
       </div>
@@ -247,8 +247,6 @@ function mapStateToProps(state) {
 function mapDispatchToProps(dispatch) {
   return {
     onToggleAlignmentsCollapsed : () => dispatch({ type: 'TOGGLE_ALIGNMENTS_COLLAPSED' }),
-    onReload : () => dispatch({ type: 'RELOAD_RESULTS' }),
-    onSort : () => dispatch({ type: 'SORT_RESULTS' }),
     onScroll : () => dispatch({ type: 'SCROLL_RESULTS' })
   }
 }

@@ -86,7 +86,8 @@ function mapStateToProps(state) {
 function mapDispatchToProps(dispatch) {
   return {
     onToggleFacet: (event, jobId, facet, facetValue) => dispatch(actionCreators.onToggleFacet(event, jobId, facet, facetValue)),
-    onReload: () => dispatch(actionCreators.onReload())
+    onReload: () => dispatch(actionCreators.onReload()),
+    onSort: (event) => dispatch(actionCreators.onSort(event.value))
   }
 }
 

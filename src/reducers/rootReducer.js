@@ -161,6 +161,20 @@ const rootReducer = function (state = initialState, action) {
         });
       }
 
+    case actions.SORT_RESULTS:
+      return Object.assign({
+          status: action.data.sequenceSearchStatus === "success" ? "success" : "partial_success",
+          sequence: action.data.sequence,
+          entries: [...action.data.entries],
+          facets: [...action.data.facets],
+          hitCount: action.data.hitCount,
+          start: state.start,
+          size: state.size,
+          ordering: action.data.ordering,
+          selectedFacets: state.selectedFacets,
+          textSearchError: action.data.textSearchError
+        });
+
     case actions.TOGGLE_ALIGNMENTS_COLLAPSED:
       $('.alignment').toggleClass('alignment-collapsed');
       return Object.assign({}, state, {
