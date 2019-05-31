@@ -186,22 +186,25 @@ export function onSort(event) {
   let state = store.getState();
 
   return function(dispatch) {
+    this.fetchSearchResults(state.jobId, buildQuery(), 0, state.size, ordering)
+      .then(data => {
+        let selectedFacets = {};
+        data.facets.map((facet) => { selectedFacets[facet.id] = []; });
 
+      })
+      .catch(this.fetchSearchResultsExceptionHandler);
+
+    this.setState({ ordering: ordering }, () => {
+      this.load(this.props.resultId, this.buildQuery(), 0, this.state.size, this.state.ordering, true, true);
+    });
+
+    return {type: types.SORT_RESULTS, ordering: ordering}
   };
+}
 
-  this.fetchSearchResults(state.jobId, buildQuery(), 0, state.size, ordering)
-  .then(data => {
-    let selectedFacets = {};
-    data.facets.map((facet) => { selectedFacets[facet.id] = []; });
-
-  })
-  .catch(this.fetchSearchResultsExceptionHandler);
-
-  this.setState({ ordering: ordering }, () => {
-    this.load(this.props.resultId, this.buildQuery(), 0, this.state.size, this.state.ordering, true, true);
-  });
-
-  return {type: types.SORT_RESULTS, ordering: ordering}
+export function onToggleAlignmentsCollapsed() {
+  $('.alignment').toggleClass('alignment-collapsed');
+  return {type: types.TOGGLE_ALIGNMENTS_COLLAPSED}
 }
 
 export function onSequenceTextAreaChange(event) {

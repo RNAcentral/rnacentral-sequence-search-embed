@@ -1,6 +1,9 @@
 import React from 'react';
 import {connect} from "react-redux";
 
+import * as actions from 'actions/actionTypes';
+import * as actionCreators from 'actions/actions';
+
 
 class Hit extends React.Component {
   render() {
@@ -64,6 +67,7 @@ function mapStateToProps(state) {
 
 function mapDispatchToProps(dispatch) {
   return {
+    onToggleAlignmentsCollapsed: () => dispatch(actionCreators.onToggleAlignmentsCollapsed())
   }
 }
 

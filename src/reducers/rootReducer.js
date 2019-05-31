@@ -176,7 +176,6 @@ const rootReducer = function (state = initialState, action) {
         });
 
     case actions.TOGGLE_ALIGNMENTS_COLLAPSED:
-      $('.alignment').toggleClass('alignment-collapsed');
       return Object.assign({}, state, {
         alignmentCollapsed: !state.alignmentsCollapsed
       });
