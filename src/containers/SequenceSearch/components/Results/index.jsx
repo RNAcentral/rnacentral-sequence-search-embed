@@ -247,6 +247,8 @@ function mapStateToProps(state) {
   };
 }
 
+// TODO: hide load more button, if no more hits to load
+
 function mapDispatchToProps(dispatch) {
   return {
     onToggleAlignmentsCollapsed : () => dispatch({ type: 'TOGGLE_ALIGNMENTS_COLLAPSED' }),
