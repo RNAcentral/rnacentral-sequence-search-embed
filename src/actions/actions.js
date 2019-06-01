@@ -144,36 +144,26 @@ export function failedFetchResults(response) {
   }
 }
 
-export function onToggleFacet(event, jobId, facet, facetValue) {
+export function onToggleFacet(event, facet, facetValue) {
   return function (dispatch) {
     let state = store.getState();
 
-    let selectedFacets = {...state.selectedFacets};
-
-    if (!state.selectedFacets.hasOwnProperty(facet.id)) {  // all values in clicked facet are unchecked
-      selectedFacets[facet.id] = [facetValue.value];
-    } else {
-      let index = state.selectedFacets[facet.id].indexOf(facetValue.value);
-      if (index === -1) {
-        selectedFacets[facet.id].push(facetValue.value);
-      }  // this value is not checked, check it
-      else {
-        selectedFacets[facet.id].splice(index, 1);
-      }  // this value is checked, uncheck it
-    }
-
     // start loading from the first page again
-    this.fetchSearchResults(jobId, buildQuery(), 0, state.size, state.ordering)
-        .then(data => dispatch({
-          type: types.TOGGLE_FACET,
-          id: facet.id,
-          value: facetValue.value,
-          data: data,
-          status: 'success'
-        }))
-        .catch((response) => dispatch(failedFetchResults(response)));
+    fetch(routes.facetsSearch(state.jobId, buildQuery(), 0, state.size, state.ordering))
+      .then((response) => {
+        if (response.ok) { return response.json(); }
+        else { throw response; }
+      })
+      .then(data => dispatch({
+        type: types.TOGGLE_FACET,
+        id: facet.id,
+        value: facetValue.value,
+        data: data,
+        status: 'success'
+      }))
+      .catch((response) => dispatch({ type: types.FAILED_FETCH_RESULTS, status: "error", start: 0 }));
 
-    return {type: types.TOGGLE_FACET, id: facet.id, value: facetValue.value, data: data};
+    return {type: types.TOGGLE_FACET, id: facet.id, value: facetValue.value};
   }
 }
 

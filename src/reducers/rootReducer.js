@@ -148,8 +148,22 @@ const rootReducer = function (state = initialState, action) {
 
     case actions.TOGGLE_FACET:
       if (!action.status) {
-        return Object.assign({}, state, {});
+        return Object.assign({}, state, {status: "loading"});
       } else { // success
+        let selectedFacets = {...state.selectedFacets};
+
+        if (!state.selectedFacets.hasOwnProperty(action.id)) {  // all values in clicked facet are unchecked
+          selectedFacets[action.id] = [action.value];
+        } else {
+          let index = state.selectedFacets[action.id].indexOf(action.value);
+          if (index === -1) {
+            selectedFacets[action.id].push(action.value);
+          }  // this value is not checked, check it
+          else {
+            selectedFacets[action.id].splice(index, 1);
+          }  // this value is checked, uncheck it
+        }
+
         return Object.assign({}, state, {
           status: action.data.sequenceSearchStatus === "success" ? "success" : "partial_success",
           sequence: action.data.sequence,
@@ -158,6 +172,7 @@ const rootReducer = function (state = initialState, action) {
           hitCount: action.data.hitCount,
           start: 0,
           textSearchError: action.data.textSearchError,
+          selectedFacets: selectedFacets
         });
       }
 

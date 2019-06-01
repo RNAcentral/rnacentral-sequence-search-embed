@@ -201,7 +201,7 @@ class Results extends React.Component {
         {
           this.props.status === "does_not_exist" && (
             <div className="callout alert">
-              <h3>Job with id='{ this.props.resultId }' does not exist.</h3>
+              <h3>Job with id='{ this.props.jobId }' does not exist.</h3>
             </div>
           )
         }
@@ -240,7 +240,8 @@ function mapStateToProps(state) {
     selectedFacets: state.selectedFacets,
     hitCount: state.hitCount,
     ordering: state.ordering,
-    textSearchError: state.textSearchError
+    textSearchError: state.textSearchError,
+    jobId: state.jobId
   };
 }
 

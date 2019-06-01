@@ -23,7 +23,7 @@ class Facets extends React.Component {
                 <input id={`checkbox-${facet.id}-${facetValue.value}`} type="checkbox"
                   checked={this.props.selectedFacets.hasOwnProperty(facet.id) && this.props.selectedFacets[facet.id].indexOf(facetValue.value) !== -1}
                   onChange={(e) => {
-                    this.props.toggleFacet(facet.id, facetValue.value)
+                    this.props.onToggleFacet(e, facet, facetValue)
                   }}/>
                 <label htmlFor={`checkbox-${facet.id}-${facetValue.value}`}>{facetValue.label}&nbsp;<small>({facetValue.count})</small></label>
               </span>
@@ -85,9 +85,9 @@ function mapStateToProps(state) {
 
 function mapDispatchToProps(dispatch) {
   return {
-    onToggleFacet: (event, jobId, facet, facetValue) => dispatch(actionCreators.onToggleFacet(event, jobId, facet, facetValue)),
+    onToggleFacet: (event, facet, facetValue) => dispatch(actionCreators.onToggleFacet(event, facet, facetValue)),
     onReload: () => dispatch(actionCreators.onReload()),
-    onSort: (event) => dispatch(actionCreators.onSort(event.value))
+    onSort: (event) => dispatch(actionCreators.onSort(event))
   }
 }
 
