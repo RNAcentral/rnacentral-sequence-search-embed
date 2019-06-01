@@ -6,6 +6,7 @@ import Hit from 'containers/SequenceSearch/components/Results/components/Hit.jsx
 
 import 'containers/SequenceSearch/components/Results/index.scss';
 import routes from 'services/routes.jsx';
+import * as actionCreators from 'actions/actions';
 
 
 class Results extends React.Component {
@@ -221,6 +222,7 @@ class Results extends React.Component {
                 { this.props.entries.map((entry, index) => (
                 <ul key={`${entry}_${index}`}><Hit entry={entry} alignmentsCollapsed={this.props.alignmentsCollapsed} onToggleAlignmentsCollapsed={ this.onToggleAlignmentsCollapsed } /></ul>
                 )) }
+                <a className="button small" onClick={this.props.onLoadMore} target="_blank">Load more</a>
               </section>
             </div>,
             <Facets key={`results-facets`} facets={ this.props.facets } selectedFacets={ this.props.selectedFacets } toggleFacet={ this.toggleFacet } ordering={ this.props.ordering } textSearchError={ this.props.textSearchError } />
@@ -248,7 +250,7 @@ function mapStateToProps(state) {
 function mapDispatchToProps(dispatch) {
   return {
     onToggleAlignmentsCollapsed : () => dispatch({ type: 'TOGGLE_ALIGNMENTS_COLLAPSED' }),
-    onScroll : () => dispatch({ type: 'SCROLL_RESULTS' })
+    onLoadMore : (event) => dispatch(actionCreators.onLoadMore(event))
   }
 }
 

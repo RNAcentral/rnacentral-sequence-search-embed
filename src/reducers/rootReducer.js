@@ -142,6 +142,23 @@ const rootReducer = function (state = initialState, action) {
         });
       }
 
+    case actions.LOAD_MORE:
+      if (!action.data) {
+        return Object.assign({}, state, {status: "loading"});
+      } else {
+        return Object.assign({}, state, {
+          status: action.data.sequenceSearchStatus === "success" ? "success" : "partial_success",
+          sequence: action.data.sequence,
+          entries: [...state.entries, ...action.data.entries],
+          facets: [...action.data.facets],
+          hitCount: action.data.hitCount,
+          start: state.start + state.size,
+          size: state.size,
+          ordering: action.data.ordering,
+          textSearchError: action.data.textSearchError
+        });
+      }
+
     case actions.TOGGLE_ALIGNMENTS_COLLAPSED:
       return Object.assign({}, state, {
         alignmentCollapsed: !state.alignmentsCollapsed

@@ -171,6 +171,22 @@ export function onReload() {
   return {type: types.RELOAD}
 }
 
+export function onLoadMore(event) {
+  let state = store.getState();
+
+  return function(dispatch) {
+    dispatch({type: types.LOAD_MORE});
+
+    return fetch(routes.facetsSearch(state.jobId, buildQuery(), state.start, state.size, state.ordering))
+      .then(response => {
+        if (response.ok) { return response.json(); }
+        else { throw response; }
+      })
+      .then(data => dispatch({type: types.LOAD_MORE, data: data}))
+      .catch(response => dispatch({ type: types.FAILED_FETCH_RESULTS, status: "error", start: 0 }))
+  }
+}
+
 export function onSort(event) {
   let ordering = event.target.value;
   let state = store.getState();
