@@ -177,7 +177,13 @@ const rootReducer = function (state = initialState, action) {
       }
 
     case actions.SORT_RESULTS:
-      return Object.assign({
+      if (!action.data) {
+        return Object.assign({}, state, {status: "loading"});
+      } else {
+        let selectedFacets = {};
+        action.data.facets.map((facet) => { selectedFacets[facet.id] = []; });
+
+        return Object.assign({}, state, {
           status: action.data.sequenceSearchStatus === "success" ? "success" : "partial_success",
           sequence: action.data.sequence,
           entries: [...action.data.entries],
@@ -186,9 +192,10 @@ const rootReducer = function (state = initialState, action) {
           start: state.start,
           size: state.size,
           ordering: action.data.ordering,
-          selectedFacets: state.selectedFacets,
+          selectedFacets: selectedFacets,
           textSearchError: action.data.textSearchError
         });
+      }
 
     case actions.TOGGLE_ALIGNMENTS_COLLAPSED:
       return Object.assign({}, state, {

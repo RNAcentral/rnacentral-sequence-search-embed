@@ -148,8 +148,10 @@ export function onToggleFacet(event, facet, facetValue) {
   return function (dispatch) {
     let state = store.getState();
 
+    dispatch({type: types.TOGGLE_FACET, id: facet.id, value: facetValue.value});
+
     // start loading from the first page again
-    fetch(routes.facetsSearch(state.jobId, buildQuery(), 0, state.size, state.ordering))
+    return fetch(routes.facetsSearch(state.jobId, buildQuery(), 0, state.size, state.ordering))
       .then((response) => {
         if (response.ok) { return response.json(); }
         else { throw response; }
@@ -162,8 +164,6 @@ export function onToggleFacet(event, facet, facetValue) {
         status: 'success'
       }))
       .catch((response) => dispatch({ type: types.FAILED_FETCH_RESULTS, status: "error", start: 0 }));
-
-    return {type: types.TOGGLE_FACET, id: facet.id, value: facetValue.value};
   }
 }
 
@@ -176,19 +176,15 @@ export function onSort(event) {
   let state = store.getState();
 
   return function(dispatch) {
-    this.fetchSearchResults(state.jobId, buildQuery(), 0, state.size, ordering)
-      .then(data => {
-        let selectedFacets = {};
-        data.facets.map((facet) => { selectedFacets[facet.id] = []; });
+    dispatch({type: types.SORT_RESULTS});
 
+    return fetch(routes.facetsSearch(state.jobId, buildQuery(), 0, state.size, ordering))
+      .then((response) => {
+        if (response.ok) { return response.json(); }
+        else { throw response; }
       })
-      .catch(this.fetchSearchResultsExceptionHandler);
-
-    this.setState({ ordering: ordering }, () => {
-      this.load(this.props.resultId, this.buildQuery(), 0, this.state.size, this.state.ordering, true, true);
-    });
-
-    return {type: types.SORT_RESULTS, ordering: ordering}
+      .then(data => dispatch({type: types.SORT_RESULTS, data: data}))
+      .catch(response => dispatch({ type: types.FAILED_FETCH_RESULTS, status: "error", start: 0 }));
   };
 }
 
