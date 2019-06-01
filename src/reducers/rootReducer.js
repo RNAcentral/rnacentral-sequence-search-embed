@@ -11,23 +11,6 @@ let onReload = function () {
   this.load(this.props.resultId, this.buildQuery(), 0, this.state.size, this.state.ordering, true, true);
 };
 
-/**
- * Is called when user selects a different sorting order.
- */
-let onSort = function (event) {
-  let ordering = event.target.value;
-  this.setState({ ordering: ordering }, () => {
-    this.load(this.props.resultId, this.buildQuery(), 0, this.state.size, this.state.ordering, true, true);
-  });
-};
-
-/**
- * Collapses/displays alignments in search results
- */
-let onToggleAlignmentsCollapsed = function () {
-  $('.alignment').toggleClass('alignment-collapsed');
-  this.setState({ alignmentsCollapsed: !this.state.alignmentsCollapsed });
-};
 
 /**
  * Checks that the page was scrolled down to the bottom.
@@ -52,44 +35,6 @@ let onScroll = function () {
       );
     }
   }
-};
-
-
-//
-
-let onSequenceTextareaChange = function (event) {
-  this.setState({sequence: event.target.value.toUpperCase()});
-};
-
-let onDatabaseCheckboxToggle = function (event) {
-  let selectedDatabases = { ...this.props.selectedDatabases };
-  selectedDatabases[event.target.id] = !selectedDatabases[event.target.id];
-  this.setState({ selectedDatabases: selectedDatabases });
-};
-
-let onSelectAllDatabases = function (event) {
-  let selectedDatabases = {};
-  this.state.rnacentralDatabases.map(db => { selectedDatabases[db] = true; });
-  this.setState({ selectedDatabases: selectedDatabases });
-};
-
-let onDeselectAllDatabases = function (event) {
-  let selectedDatabases = {};
-  this.state.rnacentralDatabases.map(db => { selectedDatabases[db] = false; });
-  this.setState({ selectedDatabases: selectedDatabases });
-};
-
-let onToggleDatabasesCollapsed = function (event) {
-  $('#rnacentralDatabaseCollapsible').toggleClass('databases-collapsed');
-  this.setState({ databasesCollapsed: !this.state.databasesCollapsed });
-};
-
-let onExampleSequence = function (sequence) {
-  this.setState({sequence: sequence});
-};
-
-let onClearSequence = function (event) {
-  this.setState({sequence: ""});
 };
 
 let onFileUpload = function (event) {
