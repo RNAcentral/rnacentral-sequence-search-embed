@@ -24,7 +24,16 @@
     "RNA",
     "bioinformatics"
   ],
-  "author": "Boris A. Burkov",
+  "contributors": [
+    {
+      "name": "Boris A. Burkov",
+      "email": "burkov@ebi.ac.uk"
+    },
+    {
+      "name": "Anton I. Petrov",
+      "email": "apetrov@ebi.ac.uk"
+    }
+  ],
   "license": "Apache-2.0",
   "bugs": {
     "url": "https://github.com/RNAcentral/rnacentral-sequence-search-embed/issues"
