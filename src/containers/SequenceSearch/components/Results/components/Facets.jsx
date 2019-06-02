@@ -23,6 +23,7 @@ class Facets extends React.Component {
                 <input id={`checkbox-${facet.id}-${facetValue.value}`} type="checkbox"
                   checked={this.props.selectedFacets.hasOwnProperty(facet.id) && this.props.selectedFacets[facet.id].indexOf(facetValue.value) !== -1}
                   onChange={(e) => {
+                    e.preventDefault();
                     this.props.onToggleFacet(e, facet, facetValue)
                   }}/>
                 <label htmlFor={`checkbox-${facet.id}-${facetValue.value}`}>{facetValue.label}&nbsp;<small>({facetValue.count})</small></label>

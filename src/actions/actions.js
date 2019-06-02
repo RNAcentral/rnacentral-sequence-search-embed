@@ -7,13 +7,13 @@ import {store} from 'app.jsx';
  * Builds text query for sending to text search backend from this.state.selectedFacets
  * @returns {string | *}
  */
-let buildQuery = function () {
+let buildQuery = function (selectedFacets) {
   let state = store.getState();
   let outputText, outputClauses = [];
 
-  Object.keys(state.selectedFacets).map(facetId => {
+  Object.keys(selectedFacets).map(facetId => {
     let facetText, facetClauses = [];
-    state.selectedFacets[facetId].map(facetValueValue => facetClauses.push(`${facetId}:"${facetValueValue}"`));
+    selectedFacets[facetId].map(facetValueValue => facetClauses.push(`${facetId}:"${facetValueValue}"`));
     facetText = facetClauses.join(" OR ");
 
     if (facetText !== "") outputClauses.push("(" + facetText + ")");
@@ -112,8 +112,10 @@ export function fetchStatus(jobId) {
 // TODO: clear timeout when leaving the page !!!
 
 export function fetchResults(jobId) {
+  let state = store.getState();
+
   return function(dispatch) {
-    fetch(routes.facetsSearch(jobId, buildQuery(), 0, 20, 'e_value'), {
+    fetch(routes.facetsSearch(jobId, buildQuery(state.selectedFacets), 0, 20, 'e_value'), {
       method: 'GET',
       mode: 'cors',
       credentials: 'include',
@@ -148,10 +150,25 @@ export function onToggleFacet(event, facet, facetValue) {
   return function (dispatch) {
     let state = store.getState();
 
+    let selectedFacets = {...state.selectedFacets};
+
+    if (!state.selectedFacets.hasOwnProperty(facet.id)) {  // all values in clicked facet are unchecked
+      selectedFacets[facet.id] = [facetValue.value];
+    } else {
+      let index = state.selectedFacets[facet.id].indexOf(facetValue.value);
+      if (index === -1) {
+        selectedFacets[facet.id].push(facetValue.value);
+      }  // this value is not checked, check it
+      else {
+        selectedFacets[facet.id].splice(index, 1); // this value is checked, uncheck it
+        if (selectedFacets[facet.id].length === 0) { delete selectedFacets[facet.id]; }
+      }
+    }
+
     dispatch({type: types.TOGGLE_FACET, id: facet.id, value: facetValue.value});
 
     // start loading from the first page again
-    return fetch(routes.facetsSearch(state.jobId, buildQuery(), 0, state.size, state.ordering))
+    return fetch(routes.facetsSearch(state.jobId, buildQuery(selectedFacets), 0, state.size, state.ordering))
       .then((response) => {
         if (response.ok) { return response.json(); }
         else { throw response; }
@@ -161,9 +178,10 @@ export function onToggleFacet(event, facet, facetValue) {
         id: facet.id,
         value: facetValue.value,
         data: data,
-        status: 'success'
+        status: 'success',
+        selectedFacets: selectedFacets
       }))
-      .catch((response) => dispatch({ type: types.FAILED_FETCH_RESULTS, status: "error", start: 0 }));
+      .catch((response) => {debugger;  dispatch({ type: types.FAILED_FETCH_RESULTS, status: "error", start: 0 })});
   }
 }
 
@@ -179,7 +197,7 @@ export function onLoadMore(event) {
 
     let size = state.entries.length + state.size < state.hitCount ? state.size: state.hitCount - state.entries.length;
 
-    return fetch(routes.facetsSearch(state.jobId, buildQuery(), state.start, size, state.ordering))
+    return fetch(routes.facetsSearch(state.jobId, buildQuery(state.selectedFacets), state.start, size, state.ordering))
       .then(response => {
         if (response.ok) { return response.json(); }
         else { throw response; }
@@ -196,7 +214,7 @@ export function onSort(event) {
   return function(dispatch) {
     dispatch({type: types.SORT_RESULTS});
 
-    return fetch(routes.facetsSearch(state.jobId, buildQuery(), 0, state.size, ordering))
+    return fetch(routes.facetsSearch(state.jobId, buildQuery(state.selectedFacets), 0, state.size, ordering))
       .then((response) => {
         if (response.ok) { return response.json(); }
         else { throw response; }

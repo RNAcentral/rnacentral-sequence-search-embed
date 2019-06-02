@@ -4,39 +4,6 @@ import * as actionCreators from "../actions/actions";
 import initialState from "../store/initialState";
 
 
-/**
- * Is called when user tries to reload the facets data after an error.
- */
-let onReload = function () {
-  this.load(this.props.resultId, this.buildQuery(), 0, this.state.size, this.state.ordering, true, true);
-};
-
-
-/**
- * Checks that the page was scrolled down to the bottom.
- * Load more entries, if available then.
- *
- * Mostly stolen from: https://alligator.io/react/react-infinite-scroll/
- * Cross-browser compatibility: https://codingrepo.com/javascript/2015/10/10/javascript-infinite-scroll-with-cross-browser/
- */
-let onScroll = function () {
-  let windowHeight = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
-  let scrollPosition = window.scrollY || window.pageYOffset || document.documentElement.scrollTop;
-
-  // Checks that the page has scrolled to the bottom
-  if (windowHeight + scrollPosition + 10 >= document.documentElement.offsetHeight) {
-    if (this.state.status === "success" && this.state.entries.length < this.state.hitCount) {
-      this.setState(
-        (state, props) => (state.start === this.state.start ? { start: this.state.start + this.state.size, status: "loading" } : { status: "loading" }),
-        () => {
-          let query = this.buildQuery();
-          this.load(this.props.resultId, query, this.state.start, this.state.size, this.state.ordering, false, false);
-        }
-      );
-    }
-  }
-};
-
 let onFileUpload = function (event) {
   // TODO: fasta parsing
   // TODO: exception handling - user closed the dialog
@@ -95,20 +62,6 @@ const rootReducer = function (state = initialState, action) {
       if (!action.status) {
         return Object.assign({}, state, {status: "loading"});
       } else { // success
-        let selectedFacets = {...state.selectedFacets};
-
-        if (!state.selectedFacets.hasOwnProperty(action.id)) {  // all values in clicked facet are unchecked
-          selectedFacets[action.id] = [action.value];
-        } else {
-          let index = state.selectedFacets[action.id].indexOf(action.value);
-          if (index === -1) {
-            selectedFacets[action.id].push(action.value);
-          }  // this value is not checked, check it
-          else {
-            selectedFacets[action.id].splice(index, 1);
-          }  // this value is checked, uncheck it
-        }
-
         return Object.assign({}, state, {
           status: action.data.sequenceSearchStatus === "success" ? "success" : "partial_success",
           sequence: action.data.sequence,
@@ -118,7 +71,7 @@ const rootReducer = function (state = initialState, action) {
           start: action.data.entries.length,
           size: 20,
           textSearchError: action.data.textSearchError,
-          selectedFacets: selectedFacets
+          selectedFacets: action.selectedFacets
         });
       }
 
