@@ -21,7 +21,7 @@ let onFileUpload = function (event) {
 
 
 const rootReducer = function (state = initialState, action) {
-  let newState;
+  let newState, selectedDatabases, rnacentralDatabases, rnacentralDatabaseLabels, data;
 
   switch (action.type) {
     // results
@@ -147,7 +147,7 @@ const rootReducer = function (state = initialState, action) {
       return Object.assign({}, state, { sequence: action.sequence });
 
     case actions.TOGGLE_DATABASE_CHECKBOX:
-      let selectedDatabases = { ...state.selectedDatabases };
+      selectedDatabases = { ...state.selectedDatabases };
       selectedDatabases[action.id] = !selectedDatabases[action.id];
       return Object.assign({}, state,{ selectedDatabases: selectedDatabases });
 
@@ -184,14 +184,14 @@ const rootReducer = function (state = initialState, action) {
       if (!action.status) {
         ; // do nothing, all the logic is in action creator
       } else if (action.status === 'success') {
-        let data = action.data;
+        data = action.data;
 
-        let rnacentralDatabases = data.map(database => database.id);
+        rnacentralDatabases = data.map(database => database.id);
 
-        let selectedDatabases = {};
+        selectedDatabases = {};
         data.map(database => { selectedDatabases[database.id] = false });
 
-        let rnacentralDatabaseLabels = {};
+        rnacentralDatabaseLabels = {};
         data.map(database => { rnacentralDatabaseLabels[database.id] =  database.label });
 
         newState = Object.assign({}, state, {
