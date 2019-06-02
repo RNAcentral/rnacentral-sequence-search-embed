@@ -177,7 +177,9 @@ export function onLoadMore(event) {
   return function(dispatch) {
     dispatch({type: types.LOAD_MORE});
 
-    return fetch(routes.facetsSearch(state.jobId, buildQuery(), state.start, state.size, state.ordering))
+    let size = state.entries.length + state.size < state.hitCount ? state.size: state.hitCount - state.entries.length;
+
+    return fetch(routes.facetsSearch(state.jobId, buildQuery(), state.start, size, state.ordering))
       .then(response => {
         if (response.ok) { return response.json(); }
         else { throw response; }

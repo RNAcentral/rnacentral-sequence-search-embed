@@ -68,7 +68,7 @@ const rootReducer = function (state = initialState, action) {
           entries: [...action.data.entries],
           facets: [...action.data.facets],
           hitCount: action.data.hitCount,
-          start: 0,
+          start: action.data.entries.length,
           size: 20,
           ordering: 'e_value',
           selectedFacets: {},
@@ -115,7 +115,8 @@ const rootReducer = function (state = initialState, action) {
           entries: [...action.data.entries],
           facets: [...action.data.facets],
           hitCount: action.data.hitCount,
-          start: 0,
+          start: action.data.entries.length,
+          size: 20,
           textSearchError: action.data.textSearchError,
           selectedFacets: selectedFacets
         });
@@ -134,8 +135,8 @@ const rootReducer = function (state = initialState, action) {
           entries: [...action.data.entries],
           facets: [...action.data.facets],
           hitCount: action.data.hitCount,
-          start: state.start,
-          size: state.size,
+          start: action.data.entries.length,
+          size: 20,
           ordering: action.data.ordering,
           selectedFacets: selectedFacets,
           textSearchError: action.data.textSearchError
@@ -152,8 +153,8 @@ const rootReducer = function (state = initialState, action) {
           entries: [...state.entries, ...action.data.entries],
           facets: [...action.data.facets],
           hitCount: action.data.hitCount,
-          start: state.start + state.size,
-          size: state.size,
+          start: state.entries.length + action.data.entries.length,
+          size: 20,
           ordering: action.data.ordering,
           textSearchError: action.data.textSearchError
         });
