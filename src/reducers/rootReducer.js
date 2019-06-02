@@ -79,8 +79,8 @@ const rootReducer = function (state = initialState, action) {
       if (!action.data) {
         return Object.assign({}, state, {status: "loading"});
       } else {
-        let selectedFacets = {};
-        action.data.facets.map((facet) => { selectedFacets[facet.id] = []; });
+        // let selectedFacets = {};
+        // action.data.facets.map((facet) => { selectedFacets[facet.id] = []; });
 
         return Object.assign({}, state, {
           status: action.data.sequenceSearchStatus === "success" ? "success" : "partial_success",
@@ -91,7 +91,7 @@ const rootReducer = function (state = initialState, action) {
           start: action.data.entries.length,
           size: 20,
           ordering: action.data.ordering,
-          selectedFacets: selectedFacets,
+          selectedFacets: state.selectedFacets,
           textSearchError: action.data.textSearchError
         });
       }
