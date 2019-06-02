@@ -161,7 +161,7 @@ const rootReducer = function (state = initialState, action) {
 
     case actions.TOGGLE_ALIGNMENTS_COLLAPSED:
       return Object.assign({}, state, {
-        alignmentCollapsed: !state.alignmentsCollapsed
+        alignmentsCollapsed: !state.alignmentsCollapsed
       });
 
     // submission form

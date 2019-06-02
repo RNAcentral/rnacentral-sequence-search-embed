@@ -61,7 +61,8 @@ function mapStateToProps(state) {
     selectedFacets: state.selectedFacets,
     hitCount: state.hitCount,
     ordering: state.ordering,
-    textSearchError: state.textSearchError
+    textSearchError: state.textSearchError,
+    alignmentsCollapsed: state.alignmentsCollapsed
   };
 }
 
