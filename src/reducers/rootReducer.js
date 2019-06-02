@@ -4,22 +4,6 @@ import * as actionCreators from "../actions/actions";
 import initialState from "../store/initialState";
 
 
-let onFileUpload = function (event) {
-  // TODO: fasta parsing
-  // TODO: exception handling - user closed the dialog
-  // TODO: exception handling - this is not a proper fasta file
-
-  let fileReader = new FileReader();
-
-  fileReader.onloadend = (event) => {
-    let fileContent = event.target.result;
-    this.setState({sequence: fileContent});
-  };
-
-  fileReader.readAsText(event.target.files[0]);
-};
-
-
 const rootReducer = function (state = initialState, action) {
   let newState, selectedDatabases, rnacentralDatabases, rnacentralDatabaseLabels, data;
 
@@ -178,7 +162,11 @@ const rootReducer = function (state = initialState, action) {
       });
 
     case actions.FILE_UPLOAD:
-      return newState;
+      if (!action.sequence) {
+        return Object.assign({}, state, {});
+      } else {
+        return Object.assign({}, state, {sequence: action.sequence});
+      }
 
     case actions.FETCH_RNACENTRAL_DATABASES:
       if (!action.status) {

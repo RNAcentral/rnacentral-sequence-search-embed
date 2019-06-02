@@ -181,7 +181,7 @@ export function onToggleFacet(event, facet, facetValue) {
         status: 'success',
         selectedFacets: selectedFacets
       }))
-      .catch((response) => {debugger;  dispatch({ type: types.FAILED_FETCH_RESULTS, status: "error", start: 0 })});
+      .catch((response) => dispatch({ type: types.FAILED_FETCH_RESULTS, status: "error", start: 0 }));
   }
 }
 
@@ -257,23 +257,20 @@ export function onClearSequence() {
   return {type: types.CLEAR_SEQUENCE}
 }
 
-export function onFileUpload () {
+export function onFileUpload (event) {
   return function(dispatch) {
-    let onFileUpload = function (event) {
-      // TODO: fasta parsing
-      // TODO: exception handling - user closed the dialog
-      // TODO: exception handling - this is not a proper fasta file
+    let fileReader = new FileReader();
 
-      let fileReader = new FileReader();
-
-      fileReader.onloadend = (event) => {
-        let fileContent = event.target.result;
-        dispatch();
-        this.setState({sequence: fileContent});
-      };
-
-      fileReader.readAsText(event.target.files[0]);
+    fileReader.onloadend = (event) => {
+      let fileContent = event.target.result;
+      dispatch({type: types.FILE_UPLOAD, sequence: fileContent});
     };
-  }
-  return {type: types.FILE_UPLOAD}
+
+    fileReader.onerror = (event) => {
+      dispatch({type: types.CLEAR_SEQUENCE})
+    };
+
+    fileReader.readAsText(event.target.files[0]);
+    return fileReader;
+  };
 }

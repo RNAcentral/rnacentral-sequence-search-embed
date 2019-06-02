@@ -30,7 +30,7 @@ class SearchForm extends React.Component {
                     <textarea id="sequence" name="sequence" rows="7" value={this.props.sequence} onChange={(e) => this.props.onSequenceTextareaChange(e)} />
                     <p>
                       Or upload a file:
-                      <input id="sequence-file" name="sequence-file" type="file" accept=".fasta" onChange={this.onFileUpload} />
+                      <input id="sequence-file" name="sequence-file" type="file" accept=".fasta" onChange={this.props.onFileUpload} />
                     </p>
                   </fieldset>
                 </div>
@@ -106,7 +106,7 @@ const mapDispatchToProps = (dispatch) => ({
   onToggleDatabasesCollapsed: () => dispatch(actions.onToggleDatabasesCollapsed()),
   onExampleSequence: (sequence) => dispatch(actions.onExampleSequence(sequence)),
   onClearSequence: () => dispatch(actions.onClearSequence()),
-  onFileUpload: () => dispatch(actions.onFileUpload()),
+  onFileUpload: (event) => dispatch(actions.onFileUpload(event)),
   fetchRNAcentralDatabases: actions.fetchRNAcentralDatabases
 });
 
