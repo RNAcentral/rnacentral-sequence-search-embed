@@ -1,14 +1,19 @@
 # RNAcentral sequence search embed
 
 This is an embeddable component that you can include into 
-your website to add a NHMMER-backed non-coding RNA sequence search 
-against RNAcentral databases (or their arbitrary subset). The 
-component also adds text search functionality, backed by EBI Lucene 
-text search plugin.
+your website to add a non-coding RNA sequence search.
 
-This plugin is written in React and Redux and makes use of Zurb 
-Foundation-based EBI theme and CSS modules packaged with Webpack, so
-that it doesn't clash with your CSS.
+The component sends search requests to EBI-backed API, run on 
+EBI cloud infrastructure.
+
+It searches against RNAcentral databases (or their arbitrary subset)
+with NHMMER and also adds text search functionality, backed by EBI 
+Lucene text search plugin.
+
+This plugin is written in React/Redux and makes use of Zurb 
+Foundation-based EBI theme. It is bundled with CSS modules and
+ UMD wrapper and packaged with Webpack, so it should not clash with 
+your website's javascript or CSS.
 
 ## Installation
 
