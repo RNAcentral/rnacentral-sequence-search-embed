@@ -1,4 +1,6 @@
 import ebiGlobal from 'ebi-framework/css/ebi-global.css';
+import componentStyles from 'containers/SequenceSearch/index.scss';
+import fonts from 'EBI-Icon-fonts/fonts.css';
 
 import React from 'react';
 import {connect} from 'react-redux';
@@ -52,8 +54,8 @@ class Results extends React.Component {
         }
         {
           (this.props.status === "loading" || this.props.status === "success" || this.props.status === "partial_success") && [
-            <h1 key={`results-header`} className={`${ebiGlobal['margin-top-large']} ${ebiGlobal['margin-bottom-large']}`}>Results: { this.props.status === "loading" ? <i className={`${ebiGlobal['icon']} ${ebiGlobal['icon-functional']} spin`} data-icon="s"/> : <small>{ this.props.hitCount } total</small> }</h1>,
-            <div key={`results-div`} className="small-12 medium-10 medium-push-2 columns">
+            <h1 key={`results-header`} className={`${ebiGlobal['margin-top-large']} ${ebiGlobal['margin-bottom-large']}`}>Results: { this.props.status === "loading" ? <i className={`${fonts['icon']} ${fonts['icon-functional']} ${componentStyles.spin}`} data-icon="s"/> : <small>{ this.props.hitCount } total</small> }</h1>,
+            <div key={`results-div`} className={`${ebiGlobal['small-12']} ${ebiGlobal['medium-10']} ${ebiGlobal['medium-push-2']} ${ebiGlobal['columns']}`}>
               <section>
                 { this.props.entries.map((entry, index) => (
                 <ul key={`${entry}_${index}`}><Hit entry={entry} alignmentsCollapsed={this.props.alignmentsCollapsed} onToggleAlignmentsCollapsed={ this.onToggleAlignmentsCollapsed } /></ul>

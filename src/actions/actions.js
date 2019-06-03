@@ -1,3 +1,5 @@
+import styles from 'containers/SequenceSearch/components/SearchForm/index.scss';
+
 import * as types from './actionTypes';
 import routes from 'services/routes.jsx';
 import {store} from 'app.jsx';
@@ -225,7 +227,6 @@ export function onSort(event) {
 }
 
 export function onToggleAlignmentsCollapsed() {
-  $('.alignment').toggleClass('alignment-collapsed');
   return {type: types.TOGGLE_ALIGNMENTS_COLLAPSED}
 }
 
@@ -246,6 +247,7 @@ export function onDeselectAllDatabases() {
 }
 
 export function onToggleDatabasesCollapsed() {
+  $('#rnacentralDatabaseCollapsible').toggleClass(styles['databases-collapsed']);
   return {type: types.TOGGLE_DATABASES_COLLAPSED}
 }
 

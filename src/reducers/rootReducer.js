@@ -146,7 +146,6 @@ const rootReducer = function (state = initialState, action) {
       });
 
     case actions.TOGGLE_DATABASES_COLLAPSED:
-      $('#rnacentralDatabaseCollapsible').toggleClass('databases-collapsed');
       return Object.assign({}, state, {
         databasesCollapsed: !state.databasesCollapsed
       });

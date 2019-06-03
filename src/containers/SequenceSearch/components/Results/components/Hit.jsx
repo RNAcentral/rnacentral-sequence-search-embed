@@ -1,5 +1,6 @@
 import ebiGlobal from 'ebi-framework/css/ebi-global.css';
 import styles from '../index.scss';
+import fonts from 'EBI-Icon-fonts/fonts.css';
 
 import React from 'react';
 import {connect} from "react-redux";
@@ -23,11 +24,11 @@ class Hit extends React.Component {
           </ul>
           <small>
             <a onClick={ this.props.onToggleAlignmentsCollapsed }>
-              { this.props.alignmentsCollapsed ? <span><i className="icon icon-functional" data-icon="9" /> show alignments</span> : <span><i className="icon icon-functional" data-icon="8"/> hide alignments</span> }
+              { this.props.alignmentsCollapsed ? <span><i className={`${fonts.icon} ${fonts['icon-functional']}`} data-icon="9" /> show alignments</span> : <span><i className={`${fonts.icon} ${fonts['icon-functional']}`} data-icon="8"/> hide alignments</span> }
             </a>
           </small>
-          <div className={`callout ${styles.alignment} ${this.props.alignmentsCollapsed ? styles['alignment-collapsed'] : ''}`}>
-            <table className={ `${styles['responsive-table']} ${styles['alignment-table']}` }>
+          <div className={`${ebiGlobal.callout} ${styles.alignment} ${this.props.alignmentsCollapsed ? styles['alignment-collapsed'] : ''}`}>
+            <table className={ `${ebiGlobal['responsive-table']} ${styles['alignment-table']}` }>
               <thead>
                 <tr>
                   <th>E-value</th>

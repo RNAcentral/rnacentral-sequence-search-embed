@@ -1,13 +1,3 @@
-/* custom background image in masthead */
-.masthead {
-  background-image: url("../images/Into_Every_Life_A_Little_Bokeh_Must_Fall.jpg");
-}
-
-/* make all masthead text white */
-.masthead h1, .masthead h4, .masthead p, .masthead a, .masthead .masthead-inner .menu > li > a {
-  color: #FFFFFF;
-}
-
 /* spin class, similar to font-awesome */
 @-moz-keyframes spin {
   to { -moz-transform: rotate(360deg); }
@@ -22,4 +12,10 @@
 .spin {
   display: inline-block; /* won't work with inline elements, either block or inline-block */
   animation: spin 2000ms linear infinite;
+}
+
+.facet {
+  overflow: auto;
+  max-height: 20em;
+  margin-bottom: 1em;
 }

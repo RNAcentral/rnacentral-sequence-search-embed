@@ -9,7 +9,6 @@ import 'ebi-framework/css/ebi-global.css';
 import 'ebi-framework/css/theme-light.css';
 import 'EBI-Icon-fonts/fonts.css';
 import 'animate.css/animate.min.css';
-import 'styles/style.scss';
 
 import Results from 'containers/SequenceSearch/components/Results/index.jsx';
 import SearchForm from 'containers/SequenceSearch/components/SearchForm/index.jsx';

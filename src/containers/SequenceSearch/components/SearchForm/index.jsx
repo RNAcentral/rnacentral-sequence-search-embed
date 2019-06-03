@@ -1,13 +1,14 @@
 import ebiGlobal from 'ebi-framework/css/ebi-global.css';
 import fonts from 'EBI-Icon-fonts/fonts.css';
+import themeLight from 'ebi-framework/css/theme-light.css';
 import styles from './index.scss';
+import componentStyles from 'containers/SequenceSearch/index.scss';
 
 import React from 'react';
 import {connect} from 'react-redux';
 
 import routes from 'services/routes.jsx';
 
-import 'containers/SequenceSearch/components/SearchForm/index.scss';
 import * as actions from "../../../../actions/actions";
 import {store} from "app.jsx";
 
@@ -44,11 +45,11 @@ class SearchForm extends React.Component {
                 </div>}
                 <div>
                   <fieldset>
-                    <h4><a onClick={ this.props.onToggleDatabasesCollapsed }><small>{ this.props.databasesCollapsed ? <i className="icon icon-functional" data-icon="9" /> : <i className="icon icon-functional" data-icon="8"/> } search against specific RNA databases</small></a></h4>
+                    <h4><a onClick={ this.props.onToggleDatabasesCollapsed }><small>{ this.props.databasesCollapsed ? <i className={`${fonts.icon} ${fonts['icon-functional']}`} data-icon="9" /> : <i className={`${fonts.icon} ${fonts['icon-functional']}`} data-icon="8"/> } search against specific RNA databases</small></a></h4>
                     <div id="rnacentralDatabaseCollapsible" className={styles['databases-collapsed']}>
-                      <ul id={styles.rnacentralDatabases} className="facets">
+                      <ul className={styles.rnacentralDatabases}>
                         {this.props.rnacentralDatabases.map(database =>
-                          <li key={database}><span className="facet"><input id={database} type="checkbox" checked={this.props.selectedDatabases[database]} onChange={(e) => this.props.onDatabaseCheckboxToggle(e)} /><label htmlFor={database}>{ this.props.rnacentralDatabaseLabels[database] }</label></span></li>
+                          <li key={database}><span className={componentStyles.facet}><input id={database} type="checkbox" checked={this.props.selectedDatabases[database]} onChange={(e) => this.props.onDatabaseCheckboxToggle(e)} /><label htmlFor={database}>{ this.props.rnacentralDatabaseLabels[database] }</label></span></li>
                         )}
                       </ul>
                       <p>
@@ -62,7 +63,7 @@ class SearchForm extends React.Component {
                 <div>
                   <fieldset>
                     <div id="jd_submitButtonPanel">
-                      <input name="submit" type="submit" value="Submit" className="button" />
+                      <input name="submit" type="submit" value="Submit" className={`${themeLight.button} ${ebiGlobal.button}`} />
                     </div>
                   </fieldset>
                 </div>
