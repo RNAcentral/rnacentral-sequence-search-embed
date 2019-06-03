@@ -1,3 +1,7 @@
+import ebiGlobal from 'ebi-framework/css/ebi-global.css';
+import fonts from 'EBI-Icon-fonts/fonts.css';
+import styles from './index.scss';
+
 import React from 'react';
 import {connect} from 'react-redux';
 
@@ -6,19 +10,18 @@ import routes from 'services/routes.jsx';
 import 'containers/SequenceSearch/components/SearchForm/index.scss';
 import * as actions from "../../../../actions/actions";
 import {store} from "app.jsx";
-import styles from './index.scss';
 
 
 class SearchForm extends React.Component {
   render() {
     return (
-      <div className="row">
-        <div className="col-lg-12">
-          <div className="hpanel">
-            <div className="panel-heading">
+      <div className={ebiGlobal.row}>
+        <div className={ebiGlobal['col-lg-12']}>
+          <div className={ebiGlobal.hpanel}>
+            <div className={ebiGlobal['panel-heading']}>
               <h1>Search an RNA sequence in RNA databases</h1>
             </div>
-            <div className="panel-body">
+            <div className={ebiGlobal['panel-body']}>
               <form onSubmit={(e) => this.onSubmit(e)}>
                 <div>
                   <fieldset>
@@ -35,7 +38,7 @@ class SearchForm extends React.Component {
                     </p>
                   </fieldset>
                 </div>
-                { this.props.submissionError && <div className="callout alert">
+                { this.props.submissionError && <div className={`${ebiGlobal.callout} ${ebiGlobal.alert}`}>
                   <h3>Form submission failed</h3>
                   { this.props.submissionError }
                 </div>}

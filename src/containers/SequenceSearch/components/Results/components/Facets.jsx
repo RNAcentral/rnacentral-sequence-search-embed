@@ -1,3 +1,5 @@
+import ebiGlobal from 'ebi-framework/css/ebi-global.css';
+import fonts from 'EBI-Icon-fonts/fonts.css';
 import styles from '../index.scss';
 
 import React from 'react';
@@ -40,7 +42,7 @@ class Facets extends React.Component {
 
   render() {
     return (
-      <div className="small-12 medium-2 medium-pull-10 columns">
+      <div className={`${ebiGlobal['small-12']} ${ebiGlobal['medium-2']} ${ebiGlobal['medium-pull-10']} ${ebiGlobal['columns']}`}>
         <label>Sort by:
           <select value={this.props.sortingOrder} onChange={this.props.onSort}>
             <option value="e_value">E-value (min to max) - default</option>
@@ -59,12 +61,12 @@ class Facets extends React.Component {
           </div>
           {
             this.props.textSearchError &&
-            <div className="callout alert">
+            <div className={`${ebiGlobal.callout} ${ebiGlobal.alert}`}>
               <h3>Failed to retrieve text search data.</h3>
-              <a onClick={ this.props.onReload }><i className="icon icon-functional" data-icon="R"></i> Reload</a>
+              <a onClick={ this.props.onReload }><i className={`${fonts.icon} ${fonts['icon-functional']}`} data-icon="R"/> Reload</a>
             </div>
           }
-          <small className="text-muted">
+          <small>
             Powered by <a href="https://www.ncbi.nlm.nih.gov/pubmed/23842809">NHMMER</a> and <a href="http://www.ebi.ac.uk/ebisearch/" target="_blank">EBI Search</a>.
           </small>
         </section>

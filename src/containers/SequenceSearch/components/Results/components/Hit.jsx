@@ -1,3 +1,4 @@
+import ebiGlobal from 'ebi-framework/css/ebi-global.css';
 import styles from '../index.scss';
 
 import React from 'react';
@@ -11,12 +12,12 @@ class Hit extends React.Component {
   render() {
     return (
       <li className={styles.result}>
-        <div className="text-search-result">
+        <div className={styles['text-search-result']}>
           <h4>
             <a href={`https://rnacentral.org/rna/${ this.props.entry.rnacentral_id }`}>{ this.props.entry.description }</a>
           </h4>
-          <small className="text-muted">{ this.props.entry.rnacentral_id }</small>
-          <ul className="menu small">
+          <small>{ this.props.entry.rnacentral_id }</small>
+          <ul className={`${ebiGlobal.menu} ${ebiGlobal.small}`}>
             <li>{this.props.entry.target_length} nucleotides</li>
             <li></li>
           </ul>
