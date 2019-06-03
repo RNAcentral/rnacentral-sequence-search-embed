@@ -1,3 +1,5 @@
+import styles from '../index.scss';
+
 import React from 'react';
 import {connect} from "react-redux";
 
@@ -15,11 +17,11 @@ class Facets extends React.Component {
   renderFacet(facet) {
     return [
       <legend key={`legend-${facet.id}`}><h5 style={{color: 'rgb(0,124,130)' }}>{ facet.label }</h5></legend>,
-      <ul key={facet.id} className="vertical menu facet">
+      <ul key={facet.id} className={`vertical menu ${styles.facet}`}>
         {
           facet.facetValues.map(facetValue => (
             <li key={`li ${facetValue.label}`}>
-              <span className="facetValue">
+              <span className={styles.facetValue}>
                 <input id={`checkbox-${facet.id}-${facetValue.value}`} type="checkbox"
                   checked={this.props.selectedFacets.hasOwnProperty(facet.id) && this.props.selectedFacets[facet.id].indexOf(facetValue.value) !== -1}
                   onChange={(e) => {

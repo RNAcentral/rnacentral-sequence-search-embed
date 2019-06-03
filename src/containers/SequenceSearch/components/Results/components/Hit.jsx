@@ -1,3 +1,5 @@
+import styles from '../index.scss';
+
 import React from 'react';
 import {connect} from "react-redux";
 
@@ -8,7 +10,7 @@ import * as actionCreators from 'actions/actions';
 class Hit extends React.Component {
   render() {
     return (
-      <li className="result">
+      <li className={styles.result}>
         <div className="text-search-result">
           <h4>
             <a href={`https://rnacentral.org/rna/${ this.props.entry.rnacentral_id }`}>{ this.props.entry.description }</a>
@@ -23,8 +25,8 @@ class Hit extends React.Component {
               { this.props.alignmentsCollapsed ? <span><i className="icon icon-functional" data-icon="9" /> show alignments</span> : <span><i className="icon icon-functional" data-icon="8"/> hide alignments</span> }
             </a>
           </small>
-          <div className={`callout alignment ${this.props.alignmentsCollapsed ? 'alignment-collapsed' : ''}`}>
-            <table className="responsive-table">
+          <div className={`callout ${styles.alignment} ${this.props.alignmentsCollapsed ? styles['alignment-collapsed'] : ''}`}>
+            <table className={ `${styles['responsive-table']} ${styles['alignment-table']}` }>
               <thead>
                 <tr>
                   <th>E-value</th>

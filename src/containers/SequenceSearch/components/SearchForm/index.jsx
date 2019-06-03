@@ -6,6 +6,7 @@ import routes from 'services/routes.jsx';
 import 'containers/SequenceSearch/components/SearchForm/index.scss';
 import * as actions from "../../../../actions/actions";
 import {store} from "app.jsx";
+import styles from './index.scss';
 
 
 class SearchForm extends React.Component {
@@ -41,8 +42,8 @@ class SearchForm extends React.Component {
                 <div>
                   <fieldset>
                     <h4><a onClick={ this.props.onToggleDatabasesCollapsed }><small>{ this.props.databasesCollapsed ? <i className="icon icon-functional" data-icon="9" /> : <i className="icon icon-functional" data-icon="8"/> } search against specific RNA databases</small></a></h4>
-                    <div id="rnacentralDatabaseCollapsible" className="databases-collapsed">
-                      <ul id="rnacentralDatabases" className="facets">
+                    <div id="rnacentralDatabaseCollapsible" className={styles['databases-collapsed']}>
+                      <ul id={styles.rnacentralDatabases} className="facets">
                         {this.props.rnacentralDatabases.map(database =>
                           <li key={database}><span className="facet"><input id={database} type="checkbox" checked={this.props.selectedDatabases[database]} onChange={(e) => this.props.onDatabaseCheckboxToggle(e)} /><label htmlFor={database}>{ this.props.rnacentralDatabaseLabels[database] }</label></span></li>
                         )}
