@@ -48,7 +48,7 @@ module.exports = function(env) {
           test: /\.(s?css|sass)$/,
           use: ExtractTextPlugin.extract({
             use: [
-              { loader: 'css-loader', options: {sourceMap: true} },
+              { loader: 'css-loader', options: {sourceMap: true, modules: true} },
               { loader: 'sass-loader', options: {sourceMap: true} }
             ]
           })
