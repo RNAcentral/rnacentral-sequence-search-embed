@@ -17,7 +17,7 @@ module.exports = function(env) {
     entry: path.join(__dirname, 'src', 'app.jsx'),
     output: {
       path: path.join(__dirname, 'dist'),
-      publicPath: environment === 'production' ? '/dist/' : '/',
+      publicPath: environment === 'production' ? '/rnacentral-sequence-search-embed/dist/' : '/',
       filename: 'app.[hash:7].js'
     },
     resolve: {
