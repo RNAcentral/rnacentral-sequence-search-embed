@@ -7,8 +7,6 @@ import componentStyles from 'containers/SequenceSearch/index.scss';
 import React from 'react';
 import {connect} from 'react-redux';
 
-import routes from 'services/routes.jsx';
-
 import * as actions from "../../../../actions/actions";
 import {store} from "app.jsx";
 
