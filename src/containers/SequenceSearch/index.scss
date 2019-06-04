@@ -1,13 +1,21 @@
-ul#rnacentralDatabases {
-  -moz-column-count: 3;
-  -moz-column-gap: 20px;
-  -webkit-column-count: 3;
-  -webkit-column-gap: 20px;
-  column-count: 3;
-  column-gap: 20px;
-  list-style: none;
+/* spin class, similar to font-awesome */
+@-moz-keyframes spin {
+  to { -moz-transform: rotate(360deg); }
+}
+@-webkit-keyframes spin {
+  to { -webkit-transform: rotate(360deg); }
+}
+@keyframes spin {
+  to { transform:rotate(360deg); }
 }
 
-.databases-collapsed {
-  display: none;
+.spin {
+  display: inline-block; /* won't work with inline elements, either block or inline-block */
+  animation: spin 2000ms linear infinite;
+}
+
+.facet {
+  overflow: auto;
+  max-height: 20em;
+  margin-bottom: 1em;
 }

@@ -24,7 +24,16 @@
     "RNA",
     "bioinformatics"
   ],
-  "author": "Boris A. Burkov",
+  "contributors": [
+    {
+      "name": "Boris A. Burkov",
+      "email": "burkov@ebi.ac.uk"
+    },
+    {
+      "name": "Anton I. Petrov",
+      "email": "apetrov@ebi.ac.uk"
+    }
+  ],
   "license": "Apache-2.0",
   "bugs": {
     "url": "https://github.com/RNAcentral/rnacentral-sequence-search-embed/issues"
@@ -61,6 +70,7 @@
     "navigator": "~1.0.1",
     "node-sass": "^4.9.4",
     "react-router-config": "^1.0.0-beta.4",
+    "redux-devtools-extension": "^2.13.8",
     "sass-loader": "^6.0.6",
     "style-loader": "^0.18.2",
     "url-loader": "^0.5.9",

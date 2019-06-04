@@ -1,8 +1,15 @@
 // results
 export const FETCH_RESULTS = 'FETCH_RESULTS';
+export const FAILED_FETCH_RESULTS = 'FAILED_FETCH_RESULTS';
 
 export const TOGGLE_ALIGNMENTS_COLLAPSED = 'TOGGLE_ALIGNMENTS_COLLAPSED';
 export const TOGGLE_FACET = 'TOGGLE_FACET';
+export const RELOAD = 'RELOAD';
+export const LOAD_MORE = 'LOAD_MORE';
+export const SORT_RESULTS = 'SORT_RESULTS';
+
+export const FETCH_STATUS = 'FETCH_STATUS';
+export const SET_STATUS_TIMEOUT = 'SET_STATUS_TIMEOUT';
 
 
 // submission form

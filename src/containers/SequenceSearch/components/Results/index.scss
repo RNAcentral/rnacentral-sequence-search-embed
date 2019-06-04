@@ -23,18 +23,12 @@
   box-sizing: border-box;
 }
 
-.alignment table {
+.alignment-table {
   font-size: small;
 }
 
 .alignment-collapsed {
   display: none;
-}
-
-.facet {
-  overflow: auto;
-  max-height: 20em;
-  margin-bottom: 1em;
 }
 
 .facetValue {

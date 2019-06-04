@@ -1,9 +1,12 @@
+import ebiGlobal from 'ebi-framework/css/ebi-global.css';
+import fonts from 'EBI-Icon-fonts/fonts.css';
+import themeLight from 'ebi-framework/css/theme-light.css';
+import styles from './index.scss';
+import componentStyles from 'containers/SequenceSearch/index.scss';
+
 import React from 'react';
 import {connect} from 'react-redux';
 
-import routes from 'services/routes.jsx';
-
-import 'containers/SequenceSearch/components/SearchForm/index.scss';
 import * as actions from "../../../../actions/actions";
 import {store} from "app.jsx";
 
@@ -11,13 +14,13 @@ import {store} from "app.jsx";
 class SearchForm extends React.Component {
   render() {
     return (
-      <div className="row">
-        <div className="col-lg-12">
-          <div className="hpanel">
-            <div className="panel-heading">
+      <div className={ebiGlobal.row}>
+        <div className={ebiGlobal['col-lg-12']}>
+          <div className={ebiGlobal.hpanel}>
+            <div className={ebiGlobal['panel-heading']}>
               <h1>Search an RNA sequence in RNA databases</h1>
             </div>
-            <div className="panel-body">
+            <div className={ebiGlobal['panel-body']}>
               <form onSubmit={(e) => this.onSubmit(e)}>
                 <div>
                   <fieldset>
@@ -30,21 +33,21 @@ class SearchForm extends React.Component {
                     <textarea id="sequence" name="sequence" rows="7" value={this.props.sequence} onChange={(e) => this.props.onSequenceTextareaChange(e)} />
                     <p>
                       Or upload a file:
-                      <input id="sequence-file" name="sequence-file" type="file" accept=".fasta" onChange={this.onFileUpload} />
+                      <input id="sequence-file" name="sequence-file" type="file" accept=".fasta" onChange={this.props.onFileUpload} />
                     </p>
                   </fieldset>
                 </div>
-                { this.props.submissionError && <div className="callout alert">
+                { this.props.submissionError && <div className={`${ebiGlobal.callout} ${ebiGlobal.alert}`}>
                   <h3>Form submission failed</h3>
                   { this.props.submissionError }
                 </div>}
                 <div>
                   <fieldset>
-                    <h4><a onClick={ this.props.onToggleDatabasesCollapsed }><small>{ this.props.databasesCollapsed ? <i className="icon icon-functional" data-icon="9" /> : <i className="icon icon-functional" data-icon="8"/> } search against specific RNA databases</small></a></h4>
-                    <div id="rnacentralDatabaseCollapsible" className="databases-collapsed">
-                      <ul id="rnacentralDatabases" className="facets">
+                    <h4><a onClick={ this.props.onToggleDatabasesCollapsed }><small>{ this.props.databasesCollapsed ? <i className={`${fonts.icon} ${fonts['icon-functional']}`} data-icon="9" /> : <i className={`${fonts.icon} ${fonts['icon-functional']}`} data-icon="8"/> } search against specific RNA databases</small></a></h4>
+                    <div id="rnacentralDatabaseCollapsible" className={styles['databases-collapsed']}>
+                      <ul className={styles.rnacentralDatabases}>
                         {this.props.rnacentralDatabases.map(database =>
-                          <li key={database}><span className="facet"><input id={database} type="checkbox" checked={this.props.selectedDatabases[database]} onChange={(e) => this.props.onDatabaseCheckboxToggle(e)} /><label htmlFor={database}>{ this.props.rnacentralDatabaseLabels[database] }</label></span></li>
+                          <li key={database}><span className={componentStyles.facet}><input id={database} type="checkbox" checked={this.props.selectedDatabases[database]} onChange={(e) => this.props.onDatabaseCheckboxToggle(e)} /><label htmlFor={database}>{ this.props.rnacentralDatabaseLabels[database] }</label></span></li>
                         )}
                       </ul>
                       <p>
@@ -58,7 +61,7 @@ class SearchForm extends React.Component {
                 <div>
                   <fieldset>
                     <div id="jd_submitButtonPanel">
-                      <input name="submit" type="submit" value="Submit" className="button" />
+                      <input name="submit" type="submit" value="Submit" className={`${themeLight.button} ${ebiGlobal.button}`} />
                     </div>
                   </fieldset>
                 </div>
@@ -106,7 +109,7 @@ const mapDispatchToProps = (dispatch) => ({
   onToggleDatabasesCollapsed: () => dispatch(actions.onToggleDatabasesCollapsed()),
   onExampleSequence: (sequence) => dispatch(actions.onExampleSequence(sequence)),
   onClearSequence: () => dispatch(actions.onClearSequence()),
-  onFileUpload: () => dispatch(actions.onFileUpload()),
+  onFileUpload: (event) => dispatch(actions.onFileUpload(event)),
   fetchRNAcentralDatabases: actions.fetchRNAcentralDatabases
 });
 

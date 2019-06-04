@@ -1,4 +1,4 @@
-let server = 'http://193.62.55.45';
+let server = 'http://193.62.55.44:8002';
 
 
 module.exports = {
