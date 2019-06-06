@@ -231,7 +231,7 @@ export function onToggleAlignmentsCollapsed() {
 }
 
 export function onSequenceTextAreaChange(event) {
-  return {type: types.TEXTAREA_CHANGE, sequence: event.text}
+  return {type: types.TEXTAREA_CHANGE, sequence: event.target.value}
 }
 
 export function onDatabaseCheckboxToggle(event) {
