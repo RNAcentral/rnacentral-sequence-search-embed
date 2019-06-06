@@ -25,7 +25,7 @@ class SequenceSearch extends React.Component {
 
   render() {
     return [
-      <SearchForm key={`searchForm`} />,
+      <SearchForm key={`searchForm`} databases={this.props.databases} />,
       <Results key={`results`} />
     ]
   }
@@ -33,8 +33,6 @@ class SequenceSearch extends React.Component {
   componentDidMount() {
     $(document).foundation();
     $(document).foundationExtendEBI();
-
-    this.props.fetchRNAcentralDatabases()
   }
 
 }
@@ -48,9 +46,7 @@ function mapStateToProps(state) {
 }
 
 function mapDispatchToProps(dispatch) {
-  return {
-    fetchRNAcentralDatabases: () => dispatch(actionCreators.fetchRNAcentralDatabases())
-  };
+  return {};
 }
 
 export default connect(

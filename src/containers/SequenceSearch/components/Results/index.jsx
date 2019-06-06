@@ -18,14 +18,6 @@ class Results extends React.Component {
     super(props);
   }
 
-  componentDidMount() {
-    // TODO: use a constant for status
-    if (this.props.status === 'submitted') {
-      this.props.fetchRNAcentralDatabases();
-      //     this.load(this.props.resultId, this.buildQuery(), 0, this.state.size, this.state.ordering, true, true);
-    }
-  }
-
   render() {
     return (
       <div className={ebiGlobal.row}>

@@ -30,23 +30,7 @@ export function toggleAlignmentsCollapsed() {
   return {type: types.TOGGLE_ALIGNMENTS_COLLAPSED };
 }
 
-export function fetchRNAcentralDatabases() {
-  return function(dispatch) {
-    return fetch(routes.rnacentralDatabases(), {
-      method: 'GET',
-      mode: 'cors',
-      credentials: 'include',
-      headers: {
-        'Accept': 'application/json'
-      }
-    })
-    .then(response => response.json())
-    .then(data => dispatch({type: types.FETCH_RNACENTRAL_DATABASES, status: 'success', data: data}))
-    .catch(error => dispatch({type: types.FETCH_RNACENTRAL_DATABASES, status: 'error', data: error}));
-  }
-}
-
-export function onSubmit(sequence, selectedDatabases) {
+export function onSubmit(sequence, databases) {
   return function(dispatch) {
     fetch(routes.submitJob(), {
       method: 'POST',
@@ -58,7 +42,7 @@ export function onSubmit(sequence, selectedDatabases) {
       },
       body: JSON.stringify({
         query: sequence,
-        databases: Object.keys(selectedDatabases).filter(key => selectedDatabases[key])
+        databases: databases
       })
     })
     .then(function (response) {
@@ -232,23 +216,6 @@ export function onToggleAlignmentsCollapsed() {
 
 export function onSequenceTextAreaChange(event) {
   return {type: types.TEXTAREA_CHANGE, sequence: event.target.value}
-}
-
-export function onDatabaseCheckboxToggle(event) {
-  return {type: types.TOGGLE_DATABASE_CHECKBOX, id: event.target.id}
-}
-
-export function onSelectAllDatabases() {
-  return {type: types.SELECT_ALL_DATABASES}
-}
-
-export function onDeselectAllDatabases() {
-  return {type: types.DESELECT_ALL_DATABASES}
-}
-
-export function onToggleDatabasesCollapsed() {
-  $('#rnacentralDatabaseCollapsible').toggleClass(styles['databases-collapsed']);
-  return {type: types.TOGGLE_DATABASES_COLLAPSED}
 }
 
 export function onExampleSequence(sequence) {

@@ -19,12 +19,6 @@ let initialState = {
   selectedFacets: {},  // e.g. { facetId1: [facetValue1.value, facetValue2.value], facetId2: [facetValue3.value] }
   alignmentsCollapsed: true,
   textSearchError: false,
-
-  rnacentralDatabases: [],
-  rnacentralDatabaseLabels: {},
-  rnacentralDatabasesError: false,
-  databasesCollapsed: true,
-  selectedDatabases: {},
   sequence: "",
 };
 

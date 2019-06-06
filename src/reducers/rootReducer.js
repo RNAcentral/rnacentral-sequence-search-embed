@@ -5,7 +5,7 @@ import initialState from "../store/initialState";
 
 
 const rootReducer = function (state = initialState, action) {
-  let newState, selectedDatabases, rnacentralDatabases, rnacentralDatabaseLabels, data;
+  let newState;
 
   switch (action.type) {
     // results
@@ -130,26 +130,6 @@ const rootReducer = function (state = initialState, action) {
     case actions.TEXTAREA_CHANGE:
       return Object.assign({}, state, { sequence: action.sequence });
 
-    case actions.TOGGLE_DATABASE_CHECKBOX:
-      selectedDatabases = { ...state.selectedDatabases };
-      selectedDatabases[action.id] = !selectedDatabases[action.id];
-      return Object.assign({}, state,{ selectedDatabases: selectedDatabases });
-
-    case actions.SELECT_ALL_DATABASES:
-      return Object.assign({}, state, {
-        selectedDatabases: Object.assign({}, ...state.rnacentralDatabases.map(e => ({[e]: true})))
-      });
-
-    case actions.DESELECT_ALL_DATABASES:
-      return Object.assign({}, state, {
-        selectedDatabases: Object.assign({}, ...state.rnacentralDatabases.map(e => ({[e]: false})))
-      });
-
-    case actions.TOGGLE_DATABASES_COLLAPSED:
-      return Object.assign({}, state, {
-        databasesCollapsed: !state.databasesCollapsed
-      });
-
     case actions.EXAMPLE_SEQUENCE:
       return Object.assign({}, state, {
         sequence: action.sequence,
@@ -166,38 +146,6 @@ const rootReducer = function (state = initialState, action) {
       } else {
         return Object.assign({}, state, {sequence: action.sequence});
       }
-
-    case actions.FETCH_RNACENTRAL_DATABASES:
-      if (!action.status) {
-        ; // do nothing, all the logic is in action creator
-      } else if (action.status === 'success') {
-        data = action.data;
-
-        rnacentralDatabases = data.map(database => database.id);
-
-        selectedDatabases = {};
-        data.map(database => { selectedDatabases[database.id] = false });
-
-        rnacentralDatabaseLabels = {};
-        data.map(database => { rnacentralDatabaseLabels[database.id] =  database.label });
-
-        newState = Object.assign({}, state, {
-          rnacentralDatabases: rnacentralDatabases,
-          selectedDatabases: selectedDatabases,
-          rnacentralDatabaseLabels: rnacentralDatabaseLabels,
-          rnacentralDatabasesError: false
-        });
-
-      } else if (action.status === 'error') {
-        newState = Object.assign({}, state, {
-          rnacentralDatabases: [],
-          selectedDatabases: {},
-          rnacentralDatabaseLabels: {},
-          rnacentralDatabasesError: true
-        });
-      }
-
-      return newState;
 
     default:
       return state;

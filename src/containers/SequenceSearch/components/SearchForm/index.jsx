@@ -43,23 +43,6 @@ class SearchForm extends React.Component {
                 </div>}
                 <div>
                   <fieldset>
-                    <h4><a onClick={ this.props.onToggleDatabasesCollapsed }><small>{ this.props.databasesCollapsed ? <i className={`${fonts.icon} ${fonts['icon-functional']}`} data-icon="9" /> : <i className={`${fonts.icon} ${fonts['icon-functional']}`} data-icon="8"/> } search against specific RNA databases</small></a></h4>
-                    <div id="rnacentralDatabaseCollapsible" className={styles['databases-collapsed']}>
-                      <ul className={styles.rnacentralDatabases}>
-                        {this.props.rnacentralDatabases.map(database =>
-                          <li key={database}><span className={componentStyles.facet}><input id={database} type="checkbox" checked={this.props.selectedDatabases[database]} onChange={(e) => this.props.onDatabaseCheckboxToggle(e)} /><label htmlFor={database}>{ this.props.rnacentralDatabaseLabels[database] }</label></span></li>
-                        )}
-                      </ul>
-                      <p>
-                        <label>
-                          <a id="selectAllDatabases" onClick={ this.props.onSelectAllDatabases }>Select all</a> | <a id="deselectAllDatabases" onClick={ this.props.onDeselectAllDatabases }>Deselect all</a>
-                        </label>
-                      </p>
-                    </div>
-                  </fieldset>
-                </div>
-                <div>
-                  <fieldset>
                     <div id="jd_submitButtonPanel">
                       <input name="submit" type="submit" value="Submit" className={`${themeLight.button} ${ebiGlobal.button}`} />
                     </div>
@@ -73,16 +56,12 @@ class SearchForm extends React.Component {
     )
   }
 
-  componentDidMount() {
-    this.props.fetchRNAcentralDatabases();
-  }
-
   onSubmit(event) {
     event.preventDefault();
 
     const state = store.getState();
     if (state.sequence) {
-      store.dispatch(actions.onSubmit(state.sequence, state.selectedDatabases));
+      store.dispatch(actions.onSubmit(state.sequence, this.props.databases));
     }
   }
 }
@@ -94,23 +73,14 @@ const mapStateToProps = (state) => ({
   facets: state.facets,
   hitCount: state.hitCount,
   ordering: state.ordering,
-  textSearchError: state.textSearchError,
-  rnacentralDatabases: state.rnacentralDatabases,
-  rnacentralDatabaseLabels: state.rnacentralDatabaseLabels,
-  selectedDatabases: state.selectedDatabases,
-  databasesCollapsed: state.databasesCollapsed
+  textSearchError: state.textSearchError
 });
 
 const mapDispatchToProps = (dispatch) => ({
   onSequenceTextareaChange: (event) => dispatch(actions.onSequenceTextAreaChange(event)),
-  onDatabaseCheckboxToggle: (event) => dispatch(actions.onDatabaseCheckboxToggle(event)),
-  onSelectAllDatabases: () => dispatch(actions.onSelectAllDatabases()),
-  onDeselectAllDatabases: () => dispatch(actions.onDeselectAllDatabases()),
-  onToggleDatabasesCollapsed: () => dispatch(actions.onToggleDatabasesCollapsed()),
   onExampleSequence: (sequence) => dispatch(actions.onExampleSequence(sequence)),
   onClearSequence: () => dispatch(actions.onClearSequence()),
-  onFileUpload: (event) => dispatch(actions.onFileUpload(event)),
-  fetchRNAcentralDatabases: actions.fetchRNAcentralDatabases
+  onFileUpload: (event) => dispatch(actions.onFileUpload(event))
 });
 
 

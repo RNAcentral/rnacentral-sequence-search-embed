@@ -7,10 +7,11 @@ import configureStore from 'store/configureStore.js';
 
 
 export const store = configureStore();
+export const databases = ['mirbase'];
 
 ReactDOM.render(
   <Provider store={store}>
-    <SequenceSearch/>
+    <SequenceSearch databases={databases}/>
   </Provider>,
   document.querySelector('div#sequence-search')
 );
