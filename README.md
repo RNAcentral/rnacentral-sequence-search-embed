@@ -67,3 +67,45 @@ of the page above.
 Javascript bundle is wrapped into a UMD wrapper and should be safe
 to use with ECMAscript modules and AMD/Require.js. CSS bundle is
 using CSS modules and shouldn't be breaking CSS of your webpage.
+
+## Parameters
+
+SequenceSearch component accepts a number of parameters. You pass them as html attributes
+in curly braces:
+
+```
+<SequenceSearch databases={['mirbase']} onSubmit={function (query, databases) { console.log('hi!') }}  />
+```
+
+#### databases
+
+Array of databases to search query sequence against. Currently you can choose from:
+
+database     |
+-------------|
+ena          |
+greengenes   |
+lncrnadb     |
+mirbase      |
+pdbe         |
+pombase      |
+rdp          |
+refseq       |
+rfam         |
+rgd          |
+sgd          |
+snopy        |
+srpdb        |
+tair         |
+tmrna-website|
+wormbase     |
+
+
+#### onSubmit
+
+A hook (your custom javascript function) to be executed, when user submits a sequence. This function can receive 
+2 parameters: 
+ 
+ * query - the query sequence, submitted by user
+ * databases - array of databases
+ 
