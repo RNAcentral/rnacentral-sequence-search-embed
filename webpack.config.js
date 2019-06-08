@@ -18,14 +18,14 @@ module.exports = function(env) {
     output: {
       path: path.join(__dirname, 'dist'),
       publicPath: environment === 'production' ? '/rnacentral-sequence-search-embed/dist/' : '/',
-      filename: 'app.[hash:7].js'
+      filename: 'RNAcentral-sequence-search.js'
     },
     resolve: {
       modules: [path.join(__dirname, 'src'), path.join(__dirname, 'node_modules')]
     },
     plugins: [
       new webpack.HotModuleReplacementPlugin(),
-      new ExtractTextPlugin('app.[hash:7].css'),
+      new ExtractTextPlugin('RNAcentral-sequence-search.css'),
       new HtmlWebpackPlugin({
         inject: "body",
         template: "src/index.html",
