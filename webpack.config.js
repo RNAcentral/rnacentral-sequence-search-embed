@@ -41,7 +41,7 @@ module.exports = function(env) {
           exclude: /node_modules/,
           query: {
             presets: ['es2015', 'react'],
-            plugins: ['transform-es2015-destructuring', 'transform-object-rest-spread']
+            plugins: ['transform-es2015-destructuring', 'transform-object-rest-spread', 'transform-custom-element-classes']
           }
         },
         {

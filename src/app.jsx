@@ -30,22 +30,45 @@ export const databases = ['mirbase'];
 //   reactRoot
 // );
 
-const proto = Object.create(HTMLElement.prototype, {
-  attachedCallback: {
-    value: function() {
-      const mountPoint = document.createElement('div');
-      const shadowRoot = this.createShadowRoot();
-      shadowRoot.appendChild(mountPoint);
-      ReactDOM.render([
-        <link key='styles' href="RNAcentral-sequence-search.css" rel="stylesheet" />,
-        <Provider key='provider' store={store}>
-          <SequenceSearch databases={databases}/>
-        </Provider>],
-        mountPoint
-      );
-      retargetEvents(shadowRoot);
-    }
-  }
-});
 
-document.registerElement('RNAcentral-sequence-search', {prototype: proto});
+class RNAcentralSequenceSearch extends HTMLElement {
+  constructor() {
+    super();
+
+    const mountPoint = document.createElement('div');
+    const shadowRoot = this.attachShadow({mode: 'open'});
+    shadowRoot.appendChild(mountPoint);
+    ReactDOM.render([
+      <link key='styles' href="RNAcentral-sequence-search.css" rel="stylesheet" />,
+      <Provider key='provider' store={store}>
+        <SequenceSearch databases={databases}/>
+      </Provider>],
+      mountPoint
+    );
+    retargetEvents(shadowRoot);
+  }
+}
+
+customElements.define('rnacentral-sequence-search', RNAcentralSequenceSearch);
+
+
+
+// const proto = Object.create(HTMLElement.prototype, {
+//   attachedCallback: {
+//     value: function() {
+//       const mountPoint = document.createElement('div');
+//       const shadowRoot = this.createShadowRoot();
+//       shadowRoot.appendChild(mountPoint);
+//       ReactDOM.render([
+//         <link key='styles' href="RNAcentral-sequence-search.css" rel="stylesheet" />,
+//         <Provider key='provider' store={store}>
+//           <SequenceSearch databases={databases}/>
+//         </Provider>],
+//         mountPoint
+//       );
+//       retargetEvents(shadowRoot);
+//     }
+//   }
+// });
+
+// document.registerElement('RNAcentral-sequence-search', {prototype: proto});
