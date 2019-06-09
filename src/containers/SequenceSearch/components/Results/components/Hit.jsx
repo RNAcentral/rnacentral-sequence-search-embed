@@ -1,7 +1,3 @@
-import ebiGlobal from 'ebi-framework/css/ebi-global.css';
-import styles from '../index.scss';
-import fonts from 'EBI-Icon-fonts/fonts.css';
-
 import React from 'react';
 import {connect} from "react-redux";
 
@@ -12,23 +8,23 @@ import * as actionCreators from 'actions/actions';
 class Hit extends React.Component {
   render() {
     return (
-      <li className={styles.result}>
-        <div className={styles['text-search-result']}>
+      <li className="result">
+        <div className="text-search-result">
           <h4>
             <a href={`https://rnacentral.org/rna/${ this.props.entry.rnacentral_id }`}>{ this.props.entry.description }</a>
           </h4>
           <small>{ this.props.entry.rnacentral_id }</small>
-          <ul className={`${ebiGlobal.menu} ${ebiGlobal.small}`}>
+          <ul className="menu small">
             <li>{this.props.entry.target_length} nucleotides</li>
             <li></li>
           </ul>
           <small>
             <a onClick={ this.props.onToggleAlignmentsCollapsed }>
-              { this.props.alignmentsCollapsed ? <span><i className={`${fonts.icon} ${fonts['icon-functional']}`} data-icon="9" /> show alignments</span> : <span><i className={`${fonts.icon} ${fonts['icon-functional']}`} data-icon="8"/> hide alignments</span> }
+              { this.props.alignmentsCollapsed ? <span><i className="icon icon-functional" data-icon="9" /> show alignments</span> : <span><i className="icon icon-functional" data-icon="8"/> hide alignments</span> }
             </a>
           </small>
-          <div className={`${ebiGlobal.callout} ${styles.alignment} ${this.props.alignmentsCollapsed ? styles['alignment-collapsed'] : ''}`}>
-            <table className={ `${ebiGlobal['responsive-table']} ${styles['alignment-table']}` }>
+          <div className={`callout alignment ${this.props.alignmentsCollapsed ? 'alignment-collapsed' : ''}`}>
+            <table className="responsive-table alignment-table">
               <thead>
                 <tr>
                   <th>E-value</th>

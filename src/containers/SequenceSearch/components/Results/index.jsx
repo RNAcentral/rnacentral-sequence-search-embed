@@ -1,7 +1,3 @@
-import ebiGlobal from 'ebi-framework/css/ebi-global.css';
-import componentStyles from 'containers/SequenceSearch/index.scss';
-import fonts from 'EBI-Icon-fonts/fonts.css';
-
 import React from 'react';
 import {connect} from 'react-redux';
 
@@ -20,10 +16,10 @@ class Results extends React.Component {
 
   render() {
     return (
-      <div className={ebiGlobal.row}>
+      <div className="row">
         {
           this.props.status === "partial_success" && (
-            <div className={`${ebiGlobal.callout} ${ebiGlobal.alert}`}>
+            <div className="callout alert">
               <h3>Search against some databases failed.</h3>
               <p>Search results might be incomplete, you might want to retry running the search.</p>
             </div>
@@ -31,14 +27,14 @@ class Results extends React.Component {
         }
         {
           this.props.status === "does_not_exist" && (
-            <div className={`${ebiGlobal.callout} ${ebiGlobal.alert}`}>
+            <div className="callout alert">
               <h3>Job with id='{ this.props.jobId }' does not exist.</h3>
             </div>
           )
         }
         {
           this.props.status === "error" && (
-            <div className={`${ebiGlobal.callout} ${ebiGlobal.alert}`}>
+            <div className="callout alert">
               <h3>Server got itself into a trouble.</h3>
               <a href="mailto:rnacentral@gmail.com">Contact us</a> if the problem persists.
             </div>
@@ -46,13 +42,13 @@ class Results extends React.Component {
         }
         {
           (this.props.status === "loading" || this.props.status === "success" || this.props.status === "partial_success") && [
-            <h1 key={`results-header`} className={`${ebiGlobal['margin-top-large']} ${ebiGlobal['margin-bottom-large']}`}>Results: { this.props.status === "loading" ? <i className={`${fonts['icon']} ${fonts['icon-functional']} ${componentStyles.spin}`} data-icon="s"/> : <small>{ this.props.hitCount } total</small> }</h1>,
-            <div key={`results-div`} className={`${ebiGlobal['small-12']} ${ebiGlobal['medium-10']} ${ebiGlobal['medium-push-2']} ${ebiGlobal['columns']}`}>
+            <h1 key={`results-header`} className="margin-top-large margin-bottom-large">Results: { this.props.status === "loading" ? <i className="icon icon-functional spin" data-icon="s"/> : <small>{ this.props.hitCount } total</small> }</h1>,
+            <div key={`results-div`} className="small-12 medium-10 medium-push-2 columns">
               <section>
                 { this.props.entries.map((entry, index) => (
                 <ul key={`${entry}_${index}`}><Hit entry={entry} alignmentsCollapsed={this.props.alignmentsCollapsed} onToggleAlignmentsCollapsed={ this.onToggleAlignmentsCollapsed } /></ul>
                 )) }
-                {(this.props.status === "success" || this.props.status === "partial_success") && (this.props.entries.length < this.props.hitCount) && (<a className={`${ebiGlobal.button} ${ebiGlobal.small}`} onClick={this.props.onLoadMore} target="_blank">Load more</a>)}
+                {(this.props.status === "success" || this.props.status === "partial_success") && (this.props.entries.length < this.props.hitCount) && (<a className="button small" onClick={this.props.onLoadMore} target="_blank">Load more</a>)}
               </section>
             </div>,
             <Facets key={`results-facets`} facets={ this.props.facets } selectedFacets={ this.props.selectedFacets } toggleFacet={ this.toggleFacet } ordering={ this.props.ordering } textSearchError={ this.props.textSearchError } />

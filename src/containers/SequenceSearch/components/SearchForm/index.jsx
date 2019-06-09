@@ -1,9 +1,3 @@
-import ebiGlobal from 'ebi-framework/css/ebi-global.css';
-import fonts from 'EBI-Icon-fonts/fonts.css';
-import themeLight from 'ebi-framework/css/theme-light.css';
-import styles from './index.scss';
-import componentStyles from 'containers/SequenceSearch/index.scss';
-
 import React from 'react';
 import {connect} from 'react-redux';
 
@@ -14,13 +8,13 @@ import {store} from "app.jsx";
 class SearchForm extends React.Component {
   render() {
     return (
-      <div className={ebiGlobal.row}>
-        <div className={ebiGlobal['col-lg-12']}>
-          <div className={ebiGlobal.hpanel}>
-            <div className={ebiGlobal['panel-heading']}>
+      <div className="row">
+        <div className="col-lg-12">
+          <div className="hpanel">
+            <div className="panel-heading">
               <h1>Search an RNA sequence in RNA databases</h1>
             </div>
-            <div className={ebiGlobal['panel-body']}>
+            <div className="panel-body">
               <form onSubmit={(e) => this.onSubmit(e)}>
                 <div>
                   <fieldset>
@@ -37,14 +31,14 @@ class SearchForm extends React.Component {
                     </p>
                   </fieldset>
                 </div>
-                { this.props.submissionError && <div className={`${ebiGlobal.callout} ${ebiGlobal.alert}`}>
+                { this.props.submissionError && <div className="callout alert">
                   <h3>Form submission failed</h3>
                   { this.props.submissionError }
                 </div>}
                 <div>
                   <fieldset>
                     <div id="jd_submitButtonPanel">
-                      <input name="submit" type="submit" value="Submit" className={`${themeLight.button} ${ebiGlobal.button}`} />
+                      <input name="submit" type="submit" value="Submit" className="button" />
                     </div>
                   </fieldset>
                 </div>

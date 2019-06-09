@@ -1,5 +1,3 @@
-import styles from 'containers/SequenceSearch/components/SearchForm/index.scss';
-
 import * as types from './actionTypes';
 import routes from 'services/routes.jsx';
 import {store} from 'app.jsx';

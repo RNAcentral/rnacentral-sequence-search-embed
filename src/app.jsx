@@ -6,43 +6,40 @@ import {Provider} from 'react-redux';
 import SequenceSearch from 'containers/SequenceSearch/index.jsx';
 import configureStore from 'store/configureStore.js';
 
+import ebiGlobal from 'ebi-framework/css/ebi-global.css';
+import themeLight from 'ebi-framework/css/theme-light.css';
+import 'EBI-Icon-fonts/fonts.css';
+import fonts from 'EBI-Icon-fonts/fonts.css';
+import animate from 'animate.css/animate.min.css';
+import sequenceSearchStyles from 'containers/SequenceSearch/index.scss';
+import resultsStyles from 'containers/SequenceSearch/components/Results/index.scss';
+
 
 // Prepare data
 export const store = configureStore();
 export const databases = ['mirbase'];
-//
-// // Get the shadow root
-// const shadowHost = document.querySelector('div#sequence-search');
-// const shadowRoot = shadowHost.attachShadow({ mode: 'open' });
-//
-// // Create div element for react to render into
-// const reactRoot = document.createElement('div');
-// reactRoot.setAttribute('id', 'react-root');
-//
-// // Append react root to shadow root
-// shadowRoot.appendChild(reactRoot);
-//
-// // Render react
-// ReactDOM.render(
-//   <Provider store={store}>
-//     <SequenceSearch databases={databases}/>
-//   </Provider>,
-//   reactRoot
-// );
 
 
 class RNAcentralSequenceSearch extends HTMLElement {
   constructor() {
     super();
 
-    const mountPoint = document.createElement('div');
+    const mountPoint = document.createElement('html');
     const shadowRoot = this.attachShadow({mode: 'open'});
     shadowRoot.appendChild(mountPoint);
     ReactDOM.render([
-      <link key='styles' href="RNAcentral-sequence-search.css" rel="stylesheet" />,
-      <Provider key='provider' store={store}>
-        <SequenceSearch databases={databases}/>
-      </Provider>],
+      <style key={ebiGlobal} dangerouslySetInnerHTML={{__html: ebiGlobal}}/>,
+      <style key={themeLight} dangerouslySetInnerHTML={{__html: themeLight}}/>,
+      <style key={fonts} dangerouslySetInnerHTML={{__html: fonts}}/>,
+      <style key={animate} dangerouslySetInnerHTML={{__html: animate}}/>,
+      <style key={sequenceSearchStyles} dangerouslySetInnerHTML={{__html: sequenceSearchStyles}}/>,
+      <style key={resultsStyles} dangerouslySetInnerHTML={{__html: resultsStyles}}/>,
+      <body key='body'>
+        <Provider key='provider' store={store}>
+          <SequenceSearch databases={databases}/>
+        </Provider>
+      </body>
+      ],
       mountPoint
     );
     retargetEvents(shadowRoot);
@@ -50,25 +47,3 @@ class RNAcentralSequenceSearch extends HTMLElement {
 }
 
 customElements.define('rnacentral-sequence-search', RNAcentralSequenceSearch);
-
-
-
-// const proto = Object.create(HTMLElement.prototype, {
-//   attachedCallback: {
-//     value: function() {
-//       const mountPoint = document.createElement('div');
-//       const shadowRoot = this.createShadowRoot();
-//       shadowRoot.appendChild(mountPoint);
-//       ReactDOM.render([
-//         <link key='styles' href="RNAcentral-sequence-search.css" rel="stylesheet" />,
-//         <Provider key='provider' store={store}>
-//           <SequenceSearch databases={databases}/>
-//         </Provider>],
-//         mountPoint
-//       );
-//       retargetEvents(shadowRoot);
-//     }
-//   }
-// });
-
-// document.registerElement('RNAcentral-sequence-search', {prototype: proto});

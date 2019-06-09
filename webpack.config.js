@@ -46,24 +46,23 @@ module.exports = function(env) {
         },
         {
           test: /\.(s?css|sass)$/,
-          use: ExtractTextPlugin.extract({
-            use: [
-              { loader: 'css-loader', options: {sourceMap: true, modules: true} },
-              { loader: 'sass-loader', options: {sourceMap: true} }
-            ]
-          })
+          use: [
+            { loader: 'css-to-string-loader' },
+            { loader: 'css-loader', options: {sourceMap: true} },
+            { loader: 'sass-loader', options: {sourceMap: true} }
+          ]
         },
         {
           test: /\.(png|jpe?g|gif)(\?v=\d+\.\d+\.\d+)?$/,
-          loader: 'file-loader' // 'url-loader?limit=10000'
+          loader: 'url-loader?limit=10000' // 'file-loader' // 'url-loader?limit=10000'
         },
         {
           test: /\.(eot|com|json|ttf|woff|woff2)(\?v=\d+\.\d+\.\d+)?$/,
-          loader: 'file-loader' // 'url-loader?limit=10000&mimetype=application/octet-stream'
+          loader: 'url-loader?mimetype=application/octet-stream' // 'file-loader' // 'url-loader?limit=10000&mimetype=application/octet-stream'
         },
         {
           test: /\.svg(\?v=\d+\.\d+\.\d+)?$/,
-          loader: 'file-loader' // 'url-loader?limit=10000&mimetype=image/svg+xml'
+          loader: 'url-loader?mimetype=image/svg+xml' // 'file-loader' // 'url-loader?limit=10000&mimetype=image/svg+xml'
         }
       ]
     },

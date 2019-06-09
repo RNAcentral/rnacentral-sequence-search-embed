@@ -1,9 +1,3 @@
-import ebiGlobal from 'ebi-framework/css/ebi-global.css';
-import fonts from 'EBI-Icon-fonts/fonts.css';
-import styles from '../index.scss';
-import componentStyles from 'containers/SequenceSearch/index.scss';
-
-
 import React from 'react';
 import {connect} from "react-redux";
 
@@ -21,11 +15,11 @@ class Facets extends React.Component {
   renderFacet(facet) {
     return [
       <legend key={`legend-${facet.id}`}><h5 style={{color: 'rgb(0,124,130)' }}>{ facet.label }</h5></legend>,
-      <ul key={facet.id} className={`${ebiGlobal.vertical} ${ebiGlobal.menu} ${componentStyles.facet}`}>
+      <ul key={facet.id} className="vertical menu facet">
         {
           facet.facetValues.map(facetValue => (
             <li key={`li ${facetValue.label}`}>
-              <span className={styles.facetValue}>
+              <span className="facetValue">
                 <input id={`checkbox-${facet.id}-${facetValue.value}`} type="checkbox"
                   checked={this.props.selectedFacets.hasOwnProperty(facet.id) && this.props.selectedFacets[facet.id].indexOf(facetValue.value) !== -1}
                   onChange={(e) => {
@@ -44,7 +38,7 @@ class Facets extends React.Component {
 
   render() {
     return (
-      <div className={`${ebiGlobal['small-12']} ${ebiGlobal['medium-2']} ${ebiGlobal['medium-pull-10']} ${ebiGlobal['columns']}`}>
+      <div className="small-12 medium-2 medium-pull-10 columns">
         <label>Sort by:
           <select value={this.props.sortingOrder} onChange={this.props.onSort}>
             <option value="e_value">E-value (min to max) - default</option>
@@ -63,9 +57,9 @@ class Facets extends React.Component {
           </div>
           {
             this.props.textSearchError &&
-            <div className={`${ebiGlobal.callout} ${ebiGlobal.alert}`}>
+            <div className="callout alert">
               <h3>Failed to retrieve text search data.</h3>
-              <a onClick={ this.props.onReload }><i className={`${fonts.icon} ${fonts['icon-functional']}`} data-icon="R"/> Reload</a>
+              <a onClick={ this.props.onReload }><i className="icon icon-functional" data-icon="R"/> Reload</a>
             </div>
           }
           <small>
