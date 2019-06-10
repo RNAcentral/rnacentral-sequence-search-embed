@@ -38,21 +38,10 @@ If you want to include it into CSS directly, follow this minimal example:
   <head>
     <meta charset="utf-8" />
     <title>Your page</title>
-    <link href="node_modules/@rnacentral/rnacentral-sequence-search-embed/dist/rnacentral-sequence-search-embed.css" rel="stylesheet">
   </head>
   <body class="level2">
-    <div id="sequence-search"></div>
-    <script src="node_modules/@rnacentral/rnacentral-sequence-search-embed/dist/rnacentral-sequence-search-embed.js"></script>
-    <script>
-      const store = configureStore();
-        
-      ReactDOM.render(
-        <Provider store={store}>
-          <SequenceSearch/>
-        </Provider>,
-        document.querySelector('div#sequence-search')
-      );    
-    </script>
+    <script src="node_modules/@rnacentral/rnacentral-sequence-search-embed/dist/rnacentral-sequence-search.js"></script>
+    <rnacentral-sequence-search databases="['mirbase']"/>
   </body>
 </html>
 ```
@@ -74,7 +63,7 @@ SequenceSearch component accepts a number of parameters. You pass them as html a
 in curly braces:
 
 ```
-<SequenceSearch databases={['mirbase']} onSubmit={function (query, databases) { console.log('hi!') }}  />
+<rnacentral-sequence-search databases="['mirbase']" />
 ```
 
 #### databases
@@ -99,13 +88,28 @@ srpdb        |
 tair         |
 tmrna-website|
 wormbase     |
-
-
-#### onSubmit
-
-A hook (your custom javascript function) to be executed, when user submits a sequence. This function can receive 
-2 parameters: 
  
- * query - the query sequence, submitted by user
- * databases - array of databases
  
+## Developer details
+
+This embed is implemented as a Web Component, wrapping a piece of code in React/Redux.
+
+Being a Web Component, it isolates CSS styles from the main page to avoid clash of styles with it.
+The CSS styles and fonts are bundled into the javascript inline via Webpack 3 build system,
+see webpack.config.js file. Upon load of RNAcentral-sequence-search.js, the component registers
+itself in the custom elements registry.
+
+There are some peculiarities about interaction of Web Components with React. 
+
+First, there is a known issue with React events breaking, when React component is mounted under a shadow root in
+shadow DOM. We solve this by retargeting React events for shadow dom with this package:
+
+* https://www.npmjs.com/package/react-shadow-dom-retarget-events.
+
+Second, Web Components accept input parameters as strings. That means that we have to parse
+parameters in Web Component initialization code and pass the resulting objects as props to React.
+Here are some examples of passing the parameters to the Web Component or from Web Component
+to React: 
+
+* https://hackernoon.com/how-to-turn-react-component-into-native-web-component-84834315cb24
+* https://stackoverflow.com/questions/50404970/web-components-pass-data-to-and-from/50416836
