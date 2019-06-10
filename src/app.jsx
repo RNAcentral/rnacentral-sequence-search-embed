@@ -17,16 +17,21 @@ import resultsStyles from 'containers/SequenceSearch/components/Results/index.sc
 
 // Prepare data
 export const store = configureStore();
-export const databases = ['mirbase'];
 
 
 class RNAcentralSequenceSearch extends HTMLElement {
   constructor() {
     super();
 
-    const mountPoint = document.createElement('html');
+    // prepare DOM and shadow DOM
     const shadowRoot = this.attachShadow({mode: 'open'});
+    const mountPoint = document.createElement('html');
     shadowRoot.appendChild(mountPoint);
+
+    // parse arguments
+    const databases = JSON.parse(this.attributes.databases.nodeValue);
+
+    // render React
     ReactDOM.render([
       <style key={ebiGlobal} dangerouslySetInnerHTML={{__html: ebiGlobal}}/>,
       <style key={themeLight} dangerouslySetInnerHTML={{__html: themeLight}}/>,
@@ -42,7 +47,19 @@ class RNAcentralSequenceSearch extends HTMLElement {
       ],
       mountPoint
     );
+
+    // retarget React events to work with shadow DOM
     retargetEvents(shadowRoot);
+  }
+
+  connectedCallback() {
+  }
+
+  disconnectedCallback() {
+    let state = store.getState();
+    if (state.statusTimeout) {
+      clearTimeout(state.statusTimeout);
+    }
   }
 }
 

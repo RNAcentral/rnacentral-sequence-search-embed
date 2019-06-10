@@ -93,8 +93,6 @@ export function fetchStatus(jobId) {
   }
 }
 
-// TODO: clear timeout when leaving the page !!!
-
 export function fetchResults(jobId) {
   let state = store.getState();
 

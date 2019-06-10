@@ -41,7 +41,7 @@ If you want to include it into CSS directly, follow this minimal example:
   </head>
   <body class="level2">
     <script src="node_modules/@rnacentral/rnacentral-sequence-search-embed/dist/rnacentral-sequence-search.js"></script>
-    <rnacentral-sequence-search databases="['mirbase']"/>
+    <rnacentral-sequence-search databases='["mirbase"]'/>
   </body>
 </html>
 ```
@@ -63,7 +63,7 @@ SequenceSearch component accepts a number of parameters. You pass them as html a
 in curly braces:
 
 ```
-<rnacentral-sequence-search databases="['mirbase']" />
+<rnacentral-sequence-search databases='["mirbase"]' />
 ```
 
 #### databases
