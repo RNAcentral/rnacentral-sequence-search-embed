@@ -28,30 +28,8 @@ or
 
 Now you can add the javascript bundle and css bundle to your web page either directly or through
  an import with Webpack or native ECMAscript modules and CSS modules.
- 
-If you want to include it into CSS directly, follow this minimal example:
- 
 
-```
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <title>Your page</title>
-  </head>
-  <body class="level2">
-    <script src="node_modules/@rnacentral/rnacentral-sequence-search-embed/dist/rnacentral-sequence-search.js"></script>
-    <rnacentral-sequence-search databases='["mirbase"]'/>
-  </body>
-</html>
-```
-
-Note that we import the javascript bundle in `<body>` and css bundle
-in `<head>`.
-
-Also take note, how we initialize the plugin with `ReactDOM.render`
-and tell it to render the plugin into `'div#sequence-search'` element,
-of the page above.
+For a minimal example, see [index.html](./index.html).
 
 Javascript bundle is wrapped into a UMD wrapper and should be safe
 to use with ECMAscript modules and AMD/Require.js. CSS bundle is
