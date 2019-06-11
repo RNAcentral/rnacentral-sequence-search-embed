@@ -66,9 +66,18 @@ srpdb        |
 tair         |
 tmrna-website|
 wormbase     |
- 
- 
+
 ## Developer details
+
+### Local development
+
+1. `npm install`
+
+2. `npm run serve` to start a server on http://localhost:8080/
+
+3. `npm run build` to generate a new distribution.
+
+### Notes
 
 This embed is implemented as a Web Component, wrapping a piece of code in React/Redux.
 
