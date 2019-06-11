@@ -26,7 +26,7 @@ class SearchForm extends React.Component {
                     </p>
                     <textarea id="sequence" name="sequence" rows="7" value={this.props.sequence} onChange={(e) => this.props.onSequenceTextareaChange(e)} />
                     <p>
-                      Or upload a file:
+                      Or upload a file (with ".fasta" extension):
                       <input id="sequence-file" name="sequence-file" type="file" accept=".fasta" onChange={this.props.onFileUpload} />
                     </p>
                   </fieldset>
