@@ -35,7 +35,7 @@ class Results extends React.Component {
         {
           this.props.status === "error" && (
             <div className="callout alert">
-              <h3>Server got itself into a trouble.</h3>
+              <h3>There was an error.</h3>
               <a href="mailto:rnacentral@gmail.com">Contact us</a> if the problem persists.
             </div>
           )
