@@ -42,7 +42,7 @@ class Results extends React.Component {
         }
         {
           (this.props.status === "loading" || this.props.status === "success" || this.props.status === "partial_success") && [
-            <h1 key={`results-header`} className="margin-top-large margin-bottom-large">Results: { this.props.status === "loading" ? <i className="icon icon-functional spin" data-icon="s"/> : <small>{ this.props.hitCount } total</small> }</h1>,
+            <h1 key={`results-header`} className="margin-top-large margin-bottom-large">Results: { this.props.status === "loading" ? <i className="animated infinite flash">...</i> : <small>{ this.props.hitCount } total</small> }</h1>,
             <div key={`results-div`} className="small-12 medium-10 medium-push-2 columns">
               <section>
                 { this.props.entries.map((entry, index) => (

@@ -59,7 +59,7 @@ class Facets extends React.Component {
             this.props.textSearchError &&
             <div className="callout alert">
               <h3>Failed to retrieve text search data.</h3>
-              <a onClick={ this.props.onReload }><i className="icon icon-functional" data-icon="R"/> Reload</a>
+              <a onClick={ this.props.onReload }>&lsaquo; Reload</a>
             </div>
           }
           <small>

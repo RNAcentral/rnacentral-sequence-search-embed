@@ -20,7 +20,7 @@ class Hit extends React.Component {
           </ul>
           <small>
             <a onClick={ this.props.onToggleAlignmentsCollapsed }>
-              { this.props.alignmentsCollapsed ? <span><i className="icon icon-functional" data-icon="9" /> show alignments</span> : <span><i className="icon icon-functional" data-icon="8"/> hide alignments</span> }
+              { this.props.alignmentsCollapsed ? <span>&#x25B6; show alignments</span> : <span>&#x25BC; hide alignments</span> }
             </a>
           </small>
           <div className={`callout alignment ${this.props.alignmentsCollapsed ? 'alignment-collapsed' : ''}`}>

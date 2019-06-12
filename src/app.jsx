@@ -8,7 +8,6 @@ import configureStore from 'store/configureStore.js';
 
 import ebiGlobal from 'ebi-framework/css/ebi-global.css';
 import themeLight from 'ebi-framework/css/theme-light.css';
-import 'EBI-Icon-fonts/fonts.css';
 import fonts from 'EBI-Icon-fonts/fonts.css';
 import animate from 'animate.css/animate.min.css';
 import sequenceSearchStyles from 'containers/SequenceSearch/index.scss';
