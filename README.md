@@ -11,9 +11,8 @@ with NHMMER and also adds text search functionality, backed by EBI
 Lucene text search plugin.
 
 This plugin is written in React/Redux and makes use of Zurb
-Foundation-based EBI theme. It is bundled with CSS modules and
- UMD wrapper and packaged with Webpack, so it should not clash with
-your website's javascript or CSS.
+Foundation-based EBI theme. It is bundled as a Web Component, so it 
+should not clash with your website's javascript or CSS.
 
 ## Installation
 
@@ -26,23 +25,24 @@ or
 `git clone https://github.com/RNAcentral/rnacentral-sequence-search-embed.git`
 
 
-Now you can add the javascript bundle and css bundle to your web page either directly or through
- an import with Webpack or native ECMAscript modules and CSS modules.
+Now you can add the component's javascript bundle (it contains all the styles and fonts) 
+to your web page either directly or through  an import with Webpack:
 
-For a minimal example, see [index.html](./index.html).
+`<script type="text/javascript" src="/rnacentral-sequence-search-embed/dist/RNAcentral-sequence-search.js"></script>`
 
-Javascript bundle is wrapped into a UMD wrapper and should be safe
-to use with ECMAscript modules and AMD/Require.js. CSS bundle is
-using CSS modules and shouldn't be breaking CSS of your webpage.
-
-## Parameters
-
-SequenceSearch component accepts a number of parameters. You pass them as html attributes
-in curly braces:
+To use it just insert an html tag somewhere in your html:
 
 ```
 <rnacentral-sequence-search databases='["mirbase"]' />
 ```
+
+For a minimal example, see [index.html](./index.html).
+
+
+## Attributes/parameters
+
+Sequence search component accepts a number of attributes. You pass them as html attributes
+and their values are strings (this is a requirement of Web Components):
 
 #### databases
 
@@ -75,7 +75,9 @@ wormbase     |
 
 2. `npm run serve` to start a server on http://localhost:8080/
 
-3. `npm run build` to generate a new distribution.
+3. `npm run clean` to clean the dist folder of old assets
+
+4. `npm run build` to generate a new distribution.
 
 ### Notes
 
