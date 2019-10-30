@@ -1,6 +1,4 @@
-let server = 'https://rnacentral.org/cloud-sequence-search';
-// let server = 'http://193.62.55.44:8002';
-// let server = 'http://193.62.55.45';
+let server = 'https://search.rnacentral.org';
 
 
 module.exports = {
