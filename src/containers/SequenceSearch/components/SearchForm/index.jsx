@@ -6,13 +6,34 @@ import {store} from "app.jsx";
 
 
 class SearchForm extends React.Component {
+  showDatabase(){
+    const databases = this.props.databases;
+    if (databases.length > 1) {
+      return (
+          <div>
+            <h1>Search an RNA sequence in&nbsp;
+              {
+                databases.map(function(item, index) {
+                  return <span key={`${index}`}>{ (index ? ', ' : '') + item }</span>;
+                })
+              }
+            </h1>
+          </div>
+      )
+    } else if (databases.length === 0) {
+      return <h1>Search an RNA sequence in RNA databases</h1>
+    } else {
+      return <h1>Search an RNA sequence in {databases}</h1>
+    }
+  }
+
   render() {
     return (
       <div className="row">
         <div className="col-lg-12">
           <div className="hpanel">
             <div className="panel-heading">
-              <h1>Search an RNA sequence in RNA databases</h1>
+              {this.showDatabase()}
             </div>
             <div className="panel-body">
               <form onSubmit={(e) => this.onSubmit(e)}>
