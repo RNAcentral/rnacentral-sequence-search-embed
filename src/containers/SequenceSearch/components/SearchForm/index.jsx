@@ -91,12 +91,14 @@ class SearchForm extends React.Component {
 
 const mapStateToProps = (state) => ({
   status: state.status,
+  infernal_status: state.infernal_status,
   sequence: state.sequence,
   entries: state.entries,
   facets: state.facets,
   hitCount: state.hitCount,
   ordering: state.ordering,
-  textSearchError: state.textSearchError
+  textSearchError: state.textSearchError,
+  infernal_entries: state.infernal_entries,
 });
 
 const mapDispatchToProps = (dispatch) => ({

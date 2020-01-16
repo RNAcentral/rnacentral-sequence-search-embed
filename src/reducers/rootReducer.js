@@ -33,6 +33,21 @@ const rootReducer = function (state = initialState, action) {
         return Object.assign({}, state, {});
       }
 
+    case actions.FETCH_INFERNAL_RESULTS:
+      if (!action.infernal_status) {
+        return Object.assign({}, state, {}); // do nothing, all the logic is in action creator
+      } else if (action.infernal_status === 'success') {
+        return Object.assign({}, state, {
+          infernal_status: "success",
+          infernal_entries: [...action.data],
+        });
+
+      } else if (action.infernal_status === 'error') {
+        return Object.assign({}, state, { status: 'error' });
+      } else {
+        return Object.assign({}, state, {});
+      }
+
     case actions.FAILED_FETCH_RESULTS:
       if ('does not exist') {
         return Object.assign({}, state, {status: "does_not_exist", start: 0});
@@ -109,6 +124,7 @@ const rootReducer = function (state = initialState, action) {
           return Object.assign({}, state, {
             jobId: action.data.job_id,
             status: "loading",
+            infernal_status: "loading",
             submissionError: ""
           });
         case 'error':

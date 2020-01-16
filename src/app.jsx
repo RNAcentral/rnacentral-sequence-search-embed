@@ -30,6 +30,7 @@ class RNAcentralSequenceSearch extends HTMLElement {
     // parse arguments
     const databases = JSON.parse(this.attributes.databases.nodeValue);
     const examples = JSON.parse(this.attributes.examples ? this.attributes.examples.nodeValue : null);
+    const rfam = JSON.parse(this.attributes.rfam ? this.attributes.rfam.nodeValue : null);
 
     // render React
     ReactDOM.render([
@@ -41,7 +42,7 @@ class RNAcentralSequenceSearch extends HTMLElement {
       <style key={resultsStyles} dangerouslySetInnerHTML={{__html: resultsStyles}}/>,
       <body key='body'>
         <Provider key='provider' store={store}>
-          <SequenceSearch databases={databases} examples={examples}/>
+          <SequenceSearch databases={databases} examples={examples} rfam={rfam}/>
         </Provider>
       </body>
       ],

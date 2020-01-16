@@ -52,7 +52,8 @@ export function onSubmit(sequence, databases) {
     })
     .then(data => {
         dispatch({type: types.SUBMIT_JOB, status: 'success', data: data});
-        dispatch(fetchStatus(data.job_id))
+        dispatch(fetchStatus(data.job_id));
+        dispatch(fetchInfernalStatus(data.job_id));
     })
     .catch(error => dispatch({type: types.SUBMIT_JOB, status: 'error', response: error}));
   }
@@ -93,6 +94,41 @@ export function fetchStatus(jobId) {
   }
 }
 
+export function fetchInfernalStatus(jobId) {
+  return function(dispatch) {
+    fetch(routes.infernalJobStatus(jobId), {
+      method: 'GET',
+      mode: 'cors',
+      credentials: 'include',
+      headers: {
+        'Accept': 'application/json, text/plain, */*',
+        'Content-Type': 'application/json'
+      }
+    })
+    .then(function(response) {
+      if (response.ok) {
+        return response.json()
+      } else {
+        throw response;
+      }
+    })
+    .then((data) => {
+      if (data.status === 'started' || data.status === 'pending') {
+        let statusTimeout = setTimeout(() => store.dispatch(fetchInfernalStatus(jobId)), 2000);
+        dispatch({type: types.SET_STATUS_TIMEOUT, timeout: statusTimeout});
+      } else if (data.status === 'success') {
+        dispatch(fetchInfernalResults(jobId));
+      }
+    })
+    .catch(error => {
+      if (store.getState().hasOwnProperty('statusTimeout')) {
+        clearTimeout(store.getState().statusTimeout); // clear status timeout
+      }
+      dispatch({type: types.FETCH_STATUS, infernal_status: 'error'})
+    });
+  }
+}
+
 export function fetchResults(jobId) {
   let state = store.getState();
 
@@ -116,6 +152,31 @@ export function fetchResults(jobId) {
     .then(data => dispatch({type: types.FETCH_RESULTS, status: 'success', data: data}))
     .catch(error => {
       dispatch({type: types.FETCH_RESULTS, status: 'error'})
+    });
+  }
+}
+
+export function fetchInfernalResults(jobId) {
+  return function(dispatch) {
+    fetch(routes.infernalJobResult(jobId), {
+      method: 'GET',
+      mode: 'cors',
+      credentials: 'include',
+      headers: {
+        'Accept': 'application/json, text/plain, */*',
+        'Content-Type': 'application/json'
+      }
+    })
+    .then(function(response) {
+      if (response.ok) {
+        return response.json()
+      } else {
+        throw response;
+      }
+    })
+    .then(data => dispatch({type: types.FETCH_INFERNAL_RESULTS, infernal_status: 'success', data: data}))
+    .catch(error => {
+      dispatch({type: types.FETCH_INFERNAL_RESULTS, infernal_status: 'error'})
     });
   }
 }

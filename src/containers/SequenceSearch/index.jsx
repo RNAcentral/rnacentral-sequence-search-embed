@@ -13,8 +13,8 @@ class SequenceSearch extends React.Component {
 
   render() {
     return [
-      <SearchForm key={`searchForm`} databases={this.props.databases} examples={this.props.examples} />,
-      <Results key={`results`} />
+      <SearchForm key={`searchForm`} databases={this.props.databases} examples={this.props.examples}/>,
+      <Results key={`results`} rfam={this.props.rfam}/>
     ]
   }
 }
@@ -22,6 +22,7 @@ class SequenceSearch extends React.Component {
 function mapStateToProps(state) {
   return {
     status: state.status,
+    infernal_status: state.infernal_status,
     jobId: state.jobId,
     submissionError: state.submissionError
   };
