@@ -1,39 +1,42 @@
 # RNAcentral sequence search embed
 
-This is an embeddable component that you can include into
-your website to add a non-coding RNA sequence search.
+This is an embeddable component that you can include into your website to add a non-coding RNA sequence search.
 
-The component sends search requests to EBI-backed API, run on
-EBI cloud infrastructure.
+The component sends search requests to EBI-backed API, run on EBI cloud infrastructure.
 
-It searches against RNAcentral databases (or their arbitrary subset)
-with NHMMER and also adds text search functionality, backed by EBI
-Lucene text search plugin.
+It searches against RNAcentral databases (or their arbitrary subset) with NHMMER, CMSCAN and also adds text search 
+functionality, backed by EBI Lucene text search plugin.
 
-This plugin is written in React/Redux and makes use of Zurb
-Foundation-based EBI theme. It is bundled as a Web Component, so it 
-should not clash with your website's javascript or CSS.
+This plugin is written in React/Redux and makes use of Zurb Foundation-based EBI theme. It is bundled as a Web 
+Component, so it should not clash with your website's javascript or CSS.
 
 ## Installation
 
-Install this package with npm or download it directly from Github.
-
-`npm install @rnacentral/rnacentral-sequence-search-embed`
-
-or
+Download this package directly from Github.
 
 `git clone https://github.com/RNAcentral/rnacentral-sequence-search-embed.git`
 
-
-Now you can add the component's javascript bundle (it contains all the styles and fonts) 
-to your web page either directly or through  an import with Webpack:
+Now you can add the component's javascript bundle (it contains all the styles and fonts) to your web page either 
+directly or through an import with Webpack:
 
 `<script type="text/javascript" src="/rnacentral-sequence-search-embed/dist/RNAcentral-sequence-search.js"></script>`
 
 To use it just insert an html tag somewhere in your html:
 
 ```
-<rnacentral-sequence-search databases='["mirbase"]' />
+<rnacentral-sequence-search databases='["miRBase"]' />
+```
+
+To show some examples and/or enable the Rfam search, use:
+
+```
+<rnacentral-sequence-search 
+    databases='["miRBase"]'
+    examples='[
+        {"description": "miRNA hsa-let-7a-1", "urs": "URS000004F5D8", "sequence": "CUAUACAAUCUACUGUCUUUC"},
+    ]
+    rfam="true"
+/>
 ```
 
 For a minimal example, see [index.html](./index.html).
@@ -48,24 +51,43 @@ and their values are strings (this is a requirement of Web Components):
 
 Array of databases to search query sequence against. Currently you can choose from:
 
-database     |
--------------|
-ena          |
-greengenes   |
-lncrnadb     |
-mirbase      |
-pdbe         |
-pombase      |
-rdp          |
-refseq       |
-rfam         |
-rgd          |
-sgd          |
-snopy        |
-srpdb        |
-tair         |
-tmrna-website|
-wormbase     |
+database          |
+------------------|
+dictybase         |
+ena               |
+ensembl           |
+ensembl_fungi     |
+ensembl_metazoa   |
+ensembl_plants    |
+ensembl_protists  |
+flybase           |
+gencode           |
+greengenes        |
+gtrnadb           |
+hgnc              |
+lncbase           |
+lncbook           |
+lncipedia         |
+lncrnadb          |
+mgi               |
+mirbase           |
+modomics          |
+noncode           |
+pdbe              |
+pombase           |
+rdp               |
+refseq            |
+rfam              |
+rgd               |
+sgd               |
+silva             |
+snopy             |
+srpdb             |
+tair              |
+tarbase           |
+tmrna_web         |
+wormbase          |
+zwd               |
 
 ## Developer details
 
