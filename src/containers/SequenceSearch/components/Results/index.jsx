@@ -76,7 +76,7 @@ class Results extends React.Component {
         }
         {
           (this.props.status === "loading" || this.props.status === "success" || this.props.status === "partial_success") && [
-            <h1 key={`results-header`} className="margin-top-large margin-bottom-large">Similar sequences: { this.props.status === "loading" ? <i className="animated infinite flash">...</i> : <small>{ this.props.hitCount } total</small> }</h1>,
+            <h1 key={`results-header`} className="margin-top-large margin-bottom-large">Similar sequences: { this.props.status === "loading" ? <i className="animated infinite flash">...</i> : <small>{ this.props.hitCount }</small> }</h1>,
             <div key={`results-div`} className="small-12 medium-10 medium-push-2 columns">
               <section>
                 { this.props.entries.map((entry, index) => (
@@ -85,7 +85,16 @@ class Results extends React.Component {
                 {(this.props.status === "success" || this.props.status === "partial_success") && (this.props.entries.length < this.props.hitCount) && (<a className="button small" onClick={this.props.onLoadMore} target="_blank">Load more</a>)}
               </section>
             </div>,
-            <Facets key={`results-facets`} facets={ this.props.facets } selectedFacets={ this.props.selectedFacets } toggleFacet={ this.toggleFacet } ordering={ this.props.ordering } textSearchError={ this.props.textSearchError } />
+            <div key={`results-facets`}>
+              { this.props.entries ?
+                <Facets
+                    facets={ this.props.facets }
+                    selectedFacets={ this.props.selectedFacets }
+                    toggleFacet={ this.toggleFacet }
+                    ordering={ this.props.ordering }
+                    textSearchError={ this.props.textSearchError }
+                /> : ''}
+            </div>
           ]
         }
       </div>
