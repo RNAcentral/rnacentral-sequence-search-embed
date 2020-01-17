@@ -142,16 +142,54 @@ const rootReducer = function (state = initialState, action) {
       return Object.assign({}, state, {statusTimeout: action.statusTimeout});
 
     case actions.TEXTAREA_CHANGE:
-      return Object.assign({}, state, { sequence: action.sequence });
+      return Object.assign({}, state, {
+        sequence: action.sequence,
+        status: "notSubmitted",
+        entries: [],
+        facets: [],
+        hitCount: 0,
+        start: 0,
+        size: 20,
+        ordering: "e_value",
+        selectedFacets: {},
+        alignmentsCollapsed: true,
+        textSearchError: false,
+        infernal_status: "notSubmitted",
+        infernal_entries: [],
+      });
 
     case actions.EXAMPLE_SEQUENCE:
       return Object.assign({}, state, {
         sequence: action.sequence,
+        status: "notSubmitted",
+        entries: [],
+        facets: [],
+        hitCount: 0,
+        start: 0,
+        size: 20,
+        ordering: "e_value",
+        selectedFacets: {},
+        alignmentsCollapsed: true,
+        textSearchError: false,
+        infernal_status: "notSubmitted",
+        infernal_entries: [],
       });
 
     case actions.CLEAR_SEQUENCE:
       return Object.assign({}, state, {
-        sequence: ""
+        sequence: "",
+        status: "notSubmitted",
+        entries: [],
+        facets: [],
+        hitCount: 0,
+        start: 0,
+        size: 20,
+        ordering: "e_value",
+        selectedFacets: {},
+        alignmentsCollapsed: true,
+        textSearchError: false,
+        infernal_status: "notSubmitted",
+        infernal_entries: [],
       });
 
     case actions.FILE_UPLOAD:
