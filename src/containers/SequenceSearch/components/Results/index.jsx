@@ -5,7 +5,6 @@ import Facets from 'containers/SequenceSearch/components/Results/components/Face
 import Hit from 'containers/SequenceSearch/components/Results/components/Hit.jsx';
 
 import 'containers/SequenceSearch/components/Results/index.scss';
-import routes from 'services/routes.jsx';
 import * as actionCreators from 'actions/actions';
 
 
