@@ -38,6 +38,16 @@ class SearchForm extends React.Component {
       </div>)
   }
 
+  onSubmit(event) {
+    event.preventDefault();
+
+    const state = store.getState();
+    if (state.sequence) {
+      store.dispatch(actions.onSubmit(state.sequence, this.props.databases));
+      state.sequence = "";
+    }
+  }
+
   render() {
     return (
       <div className="row">
@@ -77,15 +87,6 @@ class SearchForm extends React.Component {
         </div>
       </div>
     )
-  }
-
-  onSubmit(event) {
-    event.preventDefault();
-
-    const state = store.getState();
-    if (state.sequence) {
-      store.dispatch(actions.onSubmit(state.sequence, this.props.databases));
-    }
   }
 }
 
