@@ -77,7 +77,8 @@ class SearchForm extends React.Component {
                   <fieldset>
                     <div id="jd_submitButtonPanel">
                       <input name="submit" type="submit" value="Submit" className="button" />{' '}
-                      <input name="clear" type="submit" value="Clear sequence" className="button" style={{background: '#6c757d'}} onClick={ this.props.onClearSequence } />
+                      <input name="clear" type="submit" value="Clear sequence" className="button" style={{background: '#6c757d'}} onClick={ this.props.onClearSequence } />{' '}
+                      <spam style={{float: 'right', fontFamily: 'Verdana,sans-serif', fontSize: '85%'}}>Powered by <a target='_blank' href='https://rnacentral.org/'>RNAcentral</a></spam>
                     </div>
                   </fieldset>
                 </div>
