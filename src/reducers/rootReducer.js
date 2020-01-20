@@ -1,6 +1,4 @@
-import routes from "../services/routes.jsx";
 import * as actions from "../actions/actionTypes";
-import * as actionCreators from "../actions/actions";
 import initialState from "../store/initialState";
 
 
@@ -30,6 +28,21 @@ const rootReducer = function (state = initialState, action) {
         return Object.assign({}, state, { status: 'error' });
       } else {
         console.log('Default');
+        return Object.assign({}, state, {});
+      }
+
+    case actions.FETCH_INFERNAL_RESULTS:
+      if (!action.infernal_status) {
+        return Object.assign({}, state, {}); // do nothing, all the logic is in action creator
+      } else if (action.infernal_status === 'success') {
+        return Object.assign({}, state, {
+          infernal_status: "success",
+          infernal_entries: [...action.data],
+        });
+
+      } else if (action.infernal_status === 'error') {
+        return Object.assign({}, state, { status: 'error' });
+      } else {
         return Object.assign({}, state, {});
       }
 
@@ -109,6 +122,7 @@ const rootReducer = function (state = initialState, action) {
           return Object.assign({}, state, {
             jobId: action.data.job_id,
             status: "loading",
+            infernal_status: "loading",
             submissionError: ""
           });
         case 'error':
@@ -128,16 +142,54 @@ const rootReducer = function (state = initialState, action) {
       return Object.assign({}, state, {statusTimeout: action.statusTimeout});
 
     case actions.TEXTAREA_CHANGE:
-      return Object.assign({}, state, { sequence: action.sequence });
+      return Object.assign({}, state, {
+        sequence: action.sequence,
+        status: "notSubmitted",
+        entries: [],
+        facets: [],
+        hitCount: 0,
+        start: 0,
+        size: 20,
+        ordering: "e_value",
+        selectedFacets: {},
+        alignmentsCollapsed: true,
+        textSearchError: false,
+        infernal_status: "notSubmitted",
+        infernal_entries: [],
+      });
 
     case actions.EXAMPLE_SEQUENCE:
       return Object.assign({}, state, {
         sequence: action.sequence,
+        status: "notSubmitted",
+        entries: [],
+        facets: [],
+        hitCount: 0,
+        start: 0,
+        size: 20,
+        ordering: "e_value",
+        selectedFacets: {},
+        alignmentsCollapsed: true,
+        textSearchError: false,
+        infernal_status: "notSubmitted",
+        infernal_entries: [],
       });
 
     case actions.CLEAR_SEQUENCE:
       return Object.assign({}, state, {
-        sequence: ""
+        sequence: "",
+        status: "notSubmitted",
+        entries: [],
+        facets: [],
+        hitCount: 0,
+        start: 0,
+        size: 20,
+        ordering: "e_value",
+        selectedFacets: {},
+        alignmentsCollapsed: true,
+        textSearchError: false,
+        infernal_status: "notSubmitted",
+        infernal_entries: [],
       });
 
     case actions.FILE_UPLOAD:

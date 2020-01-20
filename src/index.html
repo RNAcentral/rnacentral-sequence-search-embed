@@ -1,12 +1,16 @@
 <!doctype html>
 <html>
   <head>
-    <title>RNAcentral sequence search example</title>
+    <title>Sequence search</title>
   </head>
   <body>
-    <p>
-      The widget below searches miRBase, RefSeq, and PDBe data only.
-    </p>
-    <rnacentral-sequence-search databases='["pdbe", "mirbase", "refseq"]'/>
+    <rnacentral-sequence-search
+            databases='["miRBase"]'
+            examples='[
+              {"description": "miRNA hsa-let-7a-1", "urs": "", "sequence": "CUAUACAAUCUACUGUCUUUC"},
+              {"description": "miRNA mmu-let-7g", "urs": "", "sequence": "UGAGGUAGUAGUUUGUACAGU"}
+            ]'
+            rfam="true"
+    />
   </body>
 </html>

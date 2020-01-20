@@ -5,7 +5,6 @@ import Facets from 'containers/SequenceSearch/components/Results/components/Face
 import Hit from 'containers/SequenceSearch/components/Results/components/Hit.jsx';
 
 import 'containers/SequenceSearch/components/Results/index.scss';
-import routes from 'services/routes.jsx';
 import * as actionCreators from 'actions/actions';
 
 
@@ -41,8 +40,43 @@ class Results extends React.Component {
           )
         }
         {
+          this.props.rfam && (
+            (this.props.infernal_status === "loading" || this.props.infernal_status === "success") && [
+              <h1 key={`infernal-header`} className="margin-top-large margin-bottom-large">Rfam classification: { this.props.infernal_status === "loading" ? <i className="animated infinite flash">...</i> : '' }</h1>,
+              <div key={`infernal-div`}>
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Family</th>
+                      <th>Accession</th>
+                      <th>Start</th>
+                      <th>End</th>
+                      <th>Bit score</th>
+                      <th>E-value</th>
+                      <th>Strand</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                  { this.props.infernal_entries.length ? this.props.infernal_entries.map((entry, index) => (
+                    <tr key={`${index}`}>
+                      <td>{entry.description}</td>
+                      <td>{entry.accession_rfam}</td>
+                      <td>{entry.seq_from}</td>
+                      <td>{entry.seq_to}</td>
+                      <td>{entry.score}</td>
+                      <td>{entry.e_value}</td>
+                      <td>{entry.strand}</td>
+                    </tr>
+                  )) : <tr key={"noResults"}><td colSpan="7" style={{textAlign: 'center'}}>The query sequence did not match any Rfam families.</td></tr> }
+                  </tbody>
+                </table>
+              </div>
+            ]
+          )
+        }
+        {
           (this.props.status === "loading" || this.props.status === "success" || this.props.status === "partial_success") && [
-            <h1 key={`results-header`} className="margin-top-large margin-bottom-large">Results: { this.props.status === "loading" ? <i className="animated infinite flash">...</i> : <small>{ this.props.hitCount } total</small> }</h1>,
+            <h1 key={`results-header`} className="margin-top-large margin-bottom-large">Similar sequences: { this.props.status === "loading" ? <i className="animated infinite flash">...</i> : <small>{ this.props.hitCount }</small> }</h1>,
             <div key={`results-div`} className="small-12 medium-10 medium-push-2 columns">
               <section>
                 { this.props.entries.map((entry, index) => (
@@ -51,7 +85,16 @@ class Results extends React.Component {
                 {(this.props.status === "success" || this.props.status === "partial_success") && (this.props.entries.length < this.props.hitCount) && (<a className="button small" onClick={this.props.onLoadMore} target="_blank">Load more</a>)}
               </section>
             </div>,
-            <Facets key={`results-facets`} facets={ this.props.facets } selectedFacets={ this.props.selectedFacets } toggleFacet={ this.toggleFacet } ordering={ this.props.ordering } textSearchError={ this.props.textSearchError } />
+            <div key={`results-facets`}>
+              { this.props.entries ?
+                <Facets
+                    facets={ this.props.facets }
+                    selectedFacets={ this.props.selectedFacets }
+                    toggleFacet={ this.toggleFacet }
+                    ordering={ this.props.ordering }
+                    textSearchError={ this.props.textSearchError }
+                /> : ''}
+            </div>
           ]
         }
       </div>
@@ -62,6 +105,7 @@ class Results extends React.Component {
 function mapStateToProps(state) {
   return {
     status: state.status,
+    infernal_status: state.infernal_status,
     sequence: state.sequence,
     entries: state.entries,
     facets: state.facets,
@@ -69,7 +113,8 @@ function mapStateToProps(state) {
     hitCount: state.hitCount,
     ordering: state.ordering,
     textSearchError: state.textSearchError,
-    jobId: state.jobId
+    jobId: state.jobId,
+    infernal_entries: state.infernal_entries,
   };
 }
 

@@ -20,6 +20,9 @@ let initialState = {
   alignmentsCollapsed: true,
   textSearchError: false,
   sequence: "",
+
+  infernal_status: statusChoices.notSubmitted,
+  infernal_entries: [],
 };
 
 export default initialState;
