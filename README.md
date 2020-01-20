@@ -41,6 +41,7 @@ To show some examples and/or enable the Rfam search, use:
 
 For a minimal example, see [index.html](./index.html).
 
+For an Rfam example, see [rfam.html](./rfam.html).
 
 ## Attributes/parameters
 
