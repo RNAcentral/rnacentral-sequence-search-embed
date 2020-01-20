@@ -30,10 +30,10 @@ class SearchForm extends React.Component {
   showExamples(){
     const examples = this.props.examples;
     return examples.map(example =>
-      <div key={example.urs} style={{marginLeft: '10px'}}>
+      <div key={example.description} style={{marginLeft: '10px'}}>
         <label>
           - <a onClick={() => this.props.onExampleSequence(example.sequence)}>{example.description}</a>
-          <small> ({example.urs})</small>
+          <small>{!!(example.urs) ? `(${example.urs})` : ""}</small>
         </label>
       </div>)
   }
