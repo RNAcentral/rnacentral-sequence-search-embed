@@ -11,7 +11,7 @@ class SearchForm extends React.Component {
     if (databases.length > 1) {
       return (
           <div>
-            <h1>Search an RNA sequence in&nbsp;
+            <h1>Search in&nbsp;
               {
                 databases.map(function(item, index) {
                   return <span key={`${index}`}>{ (index ? ', ' : '') + item }</span>;
@@ -21,9 +21,9 @@ class SearchForm extends React.Component {
           </div>
       )
     } else if (databases.length === 0) {
-      return <h1>Search an RNA sequence in RNA databases</h1>
+      return <h1>Search in RNAcentral</h1>
     } else {
-      return <h1>Search an RNA sequence in {databases}</h1>
+      return <h1>Search in {databases}</h1>
     }
   }
 
