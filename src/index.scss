@@ -1,0 +1,46 @@
+// h1 text (Search in XYZ)
+.custom-h1 {}
+
+// h2 text (Rfam classification / Similar sequences)
+.custom-h2 {
+  color: #666;
+  font-weight: 300;
+  font-size: 2rem;
+}
+
+// h5 text (used in the title of each facet)
+.custom-h5 {
+  color: #007c82
+}
+
+// h6 text (used in the result title for each sequence)
+.custom-h6 {}
+
+// div with sequence examples
+#examples ul{
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+#examples ul li {
+  display: inline;
+  padding-right: 10px;
+}
+
+// upload file
+#upload-file input {
+  font-size: smaller;
+}
+
+// submit button
+#submit-button {}
+
+// clear button
+#clear-button {
+  background: #6c757d
+}
+
+// Rfam results table
+#infernal-table {}
+

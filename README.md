@@ -39,9 +39,9 @@ To show some examples and/or enable the Rfam search, use:
 />
 ```
 
-For a minimal example, see [index.html](./index.html).
+For a minimal example, see [index.html](./index.html). For an Rfam example, see [rfam.html](./rfam.html).
 
-For an Rfam example, see [rfam.html](./rfam.html).
+To change the layout, you will need to edit this file: [index.scss](./src/index.scss)
 
 ## Attributes/parameters
 

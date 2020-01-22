@@ -9,13 +9,12 @@ class Hit extends React.Component {
     return (
       <li className="result">
         <div className="text-search-result">
-          <h4>
+          <h6 className="custom-h6">
             <a href={`https://rnacentral.org/rna/${ this.props.entry.rnacentral_id }`}>{ this.props.entry.description }</a>
-          </h4>
+          </h6>
           <small>{ this.props.entry.rnacentral_id }</small>
           <ul className="menu small">
             <li>{this.props.entry.target_length} nucleotides</li>
-            <li></li>
           </ul>
           <small>
             <a onClick={ this.props.onToggleAlignmentsCollapsed }>

@@ -12,6 +12,7 @@ import fonts from 'EBI-Icon-fonts/fonts.css';
 import animate from 'animate.css/animate.min.css';
 import sequenceSearchStyles from 'containers/SequenceSearch/index.scss';
 import resultsStyles from 'containers/SequenceSearch/components/Results/index.scss';
+import customStyles from 'index.scss'
 
 
 // Prepare data
@@ -40,6 +41,7 @@ class RNAcentralSequenceSearch extends HTMLElement {
       <style key={animate} dangerouslySetInnerHTML={{__html: animate}}/>,
       <style key={sequenceSearchStyles} dangerouslySetInnerHTML={{__html: sequenceSearchStyles}}/>,
       <style key={resultsStyles} dangerouslySetInnerHTML={{__html: resultsStyles}}/>,
+      <style key={customStyles} dangerouslySetInnerHTML={{__html: customStyles}}/>,
       <body key='body'>
         <Provider key='provider' store={store}>
           <SequenceSearch databases={databases} examples={examples} rfam={rfam}/>

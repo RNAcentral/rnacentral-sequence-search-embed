@@ -13,7 +13,7 @@ class Facets extends React.Component {
 
   renderFacet(facet) {
     return [
-      <legend key={`legend-${facet.id}`}><h5 style={{color: 'rgb(0,124,130)' }}>{ facet.label }</h5></legend>,
+      <legend key={`legend-${facet.id}`}><h5 className="custom-h5">{ facet.label }</h5></legend>,
       <ul key={facet.id} className="vertical menu facet">
         {
           facet.facetValues.map(facetValue => (
