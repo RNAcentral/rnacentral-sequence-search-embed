@@ -93,6 +93,7 @@ class Results extends React.Component {
                     toggleFacet={ this.toggleFacet }
                     ordering={ this.props.ordering }
                     textSearchError={ this.props.textSearchError }
+                    hideFacet={ this.props.hideFacet}
                 /> : ''}
             </div>
           ]

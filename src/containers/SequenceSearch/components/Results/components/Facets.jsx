@@ -36,6 +36,8 @@ class Facets extends React.Component {
   }
 
   render() {
+    let showFacet = this.props.hideFacet ? this.props.facets.filter(facet => !this.props.hideFacet.includes(facet.id)) : this.props.facets;
+
     return (
       <div className="small-12 medium-2 medium-pull-10 columns">
         <label>Sort by:
@@ -52,7 +54,7 @@ class Facets extends React.Component {
         </label>
         <section>
           <div>
-            { this.props.facets.map(facet => this.renderFacet(facet)) }
+            { showFacet.map(facet => this.renderFacet(facet)) }
           </div>
           {
             this.props.textSearchError &&

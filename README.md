@@ -39,6 +39,17 @@ To show some examples and/or enable the Rfam search, use:
 />
 ```
 
+If you want to hide one specific facet, use:
+```
+<rnacentral-sequence-search 
+    databases='["miRBase"]'
+    hideFacet='["has_conserved_structure"]'
+/>
+```
+
+You can hide any facet - ` "rna_type", "TAXONOMY", "expert_db", "qc_warning_found", "has_go_annotations", 
+"has_conserved_structure", "has_genomic_coordinates" `
+
 For a minimal example, see [index.html](./index.html). For an Rfam example, see [rfam.html](./rfam.html).
 
 To change the layout, you will need to edit this file: [index.scss](./src/index.scss)
