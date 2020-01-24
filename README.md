@@ -50,9 +50,20 @@ If you want to hide one specific facet, use:
 You can hide any facet - ` "rna_type", "TAXONOMY", "expert_db", "qc_warning_found", "has_go_annotations", 
 "has_conserved_structure", "has_genomic_coordinates" `
 
-For a minimal example, see [index.html](./index.html). For an Rfam example, see [rfam.html](./rfam.html).
+You can also customise some elements of this embeddable component. See what you can change [here](#layout).
+The example below changes the color of the buttons:
 
-To change the layout, you will need to edit this file: [index.scss](./src/index.scss)
+```
+<rnacentral-sequence-search
+    databases='["miRBase"]'
+    customStyle='{
+      "submitButtonColor": "#007c82",
+      "clearButtonColor": "#6c757d"
+    }'
+/>
+```
+
+For a minimal example, see [index.html](./index.html). For an Rfam example, see [rfam.html](./rfam.html).
 
 ## Attributes/parameters
 
@@ -100,6 +111,25 @@ tarbase           |
 tmrna_web         |
 wormbase          |
 zwd               |
+
+#### layout
+
+Parameters that you can use to customise some elements of this embeddable component
+
+parameter         | description                                                                       |
+------------------|-----------------------------------------------------------------------------------|
+h1Color           | change the color of the `Search in miRBase` text                                  |
+h1Size            | change the size of the `Search in miRBase` text                                   |
+h2Color           | change the color of the `Similar sequences` and `Rfam classification` text        |
+h2Size            | change the size of the `Similar sequences` and `Rfam classification` text         |
+facetColor        | change the color of the facet title                                               |
+facetSize         | change the size of the facet title                                                |
+seqTitleColor     | used in results, it changes the color of the title                                |
+seqTitleSize      | used in results, it changes the size of the title                                 |
+seqInfoColor      | used in results, it changes the color of the `URS and number of nucleotides` text |
+seqInfoSize       | used in results, it changes the size of the `URS and number of nucleotides` text  |
+submitButtonColor | change the color of the `Submit` button                                           |
+clearButtonColor  | change the color of the `Clear sequence` button                                   |
 
 ## Developer details
 
