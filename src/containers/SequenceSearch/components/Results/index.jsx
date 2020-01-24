@@ -14,6 +14,11 @@ class Results extends React.Component {
   }
 
   render() {
+    let h2Style = {
+      color: this.props.customStyle && this.props.customStyle.h2Color ? this.props.customStyle.h2Color : "#666",
+      fontSize: this.props.customStyle && this.props.customStyle.h2Size ? this.props.customStyle.h2Size : "",
+      fontWeight: "300",
+    };
     return (
       <div className="row">
         {
@@ -42,9 +47,9 @@ class Results extends React.Component {
         {
           this.props.rfam && (
             (this.props.infernal_status === "loading" || this.props.infernal_status === "success") && [
-              <h2 className="custom-h2" key={`infernal-header`}>Rfam classification: { this.props.infernal_status === "loading" ? <i className="animated infinite flash">...</i> : '' }</h2>,
+              <h2 style={h2Style} key={`infernal-header`}>Rfam classification: { this.props.infernal_status === "loading" ? <i className="animated infinite flash">...</i> : '' }</h2>,
               <div key={`infernal-div`}>
-                <table id="infernal-table">
+                <table className="responsive-table">
                   <thead>
                     <tr>
                       <th>Family</th>
@@ -76,11 +81,11 @@ class Results extends React.Component {
         }
         {
           (this.props.status === "loading" || this.props.status === "success" || this.props.status === "partial_success") && [
-            <h2 className="custom-h2" key={`results-header`}>Similar sequences: { this.props.status === "loading" ? <i className="animated infinite flash">...</i> : <small>{ this.props.hitCount }</small> }</h2>,
+            <h2 style={h2Style} key={`results-header`}>Similar sequences: { this.props.status === "loading" ? <i className="animated infinite flash">...</i> : <small>{ this.props.hitCount }</small> }</h2>,
             <div key={`results-div`} className="small-12 medium-10 medium-push-2 columns">
               <section>
                 { this.props.entries.map((entry, index) => (
-                <ul key={`${entry}_${index}`}><Hit entry={entry} alignmentsCollapsed={this.props.alignmentsCollapsed} onToggleAlignmentsCollapsed={ this.onToggleAlignmentsCollapsed } /></ul>
+                <ul key={`${entry}_${index}`}><Hit entry={entry} alignmentsCollapsed={this.props.alignmentsCollapsed} onToggleAlignmentsCollapsed={ this.onToggleAlignmentsCollapsed } customStyle={ this.props.customStyle }/></ul>
                 )) }
                 {(this.props.status === "success" || this.props.status === "partial_success") && (this.props.entries.length < this.props.hitCount) && (<a className="button small" onClick={this.props.onLoadMore} target="_blank">Load more</a>)}
               </section>
@@ -94,6 +99,7 @@ class Results extends React.Component {
                     ordering={ this.props.ordering }
                     textSearchError={ this.props.textSearchError }
                     hideFacet={ this.props.hideFacet}
+                    customStyle={ this.props.customStyle }
                 /> : ''}
             </div>
           ]

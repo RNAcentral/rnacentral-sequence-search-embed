@@ -8,10 +8,14 @@ import {store} from "app.jsx";
 class SearchForm extends React.Component {
   showDatabase(){
     const databases = this.props.databases;
+    const h1Style = {
+      color: this.props.customStyle && this.props.customStyle.h1Color ? this.props.customStyle.h1Color : "",
+      fontSize: this.props.customStyle && this.props.customStyle.h1Size ? this.props.customStyle.h1Size : "",
+    };
     if (databases.length > 1) {
       return (
           <div>
-            <h1 className="custom-h1">Search in&nbsp;
+            <h1 style={h1Style}>Search in&nbsp;
               {
                 databases.map(function(item, index) {
                   return <span key={`${index}`}>{ (index ? ', ' : '') + item }</span>;
@@ -21,9 +25,9 @@ class SearchForm extends React.Component {
           </div>
       )
     } else if (databases.length === 0) {
-      return <h1 className="custom-h1">Search in RNAcentral</h1>
+      return <h1 style={h1Style}>Search in RNAcentral</h1>
     } else {
-      return <h1 className="custom-h1">Search in {databases}</h1>
+      return <h1 style={h1Style}>Search in {databases}</h1>
     }
   }
 
@@ -47,6 +51,8 @@ class SearchForm extends React.Component {
   }
 
   render() {
+    const submitButtonColor = this.props.customStyle && this.props.customStyle.submitButtonColor ? this.props.customStyle.submitButtonColor : "";
+    const clearButtonColor = this.props.customStyle && this.props.customStyle.clearButtonColor ? this.props.customStyle.clearButtonColor : "#6c757d";
     return (
       <div className="row">
         <div className="col-lg-12">
@@ -73,8 +79,8 @@ class SearchForm extends React.Component {
                 <div>
                   <fieldset>
                     <div>
-                      <input id="submit-button" name="submit" type="submit" value="Submit" className="button" />{' '}
-                      <input id="clear-button" name="clear" type="submit" value="Clear sequence" className="button" onClick={ this.props.onClearSequence } />{' '}
+                      <input id="submit-button" style={{background: submitButtonColor}} name="submit" type="submit" value="Submit" className="button" />{' '}
+                      <input id="clear-button" style={{background: clearButtonColor}} name="clear" type="submit" value="Clear sequence" className="button" onClick={ this.props.onClearSequence } />{' '}
                       <div id="powered-by">Powered by <a target='_blank' href='https://rnacentral.org/'>RNAcentral</a></div>
                     </div>
                   </fieldset>

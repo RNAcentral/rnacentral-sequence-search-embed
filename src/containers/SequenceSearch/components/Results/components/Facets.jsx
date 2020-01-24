@@ -12,8 +12,12 @@ class Facets extends React.Component {
   }
 
   renderFacet(facet) {
+    let facetStyle = {
+      color: this.props.customStyle && this.props.customStyle.facetColor ? this.props.customStyle.facetColor : "#007c82",
+      fontSize: this.props.customStyle && this.props.customStyle.facetSize ? this.props.customStyle.facetSize : "",
+    };
     return [
-      <legend key={`legend-${facet.id}`}><h5 className="custom-h5">{ facet.label }</h5></legend>,
+      <legend key={`legend-${facet.id}`}><h5 style={facetStyle}>{ facet.label }</h5></legend>,
       <ul key={facet.id} className="vertical menu facet">
         {
           facet.facetValues.map(facetValue => (

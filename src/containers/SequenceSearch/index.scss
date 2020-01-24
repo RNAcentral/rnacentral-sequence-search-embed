@@ -20,6 +20,24 @@
   margin-bottom: 1em;
 }
 
+// div with sequence examples
+#examples ul{
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+#examples ul li {
+  display: inline;
+  padding-right: 10px;
+}
+
+// upload file
+#upload-file input {
+  font-size: smaller;
+}
+
+// div powered-by
 #powered-by {
   float: right;
   font-family: Verdana, sans-serif;
