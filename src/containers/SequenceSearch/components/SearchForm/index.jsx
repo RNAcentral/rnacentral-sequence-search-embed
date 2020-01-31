@@ -44,10 +44,15 @@ class SearchForm extends React.Component {
     event.preventDefault();
 
     const state = store.getState();
-    if (state.sequence) {
+    let getSequence = state.sequence.split(/\r?\n/);
+
+    if (state.sequence && getSequence.length > 1) {
+      store.dispatch(actions.onMultipleSubmit(getSequence, this.props.databases));
+    } else if (state.sequence) {
       store.dispatch(actions.onSubmit(state.sequence, this.props.databases));
-      state.sequence = "";
     }
+
+    state.sequence = "";
   }
 
   render() {

@@ -6,11 +6,20 @@ import Hit from 'containers/SequenceSearch/components/Results/components/Hit.jsx
 
 import 'containers/SequenceSearch/components/Results/index.scss';
 import * as actionCreators from 'actions/actions';
+import {store} from "app.jsx";
 
 
 class Results extends React.Component {
   constructor(props) {
     super(props);
+  }
+
+  onSeeResults(e) {
+    if (e.target.value === 'Select a job ID'){
+      store.dispatch(actionCreators.onClearJobId());
+    } else {
+      store.dispatch(actionCreators.updateJobId(e.target.value));
+    }
   }
 
   render() {
@@ -21,6 +30,14 @@ class Results extends React.Component {
     };
     return (
       <div className="row">
+        {
+          this.props.jobList && this.props.jobList.length !== 0 && (
+            <select onChange={this.onSeeResults}>
+              <option key={'no-job-selected'}>Select a job ID</option>
+              {this.props.jobList.map((job) => <option key={job}>{job}</option>)}
+            </select>
+          )
+        }
         {
           this.props.status === "partial_success" && (
             <div className="callout alert">
@@ -45,7 +62,7 @@ class Results extends React.Component {
           )
         }
         {
-          this.props.rfam && (
+          this.props.jobId && this.props.rfam && (
             (this.props.infernal_status === "loading" || this.props.infernal_status === "success") && [
               <h2 style={h2Style} key={`infernal-header`}>Rfam classification: { this.props.infernal_status === "loading" ? <i className="animated infinite flash">...</i> : '' }</h2>,
               <div key={`infernal-div`}>
@@ -80,7 +97,7 @@ class Results extends React.Component {
           )
         }
         {
-          (this.props.status === "loading" || this.props.status === "success" || this.props.status === "partial_success") && [
+          this.props.jobId && (this.props.status === "loading" || this.props.status === "success" || this.props.status === "partial_success") && [
             <h2 style={h2Style} key={`results-header`}>Similar sequences: { this.props.status === "loading" ? <i className="animated infinite flash">...</i> : <small>{ this.props.hitCount }</small> }</h2>,
             <div key={`results-div`} className="small-12 medium-10 medium-push-2 columns">
               <section>
@@ -121,6 +138,7 @@ function mapStateToProps(state) {
     ordering: state.ordering,
     textSearchError: state.textSearchError,
     jobId: state.jobId,
+    jobList: state.jobList,
     infernal_entries: state.infernal_entries,
   };
 }

@@ -24,6 +24,7 @@ function mapStateToProps(state) {
     status: state.status,
     infernal_status: state.infernal_status,
     jobId: state.jobId,
+    jobList: state.jobList,
     submissionError: state.submissionError
   };
 }

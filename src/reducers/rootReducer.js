@@ -131,6 +131,26 @@ const rootReducer = function (state = initialState, action) {
           return newState;
       }
 
+    case actions.SUBMIT_MULTIPLE_JOB:
+      switch (action.status) {
+        case 'success':
+          return Object.assign({}, state, {
+            jobList: action.data,
+            jobId: action.data[0],
+            submissionError: ""
+          });
+        case 'error':
+          return Object.assign({}, state, {status: "error", submissionError: action.response.statusText});
+        default:
+          return newState;
+      }
+
+    case actions.UPDATE_JOB_ID:
+      return Object.assign({}, state, {jobId: action.data});
+
+    case actions.CLEAR_JOB_ID:
+      return Object.assign({}, state, {jobId: null, sequence: ""});
+
     case actions.FETCH_STATUS:
       if (action.status === 'error') {
         return Object.assign({}, state, {status: "error"});
@@ -177,6 +197,8 @@ const rootReducer = function (state = initialState, action) {
 
     case actions.CLEAR_SEQUENCE:
       return Object.assign({}, state, {
+        jobId: null,
+        jobList: [],
         sequence: "",
         status: "notSubmitted",
         entries: [],

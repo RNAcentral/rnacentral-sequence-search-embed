@@ -59,6 +59,56 @@ export function onSubmit(sequence, databases) {
   }
 }
 
+export function onMultipleSubmit(sequence, databases) {
+  let jobIds = [];
+  let lastQuery = sequence[sequence.length - 1];
+
+  return function(dispatch) {
+    for (var i = 0; i < sequence.length; i++) {
+      let newQuery = sequence[i];
+      newQuery && fetch(routes.submitJob(), {
+        method: 'POST',
+        mode: 'cors',
+        credentials: 'include',
+        headers: {
+          'Accept': 'application/json, text/plain, */*',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          query: newQuery,
+          databases: databases
+        })
+      })
+      .then(function (response) {
+        if (response.ok) {
+          return response.json();
+        } else {
+          throw response;
+        }
+      })
+      .then(data => {
+        jobIds.push(data.job_id);
+        if (newQuery === lastQuery) {
+          dispatch({type: types.SUBMIT_MULTIPLE_JOB, status: 'success', data: jobIds});
+        }
+      })
+      .catch(error => dispatch({type: types.SUBMIT_MULTIPLE_JOB, status: 'error', response: error}));
+    }
+  }
+}
+
+export function updateJobId(jobId) {
+  return function(dispatch) {
+    dispatch({type: types.UPDATE_JOB_ID, data: jobId});
+    dispatch(fetchStatus(jobId));
+    dispatch(fetchInfernalStatus(jobId));
+  }
+}
+
+export function onClearJobId() {
+  return {type: types.CLEAR_JOB_ID}
+}
+
 export function fetchStatus(jobId) {
   return function(dispatch) {
     fetch(routes.jobStatus(jobId), {

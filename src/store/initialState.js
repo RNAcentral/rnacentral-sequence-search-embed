@@ -8,6 +8,7 @@ let statusChoices = {
 let initialState = {
   status: statusChoices.notSubmitted,
   jobId: null,
+  jobList: [],
   submissionError: null,
 
   entries: [],
