@@ -24,6 +24,7 @@ let initialState = {
 
   infernal_status: statusChoices.notSubmitted,
   infernal_entries: [],
+  fileUpload: false,
 };
 
 export default initialState;

@@ -163,6 +163,8 @@ const rootReducer = function (state = initialState, action) {
 
     case actions.TEXTAREA_CHANGE:
       return Object.assign({}, state, {
+        jobId: null,
+        jobList: [],
         sequence: action.sequence,
         status: "notSubmitted",
         entries: [],
@@ -176,10 +178,13 @@ const rootReducer = function (state = initialState, action) {
         textSearchError: false,
         infernal_status: "notSubmitted",
         infernal_entries: [],
+        fileUpload: false,
       });
 
     case actions.EXAMPLE_SEQUENCE:
       return Object.assign({}, state, {
+        jobId: null,
+        jobList: [],
         sequence: action.sequence,
         status: "notSubmitted",
         entries: [],
@@ -193,6 +198,7 @@ const rootReducer = function (state = initialState, action) {
         textSearchError: false,
         infernal_status: "notSubmitted",
         infernal_entries: [],
+        fileUpload: false,
       });
 
     case actions.CLEAR_SEQUENCE:
@@ -212,13 +218,14 @@ const rootReducer = function (state = initialState, action) {
         textSearchError: false,
         infernal_status: "notSubmitted",
         infernal_entries: [],
+        fileUpload: false,
       });
 
     case actions.FILE_UPLOAD:
       if (!action.sequence) {
         return Object.assign({}, state, {});
       } else {
-        return Object.assign({}, state, {sequence: action.sequence});
+        return Object.assign({}, state, {sequence: action.sequence, fileUpload: true});
       }
 
     default:

@@ -42,11 +42,11 @@ class SearchForm extends React.Component {
 
   onSubmit(event) {
     event.preventDefault();
-
     const state = store.getState();
-    let getSequence = state.sequence.split(/\r?\n/);
 
-    if (state.sequence && getSequence.length > 1) {
+    // split the sequence only for batch queries
+    if (state.fileUpload && state.sequence) {
+      let getSequence = state.sequence.split(/(?=>)/g);
       store.dispatch(actions.onMultipleSubmit(getSequence, this.props.databases));
     } else if (state.sequence) {
       store.dispatch(actions.onSubmit(state.sequence, this.props.databases));
@@ -109,6 +109,7 @@ const mapStateToProps = (state) => ({
   ordering: state.ordering,
   textSearchError: state.textSearchError,
   infernal_entries: state.infernal_entries,
+  fileUpload: state.fileUpload,
 });
 
 const mapDispatchToProps = (dispatch) => ({
