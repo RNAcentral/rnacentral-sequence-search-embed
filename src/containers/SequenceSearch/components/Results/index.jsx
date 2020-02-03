@@ -63,8 +63,8 @@ class Results extends React.Component {
         }
         {
           this.props.jobId && this.props.rfam && (
-            (this.props.infernal_status === "loading" || this.props.infernal_status === "success") && [
-              <h2 style={h2Style} key={`infernal-header`}>Rfam classification: { this.props.infernal_status === "loading" ? <i className="animated infinite flash">...</i> : '' }</h2>,
+            (this.props.infernalStatus === "loading" || this.props.infernalStatus === "success") && [
+              <h2 style={h2Style} key={`infernal-header`}>Rfam classification: { this.props.infernalStatus === "loading" ? <i className="animated infinite flash">...</i> : '' }</h2>,
               <div key={`infernal-div`}>
                 <table className="responsive-table">
                   <thead>
@@ -79,7 +79,7 @@ class Results extends React.Component {
                     </tr>
                   </thead>
                   <tbody>
-                  { this.props.infernal_entries.length ? this.props.infernal_entries.map((entry, index) => (
+                  { this.props.infernalEntries.length ? this.props.infernalEntries.map((entry, index) => (
                     <tr key={`${index}`}>
                       <td><a href={`https://rfam.org/family/${entry.target_name}`} target="_blank">{entry.description}</a></td>
                       <td><a href={`https://rfam.org/family/${entry.accession_rfam}`} target="_blank">{entry.accession_rfam}</a></td>
@@ -129,7 +129,7 @@ class Results extends React.Component {
 function mapStateToProps(state) {
   return {
     status: state.status,
-    infernal_status: state.infernal_status,
+    infernalStatus: state.infernalStatus,
     sequence: state.sequence,
     entries: state.entries,
     facets: state.facets,
@@ -139,7 +139,7 @@ function mapStateToProps(state) {
     textSearchError: state.textSearchError,
     jobId: state.jobId,
     jobList: state.jobList,
-    infernal_entries: state.infernal_entries,
+    infernalEntries: state.infernalEntries,
   };
 }
 

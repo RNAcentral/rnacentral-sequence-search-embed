@@ -174,7 +174,7 @@ export function fetchInfernalStatus(jobId) {
       if (store.getState().hasOwnProperty('statusTimeout')) {
         clearTimeout(store.getState().statusTimeout); // clear status timeout
       }
-      dispatch({type: types.FETCH_STATUS, infernal_status: 'error'})
+      dispatch({type: types.FETCH_STATUS, infernalStatus: 'error'})
     });
   }
 }
@@ -224,9 +224,9 @@ export function fetchInfernalResults(jobId) {
         throw response;
       }
     })
-    .then(data => dispatch({type: types.FETCH_INFERNAL_RESULTS, infernal_status: 'success', data: data}))
+    .then(data => dispatch({type: types.FETCH_INFERNAL_RESULTS, infernalStatus: 'success', data: data}))
     .catch(error => {
-      dispatch({type: types.FETCH_INFERNAL_RESULTS, infernal_status: 'error'})
+      dispatch({type: types.FETCH_INFERNAL_RESULTS, infernalStatus: 'error'})
     });
   }
 }

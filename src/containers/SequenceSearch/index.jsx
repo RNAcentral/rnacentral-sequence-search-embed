@@ -22,7 +22,7 @@ class SequenceSearch extends React.Component {
 function mapStateToProps(state) {
   return {
     status: state.status,
-    infernal_status: state.infernal_status,
+    infernalStatus: state.infernalStatus,
     jobId: state.jobId,
     jobList: state.jobList,
     submissionError: state.submissionError

@@ -22,8 +22,8 @@ let initialState = {
   textSearchError: false,
   sequence: "",
 
-  infernal_status: statusChoices.notSubmitted,
-  infernal_entries: [],
+  infernalStatus: statusChoices.notSubmitted,
+  infernalEntries: [],
   fileUpload: false,
 };
 

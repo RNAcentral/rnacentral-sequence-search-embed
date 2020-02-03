@@ -32,15 +32,15 @@ const rootReducer = function (state = initialState, action) {
       }
 
     case actions.FETCH_INFERNAL_RESULTS:
-      if (!action.infernal_status) {
+      if (!action.infernalStatus) {
         return Object.assign({}, state, {}); // do nothing, all the logic is in action creator
-      } else if (action.infernal_status === 'success') {
+      } else if (action.infernalStatus === 'success') {
         return Object.assign({}, state, {
-          infernal_status: "success",
-          infernal_entries: [...action.data],
+          infernalStatus: "success",
+          infernalEntries: [...action.data],
         });
 
-      } else if (action.infernal_status === 'error') {
+      } else if (action.infernalStatus === 'error') {
         return Object.assign({}, state, { status: 'error' });
       } else {
         return Object.assign({}, state, {});
@@ -122,7 +122,7 @@ const rootReducer = function (state = initialState, action) {
           return Object.assign({}, state, {
             jobId: action.data.job_id,
             status: "loading",
-            infernal_status: "loading",
+            infernalStatus: "loading",
             submissionError: ""
           });
         case 'error':
@@ -176,8 +176,8 @@ const rootReducer = function (state = initialState, action) {
         selectedFacets: {},
         alignmentsCollapsed: true,
         textSearchError: false,
-        infernal_status: "notSubmitted",
-        infernal_entries: [],
+        infernalStatus: "notSubmitted",
+        infernalEntries: [],
         fileUpload: false,
       });
 
@@ -196,8 +196,8 @@ const rootReducer = function (state = initialState, action) {
         selectedFacets: {},
         alignmentsCollapsed: true,
         textSearchError: false,
-        infernal_status: "notSubmitted",
-        infernal_entries: [],
+        infernalStatus: "notSubmitted",
+        infernalEntries: [],
         fileUpload: false,
       });
 
@@ -216,8 +216,8 @@ const rootReducer = function (state = initialState, action) {
         selectedFacets: {},
         alignmentsCollapsed: true,
         textSearchError: false,
-        infernal_status: "notSubmitted",
-        infernal_entries: [],
+        infernalStatus: "notSubmitted",
+        infernalEntries: [],
         fileUpload: false,
       });
 

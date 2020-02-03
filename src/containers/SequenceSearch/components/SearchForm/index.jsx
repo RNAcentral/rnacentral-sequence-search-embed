@@ -101,14 +101,14 @@ class SearchForm extends React.Component {
 
 const mapStateToProps = (state) => ({
   status: state.status,
-  infernal_status: state.infernal_status,
+  infernalStatus: state.infernalStatus,
   sequence: state.sequence,
   entries: state.entries,
   facets: state.facets,
   hitCount: state.hitCount,
   ordering: state.ordering,
   textSearchError: state.textSearchError,
-  infernal_entries: state.infernal_entries,
+  infernalEntries: state.infernalEntries,
   fileUpload: state.fileUpload,
 });
 
