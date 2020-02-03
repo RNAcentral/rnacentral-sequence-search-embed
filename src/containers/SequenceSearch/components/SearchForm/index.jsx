@@ -60,38 +60,38 @@ class SearchForm extends React.Component {
     const clearButtonColor = this.props.customStyle && this.props.customStyle.clearButtonColor ? this.props.customStyle.clearButtonColor : "#6c757d";
     return (
       <div className="row">
-        <div className="col-lg-12">
-          <div className="hpanel">
-            <div className="panel-heading">
-              {this.showDatabase()}
-            </div>
-            <div className="panel-body">
-              <form onSubmit={(e) => this.onSubmit(e)}>
-                <div>
-                  <fieldset>
-                    {this.props.examples ? <div id="examples"><span>Examples:</span><ul>{this.showExamples()}</ul></div> : ""}
-                    <textarea id="sequence" name="sequence" rows="7" value={this.props.sequence} onChange={(e) => this.props.onSequenceTextareaChange(e)} />
-                    <div id="upload-file">
-                      <span>Or upload a file (with ".fasta" extension):</span>
-                      <input id="sequence-file" name="sequence-file" type="file" accept=".fasta" onChange={this.props.onFileUpload} />
-                    </div>
-                  </fieldset>
+        <div className="hpanel">
+          <div className="panel-heading">
+            {this.showDatabase()}
+          </div>
+          <div className="panel-body">
+            <form onSubmit={(e) => this.onSubmit(e)}>
+              <div>
+                <fieldset>
+                  {this.props.examples ? <div id="examples"><ul>Examples: {this.showExamples()}</ul></div> : ""}
+                  <textarea id="sequence" name="sequence" rows="7" value={this.props.sequence} onChange={(e) => this.props.onSequenceTextareaChange(e)} placeholder="Enter RNA/DNA sequence (with an optional description in FASTA format)" />
+                  <div id="upload-file">
+                    <span>Or upload a file (with ".fasta" extension):</span>
+                    <input id="sequence-file" name="sequence-file" type="file" accept=".fasta" onChange={this.props.onFileUpload} />
+                  </div>
+                </fieldset>
+              </div>
+              {
+                this.props.submissionError && <div className="callout alert">
+                <h3>Form submission failed</h3>
+                { this.props.submissionError }
                 </div>
-                { this.props.submissionError && <div className="callout alert">
-                  <h3>Form submission failed</h3>
-                  { this.props.submissionError }
-                </div>}
-                <div>
-                  <fieldset>
-                    <div>
-                      <input id="submit-button" style={{background: submitButtonColor}} name="submit" type="submit" value="Submit" className="button" />{' '}
-                      <input id="clear-button" style={{background: clearButtonColor}} name="clear" type="submit" value="Clear sequence" className="button" onClick={ this.props.onClearSequence } />{' '}
-                      <div id="powered-by">Powered by <a target='_blank' href='https://rnacentral.org/'>RNAcentral</a></div>
-                    </div>
-                  </fieldset>
-                </div>
-              </form>
-            </div>
+              }
+              <div>
+                <fieldset>
+                  <div>
+                    <input id="submit-button" style={{background: submitButtonColor}} name="submit" type="submit" value="Submit" className="button" />{' '}
+                    <input id="clear-button" style={{background: clearButtonColor}} name="clear" type="submit" value="Clear sequence" className="button" onClick={ this.props.onClearSequence } />{' '}
+                    <div id="powered-by">Powered by <a target='_blank' href='https://rnacentral.org/'>RNAcentral</a></div>
+                  </div>
+                </fieldset>
+              </div>
+            </form>
           </div>
         </div>
       </div>
