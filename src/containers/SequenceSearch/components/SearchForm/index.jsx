@@ -58,7 +58,7 @@ class SearchForm extends React.Component {
               </div>
               <div className="row">
                 <label htmlFor="file-upload" className="custom-file-upload" style={{background: uploadButtonColor}}>Upload file</label>
-                <input id="file-upload" type="file" accept=".fasta" onChange={this.props.onFileUpload} />
+                <input id="file-upload" type="file" accept=".fasta" onClick={ this.props.onClearSequence } onChange={this.props.onFileUpload} />
               </div>
             </div>
             <div className="small-12 columns" style={{marginTop: "-10px", marginBottom: "10px"}}>
