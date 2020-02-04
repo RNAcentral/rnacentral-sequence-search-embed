@@ -57,7 +57,7 @@ The example below changes the color of the buttons:
 <rnacentral-sequence-search
     databases='["miRBase"]'
     customStyle='{
-      "submitButtonColor": "#007c82",
+      "searchButtonColor": "#007c82",
       "clearButtonColor": "#6c757d"
     }'
 />
