@@ -59,7 +59,7 @@ class SearchForm extends React.Component {
                 <input id="file-upload" type="file" accept=".fasta" onChange={this.props.onFileUpload} />
               </div>
             </div>
-            <div className="small-12 columns" style={{marginTop: "-10px"}}>
+            <div className="small-12 columns" style={{marginTop: "-10px", marginBottom: "10px"}}>
               {this.props.examples ? <div id="examples"><ul>Examples: {this.showExamples()}</ul></div> : ""}
             </div>
             {

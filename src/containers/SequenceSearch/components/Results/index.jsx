@@ -23,24 +23,26 @@ class Results extends React.Component {
   }
 
   render() {
-    let h2Style = {
-      color: this.props.customStyle && this.props.customStyle.h2Color ? this.props.customStyle.h2Color : "#666",
-      fontSize: this.props.customStyle && this.props.customStyle.h2Size ? this.props.customStyle.h2Size : "",
+    let h3Style = {
+      color: this.props.customStyle && this.props.customStyle.h3Color ? this.props.customStyle.h3Color : "#666",
+      fontSize: this.props.customStyle && this.props.customStyle.h3Size ? this.props.customStyle.h3Size : "",
       fontWeight: "300",
     };
     return (
       <div className="row">
         {
           this.props.jobList && this.props.jobList.length !== 0 && (
-            <select onChange={this.onSeeResults}>
-              <option key={'no-job-selected'}>Select a job ID</option>
-              {this.props.jobList.map((job) => <option key={job}>{job}</option>)}
-            </select>
+            <div className="small-12 columns">
+              <select onChange={this.onSeeResults}>
+                <option key={'no-job-selected'}>Select a job ID</option>
+                {this.props.jobList.map((job) => <option key={job}>{job}</option>)}
+              </select>
+            </div>
           )
         }
         {
           this.props.status === "partial_success" && (
-            <div className="callout alert">
+            <div className="small-12 columns callout alert">
               <h3>Search against some databases failed.</h3>
               <p>Search results might be incomplete, you might want to retry running the search.</p>
             </div>
@@ -48,14 +50,14 @@ class Results extends React.Component {
         }
         {
           this.props.status === "does_not_exist" && (
-            <div className="callout alert">
+            <div className="small-12 columns callout alert">
               <h3>Job with id='{ this.props.jobId }' does not exist.</h3>
             </div>
           )
         }
         {
           this.props.status === "error" && (
-            <div className="callout alert">
+            <div className="small-12 columns callout alert">
               <h3>There was an error.</h3>
               <a href="mailto:rnacentral@gmail.com">Contact us</a> if the problem persists.
             </div>
@@ -64,9 +66,9 @@ class Results extends React.Component {
         {
           this.props.jobId && this.props.rfam && (
             (this.props.infernalStatus === "loading" || this.props.infernalStatus === "success") && [
-              <h2 style={h2Style} key={`infernal-header`}>Rfam classification: { this.props.infernalStatus === "loading" ? <i className="animated infinite flash">...</i> : '' }</h2>,
-              <div key={`infernal-div`}>
-                <table className="responsive-table">
+              <div className="small-12 columns" key={`infernal-div`}>
+                <h3 style={h3Style}>Rfam classification: { this.props.infernalStatus === "loading" ? <i className="animated infinite flash">...</i> : '' }</h3>,
+                <table className="responsive-table" style={{marginTop: "-15px"}}>
                   <thead>
                     <tr>
                       <th>Family</th>
@@ -98,26 +100,28 @@ class Results extends React.Component {
         }
         {
           this.props.jobId && (this.props.status === "loading" || this.props.status === "success" || this.props.status === "partial_success") && [
-            <h2 style={h2Style} key={`results-header`}>Similar sequences: { this.props.status === "loading" ? <i className="animated infinite flash">...</i> : <small>{ this.props.hitCount }</small> }</h2>,
-            <div key={`results-div`} className="small-12 medium-10 medium-push-2 columns">
-              <section>
-                { this.props.entries.map((entry, index) => (
-                <ul key={`${entry}_${index}`}><Hit entry={entry} alignmentsCollapsed={this.props.alignmentsCollapsed} onToggleAlignmentsCollapsed={ this.onToggleAlignmentsCollapsed } customStyle={ this.props.customStyle }/></ul>
-                )) }
-                {(this.props.status === "success" || this.props.status === "partial_success") && (this.props.entries.length < this.props.hitCount) && (<a className="button small" onClick={this.props.onLoadMore} target="_blank">Load more</a>)}
-              </section>
-            </div>,
-            <div key={`results-facets`}>
-              { this.props.entries ?
-                <Facets
-                    facets={ this.props.facets }
-                    selectedFacets={ this.props.selectedFacets }
-                    toggleFacet={ this.toggleFacet }
-                    ordering={ this.props.ordering }
-                    textSearchError={ this.props.textSearchError }
-                    hideFacet={ this.props.hideFacet}
-                    customStyle={ this.props.customStyle }
-                /> : ''}
+            <div className="small-12 columns" key={`results-div`}>
+              <h3 style={h3Style}>Similar sequences: { this.props.status === "loading" ? <i className="animated infinite flash">...</i> : <small>{ this.props.hitCount }</small> }</h3>
+              <div className="small-12 medium-10 medium-push-2 columns">
+                <section>
+                  { this.props.entries.map((entry, index) => (
+                  <ul key={`${entry}_${index}`}><Hit entry={entry} alignmentsCollapsed={this.props.alignmentsCollapsed} onToggleAlignmentsCollapsed={ this.onToggleAlignmentsCollapsed } customStyle={ this.props.customStyle }/></ul>
+                  )) }
+                  {(this.props.status === "success" || this.props.status === "partial_success") && (this.props.entries.length < this.props.hitCount) && (<a className="button small" onClick={this.props.onLoadMore} target="_blank">Load more</a>)}
+                </section>
+              </div>
+              <div>
+                { this.props.entries ?
+                  <Facets
+                      facets={ this.props.facets }
+                      selectedFacets={ this.props.selectedFacets }
+                      toggleFacet={ this.toggleFacet }
+                      ordering={ this.props.ordering }
+                      textSearchError={ this.props.textSearchError }
+                      hideFacet={ this.props.hideFacet}
+                      customStyle={ this.props.customStyle }
+                  /> : ''}
+              </div>
             </div>
           ]
         }

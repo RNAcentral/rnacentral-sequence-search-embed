@@ -118,8 +118,8 @@ Parameters that you can use to customise some elements of this embeddable compon
 
 parameter         | description                                                                       |
 ------------------|-----------------------------------------------------------------------------------|
-h2Color           | change the color of the `Similar sequences` and `Rfam classification` text        |
-h2Size            | change the size of the `Similar sequences` and `Rfam classification` text         |
+h3Color           | change the color of the `Similar sequences` and `Rfam classification` text        |
+h3Size            | change the size of the `Similar sequences` and `Rfam classification` text         |
 facetColor        | change the color of the facet title                                               |
 facetSize         | change the size of the facet title                                                |
 seqTitleColor     | used in results, it changes the color of the title                                |
