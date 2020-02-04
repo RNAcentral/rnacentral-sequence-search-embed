@@ -23,6 +23,8 @@ class SearchForm extends React.Component {
     if (state.fileUpload && state.sequence) {
       let getSequence = state.sequence.split(/(?=>)/g);
       store.dispatch(actions.onMultipleSubmit(getSequence, this.props.databases));
+    } else if (state.sequence && state.sequence.match("^([0-9a-fA-F]{8})-(([0-9a-fA-F]{4}\\-){3})([0-9a-fA-F]{12})$")) {
+      store.dispatch(actions.updateJobId(state.sequence));
     } else if (state.sequence) {
       store.dispatch(actions.onSubmit(state.sequence, this.props.databases));
     }
@@ -45,7 +47,7 @@ class SearchForm extends React.Component {
         <div className="row">
           <form onSubmit={(e) => this.onSubmit(e)}>
             <div className="small-10 columns">
-              <textarea id="sequence" name="sequence" rows="7" value={this.props.sequence} onChange={(e) => this.props.onSequenceTextareaChange(e)} placeholder="Enter RNA/DNA sequence (with an optional description in FASTA format)" />
+              <textarea id="sequence" name="sequence" rows="7" value={this.props.sequence} onChange={(e) => this.props.onSequenceTextareaChange(e)} placeholder="Enter RNA/DNA sequence (with an optional description in FASTA format) or job ID" />
             </div>
             <div className="small-2 columns">
               <div className="row">
