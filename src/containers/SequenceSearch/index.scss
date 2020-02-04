@@ -32,14 +32,14 @@
   padding-right: 10px;
 }
 
-// upload file
-#upload-file input {
-  font-size: smaller;
+// styling the input type=“file” button
+input[type="file"] {
+  display: none;
 }
 
-// div powered-by
-#powered-by {
-  float: right;
-  font-family: Verdana, sans-serif;
-  font-size: 85%
+.custom-file-upload {
+  border: 1px solid #ccc;
+  display: inline-block;
+  padding: 6px 12px;
+  cursor: pointer;
 }

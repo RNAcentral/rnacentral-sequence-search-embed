@@ -118,8 +118,6 @@ Parameters that you can use to customise some elements of this embeddable compon
 
 parameter         | description                                                                       |
 ------------------|-----------------------------------------------------------------------------------|
-h1Color           | change the color of the `Search in miRBase` text                                  |
-h1Size            | change the size of the `Search in miRBase` text                                   |
 h2Color           | change the color of the `Similar sequences` and `Rfam classification` text        |
 h2Size            | change the size of the `Similar sequences` and `Rfam classification` text         |
 facetColor        | change the color of the facet title                                               |
@@ -128,8 +126,9 @@ seqTitleColor     | used in results, it changes the color of the title          
 seqTitleSize      | used in results, it changes the size of the title                                 |
 seqInfoColor      | used in results, it changes the color of the `URS and number of nucleotides` text |
 seqInfoSize       | used in results, it changes the size of the `URS and number of nucleotides` text  |
-submitButtonColor | change the color of the `Submit` button                                           |
-clearButtonColor  | change the color of the `Clear sequence` button                                   |
+searchButtonColor | change the color of the `Search` button                                           |
+clearButtonColor  | change the color of the `Clear` button                                            |
+uploadButtonColor | change the color of the `Upload file` button                                      |
 
 ## Developer details
 

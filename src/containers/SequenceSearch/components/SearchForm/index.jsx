@@ -6,31 +6,6 @@ import {store} from "app.jsx";
 
 
 class SearchForm extends React.Component {
-  showDatabase(){
-    const databases = this.props.databases;
-    const h1Style = {
-      color: this.props.customStyle && this.props.customStyle.h1Color ? this.props.customStyle.h1Color : "",
-      fontSize: this.props.customStyle && this.props.customStyle.h1Size ? this.props.customStyle.h1Size : "",
-    };
-    if (databases.length > 1) {
-      return (
-          <div>
-            <h1 style={h1Style}>Search in&nbsp;
-              {
-                databases.map(function(item, index) {
-                  return <span key={`${index}`}>{ (index ? ', ' : '') + item }</span>;
-                })
-              }
-            </h1>
-          </div>
-      )
-    } else if (databases.length === 0) {
-      return <h1 style={h1Style}>Search in RNAcentral</h1>
-    } else {
-      return <h1 style={h1Style}>Search in {databases}</h1>
-    }
-  }
-
   showExamples(){
     const examples = this.props.examples;
     return examples.map(example =>
@@ -56,43 +31,44 @@ class SearchForm extends React.Component {
   }
 
   render() {
-    const submitButtonColor = this.props.customStyle && this.props.customStyle.submitButtonColor ? this.props.customStyle.submitButtonColor : "";
+    const searchButtonColor = this.props.customStyle && this.props.customStyle.searchButtonColor ? this.props.customStyle.searchButtonColor : "";
     const clearButtonColor = this.props.customStyle && this.props.customStyle.clearButtonColor ? this.props.customStyle.clearButtonColor : "#6c757d";
+    const uploadButtonColor = this.props.customStyle && this.props.customStyle.uploadButtonColor ? this.props.customStyle.uploadButtonColor : "";
     return (
-      <div className="row">
-        <div className="hpanel">
-          <div className="panel-heading">
-            {this.showDatabase()}
+      <div>
+        <div className="row">
+          <div className="small-12 columns">
+            <small>Powered by <a style={{marginRight: "7px"}} target='_blank' href='https://rnacentral.org/'>RNAcentral</a>|</small>
+            <small style={{marginLeft: "7px"}}>Local alignment using <a target='_blank' href='https://www.ncbi.nlm.nih.gov/pubmed/23842809'>nhmmer</a></small>
           </div>
-          <div className="panel-body">
-            <form onSubmit={(e) => this.onSubmit(e)}>
-              <div>
-                <fieldset>
-                  {this.props.examples ? <div id="examples"><ul>Examples: {this.showExamples()}</ul></div> : ""}
-                  <textarea id="sequence" name="sequence" rows="7" value={this.props.sequence} onChange={(e) => this.props.onSequenceTextareaChange(e)} placeholder="Enter RNA/DNA sequence (with an optional description in FASTA format)" />
-                  <div id="upload-file">
-                    <span>Or upload a file (with ".fasta" extension):</span>
-                    <input id="sequence-file" name="sequence-file" type="file" accept=".fasta" onChange={this.props.onFileUpload} />
-                  </div>
-                </fieldset>
+        </div>
+        <div className="row">
+          <form onSubmit={(e) => this.onSubmit(e)}>
+            <div className="small-10 columns">
+              <textarea id="sequence" name="sequence" rows="7" value={this.props.sequence} onChange={(e) => this.props.onSequenceTextareaChange(e)} placeholder="Enter RNA/DNA sequence (with an optional description in FASTA format)" />
+            </div>
+            <div className="small-2 columns">
+              <div className="row">
+                <input id="submit-button" style={{background: searchButtonColor}} name="submit" type="submit" value="Search" className="button" />
               </div>
-              {
-                this.props.submissionError && <div className="callout alert">
-                <h3>Form submission failed</h3>
-                { this.props.submissionError }
-                </div>
-              }
-              <div>
-                <fieldset>
-                  <div>
-                    <input id="submit-button" style={{background: submitButtonColor}} name="submit" type="submit" value="Submit" className="button" />{' '}
-                    <input id="clear-button" style={{background: clearButtonColor}} name="clear" type="submit" value="Clear sequence" className="button" onClick={ this.props.onClearSequence } />{' '}
-                    <div id="powered-by">Powered by <a target='_blank' href='https://rnacentral.org/'>RNAcentral</a></div>
-                  </div>
-                </fieldset>
+              <div className="row">
+                <input id="clear-button" style={{background: clearButtonColor}} name="clear" type="submit" value="Clear" className="button" onClick={ this.props.onClearSequence } />
               </div>
-            </form>
-          </div>
+              <div className="row">
+                <label htmlFor="file-upload" className="custom-file-upload" style={{background: uploadButtonColor}}>Upload file</label>
+                <input id="file-upload" type="file" accept=".fasta" onChange={this.props.onFileUpload} />
+              </div>
+            </div>
+            <div className="small-12 columns" style={{marginTop: "-10px"}}>
+              {this.props.examples ? <div id="examples"><ul>Examples: {this.showExamples()}</ul></div> : ""}
+            </div>
+            {
+              this.props.submissionError && <div className="small-12 columns callout alert">
+              <h3>Form submission failed</h3>
+              { this.props.submissionError }
+              </div>
+            }
+          </form>
         </div>
       </div>
     )
