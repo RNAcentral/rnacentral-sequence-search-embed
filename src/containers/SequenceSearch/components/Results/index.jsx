@@ -67,8 +67,8 @@ class Results extends React.Component {
           this.props.jobId && this.props.rfam && (
             (this.props.infernalStatus === "loading" || this.props.infernalStatus === "success") && [
               <div className="small-12 columns" key={`infernal-div`}>
-                <h3 style={h3Style}>Rfam classification: { this.props.infernalStatus === "loading" ? <i className="animated infinite flash">...</i> : '' }</h3>,
-                <table className="responsive-table" style={{marginTop: "-15px"}}>
+                <h3 style={h3Style}>Rfam classification: { this.props.infernalStatus === "loading" ? <i className="animated infinite flash">...</i> : '' }</h3>
+                <table className="responsive-table">
                   <thead>
                     <tr>
                       <th>Family</th>
@@ -102,15 +102,7 @@ class Results extends React.Component {
           this.props.jobId && (this.props.status === "loading" || this.props.status === "success" || this.props.status === "partial_success") && [
             <div className="small-12 columns" key={`results-div`}>
               <h3 style={h3Style}>Similar sequences: { this.props.status === "loading" ? <i className="animated infinite flash">...</i> : <small>{ this.props.hitCount }</small> }</h3>
-              <div className="small-12 medium-10 medium-push-2 columns">
-                <section>
-                  { this.props.entries.map((entry, index) => (
-                  <ul key={`${entry}_${index}`}><Hit entry={entry} alignmentsCollapsed={this.props.alignmentsCollapsed} onToggleAlignmentsCollapsed={ this.onToggleAlignmentsCollapsed } customStyle={ this.props.customStyle }/></ul>
-                  )) }
-                  {(this.props.status === "success" || this.props.status === "partial_success") && (this.props.entries.length < this.props.hitCount) && (<a className="button small" onClick={this.props.onLoadMore} target="_blank">Load more</a>)}
-                </section>
-              </div>
-              <div>
+              <div className="small-3 columns">
                 { this.props.entries ?
                   <Facets
                       facets={ this.props.facets }
@@ -121,6 +113,14 @@ class Results extends React.Component {
                       hideFacet={ this.props.hideFacet}
                       customStyle={ this.props.customStyle }
                   /> : ''}
+              </div>
+              <div className="small-9 columns">
+                <section>
+                  { this.props.entries.map((entry, index) => (
+                  <ul key={`${entry}_${index}`}><Hit entry={entry} alignmentsCollapsed={this.props.alignmentsCollapsed} onToggleAlignmentsCollapsed={ this.onToggleAlignmentsCollapsed } customStyle={ this.props.customStyle }/></ul>
+                  )) }
+                  {(this.props.status === "success" || this.props.status === "partial_success") && (this.props.entries.length < this.props.hitCount) && (<a className="button small" onClick={this.props.onLoadMore} target="_blank">Load more</a>)}
+                </section>
               </div>
             </div>
           ]

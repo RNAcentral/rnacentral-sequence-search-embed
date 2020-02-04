@@ -43,7 +43,7 @@ class Facets extends React.Component {
     let showFacet = this.props.hideFacet ? this.props.facets.filter(facet => !this.props.hideFacet.includes(facet.id)) : this.props.facets;
 
     return (
-      <div className="small-12 medium-2 medium-pull-10 columns">
+      <div>
         <label>Sort by:
           <select value={this.props.sortingOrder} onChange={this.props.onSort}>
             <option value="e_value">E-value (min to max) - default</option>
@@ -68,7 +68,7 @@ class Facets extends React.Component {
             </div>
           }
           <small>
-            Powered by <a href="https://www.ncbi.nlm.nih.gov/pubmed/23842809">NHMMER</a> and <a href="http://www.ebi.ac.uk/ebisearch/" target="_blank">EBI Search</a>.
+            Powered by <a href="http://www.ebi.ac.uk/ebisearch/" target="_blank">EBI Search</a>.
           </small>
         </section>
       </div>
