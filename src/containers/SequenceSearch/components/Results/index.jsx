@@ -42,24 +42,30 @@ class Results extends React.Component {
         }
         {
           this.props.status === "partial_success" && (
-            <div className="small-12 columns callout alert">
-              <h3>Search against some databases failed.</h3>
-              <p>Search results might be incomplete, you might want to retry running the search.</p>
+            <div className="small-12 columns">
+              <div className="callout warning">
+                <h4>Search against some databases failed.</h4>
+                <p>This usually happens when the nhmmer is unable to complete the search within a 5 minute time limit.</p>
+              </div>
             </div>
           )
         }
         {
           this.props.status === "does_not_exist" && (
-            <div className="small-12 columns callout alert">
-              <h3>Job with id='{ this.props.jobId }' does not exist.</h3>
+            <div className="small-12 columns">
+              <div className="callout alert">
+                <h4>Job with id='{ this.props.jobId }' does not exist.</h4>
+              </div>
             </div>
           )
         }
         {
           this.props.status === "error" && (
-            <div className="small-12 columns callout alert">
-              <h3>There was an error.</h3>
-              <a href="mailto:rnacentral@gmail.com">Contact us</a> if the problem persists.
+            <div className="small-12 columns">
+              <div className="callout alert">
+                <h4>There was an error.</h4>
+                <a href="mailto:rnacentral@gmail.com">Contact us</a> if the problem persists.
+              </div>
             </div>
           )
         }
