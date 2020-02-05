@@ -1,5 +1,6 @@
 import React from 'react';
 import {connect} from 'react-redux';
+import { CSVLink } from "react-csv";
 
 import Facets from 'containers/SequenceSearch/components/Results/components/Facets.jsx';
 import Hit from 'containers/SequenceSearch/components/Results/components/Hit.jsx';
@@ -28,15 +29,29 @@ class Results extends React.Component {
       fontSize: this.props.customStyle && this.props.customStyle.h3Size ? this.props.customStyle.h3Size : "",
       fontWeight: "300",
     };
+    const downloadButtonColor = this.props.customStyle && this.props.customStyle.downloadButtonColor ? this.props.customStyle.downloadButtonColor : "";
     return (
       <div className="row">
         {
           this.props.jobList && this.props.jobList.length !== 0 && (
-            <div className="small-12 columns">
-              <select onChange={this.onSeeResults}>
-                <option key={'no-job-selected'}>Select a job ID</option>
-                {this.props.jobList.map((job) => <option key={job}>{job}</option>)}
-              </select>
+            <div>
+              <div className="small-10 columns">
+                <select onChange={this.onSeeResults}>
+                  <option key={'no-job-selected'}>Select a job ID</option>
+                  {this.props.jobList.map((job) => <option key={job}>{job}</option>)}
+                </select>
+              </div>
+              <div className="small-2 columns">
+                <CSVLink
+                    data={Object.entries(this.props.jobList)}
+                    filename={"job-ids.csv"}
+                    className="button"
+                    target="_blank"
+                    style={{background: downloadButtonColor}}
+                >
+                Download Ids
+                </CSVLink>
+              </div>
             </div>
           )
         }
