@@ -151,6 +151,9 @@ const rootReducer = function (state = initialState, action) {
     case actions.CLEAR_JOB_ID:
       return Object.assign({}, state, {jobId: null, sequence: ""});
 
+    case actions.LONG_SEQUENCE:
+      return Object.assign({}, state, {status: "longSequence"});
+
     case actions.FETCH_STATUS:
       if (action.status === 'error') {
         return Object.assign({}, state, {status: "error"});

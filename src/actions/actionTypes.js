@@ -16,6 +16,7 @@ export const SET_STATUS_TIMEOUT = 'SET_STATUS_TIMEOUT';
 // submission form
 export const SUBMIT_JOB = 'SUBMIT_JOB';
 export const SUBMIT_MULTIPLE_JOB = 'SUBMIT_MULTIPLE_JOB';
+export const LONG_SEQUENCE = 'LONG_SEQUENCE';
 export const UPDATE_JOB_ID = 'UPDATE_JOB_ID';
 export const CLEAR_JOB_ID = 'CLEAR_JOB_ID';
 export const TEXTAREA_CHANGE = 'TEXTAREA_CHANGE';

@@ -109,6 +109,10 @@ export function onClearJobId() {
   return {type: types.CLEAR_JOB_ID}
 }
 
+export function longSequence() {
+  return {type: types.LONG_SEQUENCE}
+}
+
 export function fetchStatus(jobId) {
   return function(dispatch) {
     fetch(routes.jobStatus(jobId), {

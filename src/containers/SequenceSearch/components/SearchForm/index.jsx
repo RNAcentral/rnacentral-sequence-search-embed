@@ -25,8 +25,10 @@ class SearchForm extends React.Component {
       store.dispatch(actions.onMultipleSubmit(getSequence, this.props.databases));
     } else if (state.sequence && state.sequence.match("^([0-9a-fA-F]{8})-(([0-9a-fA-F]{4}\\-){3})([0-9a-fA-F]{12})$")) {
       store.dispatch(actions.updateJobId(state.sequence));
-    } else if (state.sequence) {
+    } else if (state.sequence && state.sequence.length <= 7000) {
       store.dispatch(actions.onSubmit(state.sequence, this.props.databases));
+    } else if (state.sequence && state.sequence.length > 7000) {
+      store.dispatch(actions.longSequence());
     }
 
     state.sequence = "";
@@ -66,10 +68,23 @@ class SearchForm extends React.Component {
               {this.props.examples ? <div id="examples"><ul>Examples: {this.showExamples()}</ul></div> : ""}
             </div>
             {
-              this.props.submissionError && <div className="small-12 columns callout alert">
-              <h3>Form submission failed</h3>
-              { this.props.submissionError }
-              </div>
+              this.props.submissionError && (
+                <div className="small-12 columns">
+                  <div className="callout alert">
+                    <h3>Form submission failed</h3>
+                    { this.props.submissionError }
+                  </div>
+                </div>
+              )
+            }
+            {
+              this.props.status === "longSequence" && (
+                <div className="small-12 columns">
+                  <div className="callout alert">
+                    <h4>The sequence cannot be longer than 7000 nucleotides</h4>
+                  </div>
+                </div>
+              )
             }
           </form>
         </div>
