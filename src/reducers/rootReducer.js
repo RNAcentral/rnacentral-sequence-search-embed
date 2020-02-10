@@ -14,6 +14,7 @@ const rootReducer = function (state = initialState, action) {
         return Object.assign({}, state, {
           status: action.data.sequenceSearchStatus === "success" ? "success" : "partial_success",
           sequence: action.data.sequence,
+          hits: action.data.hits,
           entries: [...action.data.entries],
           facets: [...action.data.facets],
           hitCount: action.data.hitCount,
@@ -62,6 +63,7 @@ const rootReducer = function (state = initialState, action) {
         return Object.assign({}, state, {
           status: action.data.sequenceSearchStatus === "success" ? "success" : "partial_success",
           sequence: action.data.sequence,
+          hits: action.data.hits,
           entries: [...action.data.entries],
           facets: [...action.data.facets],
           hitCount: action.data.hitCount,
@@ -82,6 +84,7 @@ const rootReducer = function (state = initialState, action) {
         return Object.assign({}, state, {
           status: action.data.sequenceSearchStatus === "success" ? "success" : "partial_success",
           sequence: action.data.sequence,
+          hits: action.data.hits,
           entries: [...action.data.entries],
           facets: [...action.data.facets],
           hitCount: action.data.hitCount,
@@ -100,6 +103,7 @@ const rootReducer = function (state = initialState, action) {
         return Object.assign({}, state, {
           status: action.data.sequenceSearchStatus === "success" ? "success" : "partial_success",
           sequence: action.data.sequence,
+          hits: action.data.hits,
           entries: [...state.entries, ...action.data.entries],
           facets: [...action.data.facets],
           hitCount: action.data.hitCount,
@@ -169,6 +173,7 @@ const rootReducer = function (state = initialState, action) {
         jobId: null,
         jobList: [],
         sequence: action.sequence,
+        hits: null,
         status: "notSubmitted",
         entries: [],
         facets: [],
@@ -189,6 +194,7 @@ const rootReducer = function (state = initialState, action) {
         jobId: null,
         jobList: [],
         sequence: action.sequence,
+        hits: null,
         status: "notSubmitted",
         entries: [],
         facets: [],
@@ -209,6 +215,7 @@ const rootReducer = function (state = initialState, action) {
         jobId: null,
         jobList: [],
         sequence: "",
+        hits: null,
         status: "notSubmitted",
         entries: [],
         facets: [],

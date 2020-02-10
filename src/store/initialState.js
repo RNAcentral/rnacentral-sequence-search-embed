@@ -21,6 +21,7 @@ let initialState = {
   alignmentsCollapsed: true,
   textSearchError: false,
   sequence: "",
+  hits: null,
 
   infernalStatus: statusChoices.notSubmitted,
   infernalEntries: [],

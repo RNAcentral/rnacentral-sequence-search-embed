@@ -97,6 +97,7 @@ const mapStateToProps = (state) => ({
   status: state.status,
   infernalStatus: state.infernalStatus,
   sequence: state.sequence,
+  hits: state.hits,
   entries: state.entries,
   facets: state.facets,
   hitCount: state.hitCount,
