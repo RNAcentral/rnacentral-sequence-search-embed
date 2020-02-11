@@ -122,7 +122,7 @@ class Results extends React.Component {
         {
           this.props.jobId && (this.props.status === "loading" || this.props.status === "success" || this.props.status === "partial_success") && [
             <div className="small-12 columns" key={`results-div`}>
-              <h3 style={h3Style}>Similar sequences: { this.props.status === "loading" ? <i className="animated infinite flash">...</i> : <small>{ this.props.hitCount }</small> } { this.props.hits > this.props.hitCount ? <small>of { this.props.hits } <a href="https://test.rnacentral.org/help/sequence-search" target="_blank"><i className="icon icon-generic icon-help" style={{fontSize: "70%"}}></i></a></small> : "" }</h3>
+              <h3 style={h3Style}>Similar sequences: { this.props.status === "loading" ? <i className="animated infinite flash">...</i> : <small>{ this.props.hitCount }</small> } { this.props.hits > 1000 ? <small>of { this.props.hits } <a href="https://test.rnacentral.org/help/sequence-search" target="_blank"><i className="icon icon-generic icon-help" style={{fontSize: "70%"}}></i></a></small> : "" }</h3>
               <div className="small-3 columns">
                 { this.props.entries ?
                   <Facets
