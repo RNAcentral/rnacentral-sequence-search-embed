@@ -24,9 +24,8 @@ class Facets extends React.Component {
             <li key={`li ${facetValue.label}`}>
               <span className="facetValue">
                 <input id={`checkbox-${facet.id}-${facetValue.value}`} type="checkbox"
-                  checked={this.props.selectedFacets.hasOwnProperty(facet.id) && this.props.selectedFacets[facet.id].indexOf(facetValue.value) !== -1}
-                  onChange={(e) => {
-                    e.preventDefault();
+                  defaultChecked={this.props.selectedFacets.hasOwnProperty(facet.id) && this.props.selectedFacets[facet.id].indexOf(facetValue.value) !== -1}
+                  onClick={(e) => {
                     this.props.onToggleFacet(e, facet, facetValue)
                   }}/>
                 <label htmlFor={`checkbox-${facet.id}-${facetValue.value}`}>{facetValue.label}&nbsp;<small>({facetValue.count})</small></label>
