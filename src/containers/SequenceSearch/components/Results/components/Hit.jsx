@@ -6,6 +6,7 @@ import * as actionCreators from 'actions/actions';
 
 class Hit extends React.Component {
   render() {
+    const database = this.props.databases;
     let seqTitleStyle = {
       color: this.props.customStyle && this.props.customStyle.seqTitleColor ? this.props.customStyle.seqTitleColor : "",
       fontSize: this.props.customStyle && this.props.customStyle.seqTitleSize ? this.props.customStyle.seqTitleSize : "20px",
@@ -18,7 +19,9 @@ class Hit extends React.Component {
       <li className="result">
         <div className="text-search-result">
           <div>
-            <a style={seqTitleStyle} href={`https://rnacentral.org/rna/${ this.props.entry.rnacentral_id }`}>{ this.props.entry.description }</a>
+            <a style={seqTitleStyle} href={database.length === 0 ? `https://rnacentral.org/rna/${this.props.entry.rnacentral_id}` : this.props.entry.fields.url[0]} target='_blank'>
+              {this.props.entry.description}
+            </a>
           </div>
           <div style={seqInfoStyle}>{ this.props.entry.rnacentral_id }</div>
           <div style={seqInfoStyle}>{this.props.entry.target_length} nucleotides</div>

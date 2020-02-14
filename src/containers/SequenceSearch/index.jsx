@@ -14,7 +14,7 @@ class SequenceSearch extends React.Component {
   render() {
     return [
       <SearchForm key={`searchForm`} databases={this.props.databases} examples={this.props.examples} customStyle={this.props.customStyle}/>,
-      <Results key={`results`} rfam={this.props.rfam} hideFacet={this.props.hideFacet} customStyle={this.props.customStyle}/>
+      <Results key={`results`} databases={this.props.databases} rfam={this.props.rfam} hideFacet={this.props.hideFacet} customStyle={this.props.customStyle}/>
     ]
   }
 }

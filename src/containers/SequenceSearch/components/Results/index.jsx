@@ -138,7 +138,7 @@ class Results extends React.Component {
               <div className="small-9 columns">
                 <section>
                   { this.props.entries.map((entry, index) => (
-                  <ul key={`${entry}_${index}`}><Hit entry={entry} alignmentsCollapsed={this.props.alignmentsCollapsed} onToggleAlignmentsCollapsed={ this.onToggleAlignmentsCollapsed } customStyle={ this.props.customStyle }/></ul>
+                  <ul key={`${entry}_${index}`}><Hit entry={entry} alignmentsCollapsed={this.props.alignmentsCollapsed} onToggleAlignmentsCollapsed={this.onToggleAlignmentsCollapsed} customStyle={this.props.customStyle} databases={this.props.databases}/></ul>
                   )) }
                   {(this.props.status === "success" || this.props.status === "partial_success") && (this.props.entries.length < this.props.hitCount) && (<a className="button small" onClick={this.props.onLoadMore} target="_blank">Load more</a>)}
                 </section>
