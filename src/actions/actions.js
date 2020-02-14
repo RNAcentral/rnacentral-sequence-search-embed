@@ -1,6 +1,7 @@
 import * as types from './actionTypes';
 import routes from 'services/routes.jsx';
 import {store} from 'app.jsx';
+import md5 from 'md5';
 
 
 /**
@@ -326,11 +327,30 @@ export function onToggleAlignmentsCollapsed() {
 }
 
 export function onSequenceTextAreaChange(event) {
-  return {type: types.TEXTAREA_CHANGE, sequence: event.target.value}
+  return function(dispatch) {
+    let sequence = event.target.value;
+    dispatch({type: types.TEXTAREA_CHANGE, sequence: sequence});
+
+    return fetch(routes.searchEndpoint(md5(sequence.toUpperCase().replace(/U/g, 'T'))))
+      .then((response) => {
+        if (response.ok) { return response.json(); }
+        else { throw response; }
+      })
+      .then(data => dispatch({type: types.EXACT_MATCH, data: data}))
+  }
 }
 
 export function onExampleSequence(sequence) {
-  return {type: types.EXAMPLE_SEQUENCE, sequence: sequence}
+  return function(dispatch) {
+    dispatch({type: types.EXAMPLE_SEQUENCE, sequence: sequence});
+
+    return fetch(routes.searchEndpoint(md5(sequence.toUpperCase().replace(/U/g, 'T'))))
+      .then((response) => {
+        if (response.ok) { return response.json(); }
+        else { throw response; }
+      })
+      .then(data => dispatch({type: types.EXACT_MATCH, data: data}))
+  }
 }
 
 export function onClearSequence() {

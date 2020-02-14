@@ -168,6 +168,13 @@ const rootReducer = function (state = initialState, action) {
     case actions.SET_STATUS_TIMEOUT:
       return Object.assign({}, state, {statusTimeout: action.statusTimeout});
 
+    case actions.EXACT_MATCH:
+      if (!action.data) {
+        return Object.assign({}, state, {});
+      } else {
+        return Object.assign({}, state, {exactMatch: action.data});
+      }
+
     case actions.TEXTAREA_CHANGE:
       return Object.assign({}, state, {
         jobId: null,
@@ -229,6 +236,7 @@ const rootReducer = function (state = initialState, action) {
         infernalStatus: "notSubmitted",
         infernalEntries: [],
         fileUpload: false,
+        exactMatch: null,
       });
 
     case actions.FILE_UPLOAD:

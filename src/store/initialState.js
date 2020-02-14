@@ -6,11 +6,16 @@ let statusChoices = {
 };
 
 let initialState = {
-  status: statusChoices.notSubmitted,
   jobId: null,
   jobList: [],
   submissionError: null,
+  sequence: "",
+  hits: null,
+  fileUpload: false,
+  exactMatch: null,
 
+  // nhmmer search
+  status: statusChoices.notSubmitted,
   entries: [],
   facets: [],
   hitCount: 0,
@@ -20,12 +25,10 @@ let initialState = {
   selectedFacets: {},  // e.g. { facetId1: [facetValue1.value, facetValue2.value], facetId2: [facetValue3.value] }
   alignmentsCollapsed: true,
   textSearchError: false,
-  sequence: "",
-  hits: null,
 
+  // cmscan search
   infernalStatus: statusChoices.notSubmitted,
   infernalEntries: [],
-  fileUpload: false,
 };
 
 export default initialState;

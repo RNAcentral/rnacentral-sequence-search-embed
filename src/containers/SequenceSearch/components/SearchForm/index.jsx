@@ -15,6 +15,25 @@ class SearchForm extends React.Component {
       </li>)
   }
 
+  showExactMatch(){
+    const exactMatch = this.props.exactMatch;
+
+    if (exactMatch && exactMatch.hitCount > 0) {
+      const exactMatchDescription = exactMatch.entries[0].fields.description[0];
+      const exactMatchId = exactMatch.entries[0].id;
+      const exactMatchUrsId = exactMatchId.split('_')[0];
+      const exactMatchOther = exactMatch.hitCount > 1 ? (exactMatch.hitCount - 1) + ' other sequences' : '';
+
+      return <div className="small-12 columns">
+        <div className="callout success">
+          <i className="icon icon-generic icon-external-link" style={{fontSize: "80%"}}></i> Identical match: <a href={`https://rnacentral.org/rna/${exactMatchId}`} target='_blank'>{exactMatchDescription}</a>
+          {exactMatchOther && ' and'}
+          {exactMatchOther ? <a href={`https://rnacentral.org/search?q=${exactMatchUrsId}*`} target='_blank'> {exactMatchOther}</a> : ''}
+        </div>
+      </div>
+    }
+  }
+
   onSubmit(event) {
     event.preventDefault();
     const state = store.getState();
@@ -86,6 +105,9 @@ class SearchForm extends React.Component {
                 </div>
               )
             }
+            {
+              this.showExactMatch()
+            }
           </form>
         </div>
       </div>
@@ -105,6 +127,7 @@ const mapStateToProps = (state) => ({
   textSearchError: state.textSearchError,
   infernalEntries: state.infernalEntries,
   fileUpload: state.fileUpload,
+  exactMatch: state.exactMatch,
 });
 
 const mapDispatchToProps = (dispatch) => ({
