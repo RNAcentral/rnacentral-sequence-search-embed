@@ -30,6 +30,16 @@ class Results extends React.Component {
       fontWeight: "300",
     };
     const downloadButtonColor = this.props.customStyle && this.props.customStyle.downloadButtonColor ? this.props.customStyle.downloadButtonColor : "";
+
+    // exact match URS ids
+    const exactMatch = this.props.exactMatch;
+    let exactMatchUrsId = [];
+    if (exactMatch && exactMatch.hitCount > 0) {
+      const exactMatchIds = Object.entries(exactMatch).map(([key, value]) => {
+          value && value.length && value.map(item => exactMatchUrsId.push(item.id))
+        })
+    }
+
     return (
       <div className="row">
         {
@@ -138,7 +148,7 @@ class Results extends React.Component {
               <div className="small-9 columns">
                 <section>
                   { this.props.entries.map((entry, index) => (
-                  <ul key={`${entry}_${index}`}><Hit entry={entry} alignmentsCollapsed={this.props.alignmentsCollapsed} onToggleAlignmentsCollapsed={this.onToggleAlignmentsCollapsed} customStyle={this.props.customStyle} databases={this.props.databases}/></ul>
+                  <ul key={`${entry}_${index}`}><Hit entry={entry} alignmentsCollapsed={this.props.alignmentsCollapsed} onToggleAlignmentsCollapsed={this.onToggleAlignmentsCollapsed} customStyle={this.props.customStyle} databases={this.props.databases} exactMatchUrsId={exactMatchUrsId}/></ul>
                   )) }
                   {(this.props.status === "success" || this.props.status === "partial_success") && (this.props.entries.length < this.props.hitCount) && (<a className="button small" onClick={this.props.onLoadMore} target="_blank">Load more</a>)}
                 </section>
@@ -166,6 +176,7 @@ function mapStateToProps(state) {
     jobId: state.jobId,
     jobList: state.jobList,
     infernalEntries: state.infernalEntries,
+    exactMatch: state.exactMatch,
   };
 }
 

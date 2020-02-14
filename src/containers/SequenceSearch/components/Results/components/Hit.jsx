@@ -7,6 +7,7 @@ import * as actionCreators from 'actions/actions';
 class Hit extends React.Component {
   render() {
     const database = this.props.databases;
+    const exactMatchUrsId = this.props.exactMatchUrsId.indexOf(this.props.entry.rnacentral_id) > -1 ? <i className="icon icon-functional" data-icon="/" style={{fontSize: "80%"}}> </i> : '';
     let seqTitleStyle = {
       color: this.props.customStyle && this.props.customStyle.seqTitleColor ? this.props.customStyle.seqTitleColor : "",
       fontSize: this.props.customStyle && this.props.customStyle.seqTitleSize ? this.props.customStyle.seqTitleSize : "20px",
@@ -20,7 +21,7 @@ class Hit extends React.Component {
         <div className="text-search-result">
           <div>
             <a style={seqTitleStyle} href={database.length === 0 ? `https://rnacentral.org/rna/${this.props.entry.rnacentral_id}` : this.props.entry.fields.url[0]} target='_blank'>
-              {this.props.entry.description}
+              {exactMatchUrsId} {this.props.entry.description}
             </a>
           </div>
           <div style={seqInfoStyle}>{ this.props.entry.rnacentral_id }</div>

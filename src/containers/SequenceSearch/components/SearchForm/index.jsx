@@ -26,7 +26,7 @@ class SearchForm extends React.Component {
 
       return <div className="small-12 columns">
         <div className="callout success">
-          <i className="icon icon-generic icon-external-link" style={{fontSize: "80%"}}></i> Identical match: <a href={`https://rnacentral.org/rna/${exactMatchId}`} target='_blank'>{exactMatchDescription}</a>
+          <i className="icon icon-functional" data-icon="/" style={{fontSize: "80%"}}> </i> Identical match: <a href={`https://rnacentral.org/rna/${exactMatchId}`} target='_blank'>{exactMatchDescription}</a>
           {exactMatchOther && ' and'}
           {exactMatchOther ? <a href={`https://rnacentral.org/search?q=${exactMatchUrsId}*`} target='_blank'> {exactMatchOther}</a> : ''}
         </div>
