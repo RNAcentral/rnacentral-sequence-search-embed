@@ -7,7 +7,7 @@ import * as actionCreators from 'actions/actions';
 class Hit extends React.Component {
   render() {
     const database = this.props.databases;
-    const exactMatchUrsId = this.props.exactMatchUrsId.indexOf(this.props.entry.rnacentral_id) > -1 ? <i className="icon icon-functional" data-icon="/" style={{fontSize: "80%"}}> </i> : '';
+    const exactMatchUrsId = this.props.exactMatchUrsId.indexOf(this.props.entry.rnacentral_id) > -1 ? <i className="icon icon-functional" data-icon="/" style={{fontSize: "75%", color: "#3c763d"}}> </i> : '';
     let seqTitleStyle = {
       color: this.props.customStyle && this.props.customStyle.seqTitleColor ? this.props.customStyle.seqTitleColor : "",
       fontSize: this.props.customStyle && this.props.customStyle.seqTitleSize ? this.props.customStyle.seqTitleSize : "20px",
