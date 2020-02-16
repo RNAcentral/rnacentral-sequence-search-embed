@@ -29,7 +29,6 @@ class Results extends React.Component {
       fontSize: this.props.customStyle && this.props.customStyle.h3Size ? this.props.customStyle.h3Size : "",
       fontWeight: "300",
     };
-    const downloadButtonColor = this.props.customStyle && this.props.customStyle.downloadButtonColor ? this.props.customStyle.downloadButtonColor : "";
 
     // exact match URS ids
     const exactMatch = this.props.exactMatch;
@@ -45,22 +44,19 @@ class Results extends React.Component {
         {
           this.props.jobList && this.props.jobList.length !== 0 && (
             <div>
-              <div className="small-9 columns">
+              {this.props.jobId &&
+                <div className="small-12 columns">
+                  <CSVLink data={Object.entries(this.props.jobList)}filename={"job-ids.csv"}>
+                    <small>Download the Ids</small>
+                  </CSVLink>
+                  <small> for future reference</small>
+                </div>
+              }
+              <div className="small-12 columns">
                 <select onChange={this.onSeeResults}>
                   <option key={'no-job-selected'}>Select a job ID</option>
                   {this.props.jobList.map((job) => <option key={job}>{job}</option>)}
                 </select>
-              </div>
-              <div className="small-3 columns">
-                <CSVLink
-                    data={Object.entries(this.props.jobList)}
-                    filename={"job-ids.csv"}
-                    className="button"
-                    target="_blank"
-                    style={{background: downloadButtonColor}}
-                >
-                Download Ids
-                </CSVLink>
               </div>
             </div>
           )

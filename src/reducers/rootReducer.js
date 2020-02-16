@@ -140,7 +140,6 @@ const rootReducer = function (state = initialState, action) {
         case 'success':
           return Object.assign({}, state, {
             jobList: action.data,
-            jobId: action.data[0],
             submissionError: ""
           });
         case 'error':

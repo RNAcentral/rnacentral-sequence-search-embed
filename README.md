@@ -129,7 +129,6 @@ seqInfoSize         | used in results, it changes the size of the `URS and numbe
 searchButtonColor   | change the color of the `Search` button                                           |
 clearButtonColor    | change the color of the `Clear` button                                            |
 uploadButtonColor   | change the color of the `Upload file` button                                      |
-downloadButtonColor | change the color of the `Download Ids` button                                     |
 
 ## Developer details
 
