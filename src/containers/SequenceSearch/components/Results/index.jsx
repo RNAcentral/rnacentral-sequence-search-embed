@@ -42,16 +42,14 @@ class Results extends React.Component {
     return (
       <div className="row">
         {
-          this.props.jobList && this.props.jobList.length !== 0 && (
+          this.props.jobList && this.props.jobList.length > 0 && (
             <div>
-              {this.props.jobId &&
-                <div className="small-12 columns">
-                  <CSVLink data={Object.entries(this.props.jobList)}filename={"job-ids.csv"}>
-                    <small>Download the Ids</small>
-                  </CSVLink>
-                  <small> for future reference</small>
-                </div>
-              }
+              <div className="small-12 columns">
+                <CSVLink data={Object.entries(this.props.jobList)} filename={"job-ids.csv"}>
+                  <small>Download the Ids</small>
+                </CSVLink>
+                <small> for future reference</small>
+              </div>
               <div className="small-12 columns">
                 <select onChange={this.onSeeResults}>
                   <option key={'no-job-selected'}>Select a job ID</option>
