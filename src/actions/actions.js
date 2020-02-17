@@ -113,8 +113,8 @@ export function onClearResult() {
   return {type: types.CLEAR_RESULT}
 }
 
-export function longSequence() {
-  return {type: types.LONG_SEQUENCE}
+export function invalidSequence() {
+  return {type: types.INVALID_SEQUENCE}
 }
 
 export function fetchStatus(jobId) {

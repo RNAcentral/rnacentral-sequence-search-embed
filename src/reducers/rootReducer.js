@@ -174,8 +174,8 @@ const rootReducer = function (state = initialState, action) {
         exactMatch: null,
       });
 
-    case actions.LONG_SEQUENCE:
-      return Object.assign({}, state, {status: "longSequence"});
+    case actions.INVALID_SEQUENCE:
+      return Object.assign({}, state, {status: "invalidSequence"});
 
     case actions.FETCH_STATUS:
       if (action.status === 'error') {
