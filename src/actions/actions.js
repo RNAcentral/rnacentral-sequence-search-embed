@@ -62,7 +62,6 @@ export function onSubmit(sequence, databases) {
 
 export function onMultipleSubmit(sequence, databases) {
   let jobIds = [];
-  let lastQuery = sequence[sequence.length - 1];
 
   return function(dispatch) {
     for (var i = 0; i < sequence.length; i++) {
@@ -89,7 +88,7 @@ export function onMultipleSubmit(sequence, databases) {
       })
       .then(data => {
         jobIds.push(data.job_id);
-        if (newQuery === lastQuery) {
+        if (jobIds.length === sequence.length) {
           dispatch({type: types.SUBMIT_MULTIPLE_JOB, status: 'success', data: jobIds});
         }
       })
