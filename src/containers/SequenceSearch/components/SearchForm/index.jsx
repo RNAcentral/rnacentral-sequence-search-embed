@@ -61,7 +61,7 @@ class SearchForm extends React.Component {
       <div>
         <div className="row">
           <div className="small-12 columns">
-            <small>Powered by <a style={{marginRight: "7px"}} target='_blank' href='https://rnacentral.org/'>RNAcentral</a>|</small>
+            <small><img src={'https://rnacentral.org/static/img/logo/rnacentral-logo.png'} alt="RNAcentral logo" style={{width: "1%", verticalAlign: "text-top"}}/> Powered by <a style={{marginRight: "7px"}} target='_blank' href='https://rnacentral.org/'>RNAcentral</a>|</small>
             <small style={{marginLeft: "7px"}}>Local alignment using <a target='_blank' href='https://www.ncbi.nlm.nih.gov/pubmed/23842809'>nhmmer</a></small>
           </div>
         </div>
