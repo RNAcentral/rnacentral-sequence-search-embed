@@ -91,10 +91,10 @@ class Results extends React.Component {
         }
         {
           this.props.jobId && this.props.rfam && (
-            (this.props.infernalStatus === "loading" || this.props.infernalStatus === "success") && [
-              <div className="small-12 columns" key={`infernal-div`}>
-                <h3 style={h3Style}>Rfam classification: { this.props.infernalStatus === "loading" ? <i className="animated infinite flash">...</i> : '' }</h3>
-                <table className="responsive-table">
+            <div className="small-12 columns" key={`infernal-div`}>
+              <h3 style={h3Style}>Rfam classification: { this.props.infernalStatus === "loading" ? <i className="animated infinite flash">...</i> : this.props.infernalEntries && this.props.infernalEntries.length ? <small>{this.props.infernalEntries.length}</small> : <small>0</small> }</h3>
+              {this.props.infernalStatus === "success" && [
+                <table className="responsive-table" key={`infernal-table`}>
                   <thead>
                     <tr>
                       <th>Family</th>
@@ -120,8 +120,8 @@ class Results extends React.Component {
                   )) : <tr key={"noResults"}><td colSpan="7" style={{textAlign: 'center'}}>The query sequence did not match any Rfam families.</td></tr> }
                   </tbody>
                 </table>
-              </div>
-            ]
+              ]}
+            </div>
           )
         }
         {
