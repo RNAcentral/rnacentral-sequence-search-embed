@@ -62,7 +62,7 @@ class Results extends React.Component {
           )
         }
         {
-          this.props.status === "partial_success" && (
+          this.props.jobId && this.props.status === "partial_success" && (
             <div className="small-12 columns">
               <div className="callout warning">
                 <h4>Search against some databases failed.</h4>
@@ -72,7 +72,7 @@ class Results extends React.Component {
           )
         }
         {
-          this.props.status === "does_not_exist" && (
+          this.props.jobId && this.props.status === "does_not_exist" && (
             <div className="small-12 columns">
               <div className="callout alert">
                 <h4>Job with id='{ this.props.jobId }' does not exist.</h4>
@@ -81,7 +81,7 @@ class Results extends React.Component {
           )
         }
         {
-          this.props.status === "error" && (
+          this.props.jobId && this.props.status === "error" && (
             <div className="small-12 columns">
               <div className="callout alert">
                 <h4>There was an error.</h4>
