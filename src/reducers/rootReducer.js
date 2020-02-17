@@ -154,6 +154,26 @@ const rootReducer = function (state = initialState, action) {
     case actions.CLEAR_JOB_ID:
       return Object.assign({}, state, {jobId: null, sequence: ""});
 
+    case actions.CLEAR_RESULT:
+      return Object.assign({}, state, {
+        jobId: null,
+        sequence: "",
+        hits: null,
+        status: "notSubmitted",
+        entries: [],
+        facets: [],
+        hitCount: 0,
+        start: 0,
+        size: 20,
+        ordering: "e_value",
+        selectedFacets: {},
+        alignmentsCollapsed: true,
+        textSearchError: false,
+        infernalStatus: "notSubmitted",
+        infernalEntries: [],
+        exactMatch: null,
+      });
+
     case actions.LONG_SEQUENCE:
       return Object.assign({}, state, {status: "longSequence"});
 

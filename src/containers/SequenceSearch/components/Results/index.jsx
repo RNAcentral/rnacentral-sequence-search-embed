@@ -19,6 +19,7 @@ class Results extends React.Component {
     if (e.target.value === 'Select a job ID'){
       store.dispatch(actionCreators.onClearJobId());
     } else {
+      store.dispatch(actionCreators.onClearResult());
       store.dispatch(actionCreators.updateJobId(e.target.value));
     }
   }
