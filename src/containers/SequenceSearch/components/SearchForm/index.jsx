@@ -40,7 +40,7 @@ class SearchForm extends React.Component {
 
     // split the sequence for batch queries and set a limit on the number of queries
     if (state.fileUpload && state.sequence) {
-      let getSequence = state.sequence.split(/(?=>)/g).slice(0, 30);
+      let getSequence = state.sequence.split(/(?=>)/g).slice(0, 50);
       store.dispatch(actions.onMultipleSubmit(getSequence, this.props.databases));
     } else if (state.sequence && state.sequence.match("^([0-9a-fA-F]{8})-(([0-9a-fA-F]{4}\\-){3})([0-9a-fA-F]{12})$")) {
       store.dispatch(actions.updateJobId(state.sequence));
@@ -81,7 +81,7 @@ class SearchForm extends React.Component {
                 <label htmlFor="file-upload" className="custom-file-upload" style={{background: uploadButtonColor}}>Upload file</label>
                 <input id="file-upload" type="file" accept=".fasta" onClick={ this.props.onClearSequence } onChange={this.props.onFileUpload} />
               </div>
-              <div className="row"><small>Up to 30 queries</small></div>
+              <div className="row"><small>Up to 50 queries</small></div>
             </div>
             <div className="small-12 columns" style={{marginTop: "-10px", marginBottom: "10px"}}>
               {this.props.examples ? <div id="examples"><ul>Examples: {this.showExamples()}</ul></div> : ""}

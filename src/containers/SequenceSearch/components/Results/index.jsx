@@ -16,7 +16,7 @@ class Results extends React.Component {
   }
 
   onSeeResults(e) {
-    if (e.target.value === 'Select a job ID'){
+    if (e.target.value === 'Select an Id to check the results'){
       store.dispatch(actionCreators.onClearJobId());
     } else {
       store.dispatch(actionCreators.onClearResult());
@@ -56,14 +56,15 @@ class Results extends React.Component {
           this.props.jobList && this.props.jobList.length > 0 && (
             <div>
               <div className="small-12 columns">
+                <small>{this.props.jobList.length} sequences were submitted. </small>
                 <CSVLink data={Object.entries(this.props.jobList)} filename={"job-ids.csv"}>
                   <small>Download the Ids</small>
                 </CSVLink>
-                <small> for future reference</small>
+                <small> for future reference.</small>
               </div>
               <div className="small-12 columns">
                 <select onChange={this.onSeeResults}>
-                  <option key={'no-job-selected'}>Select a job ID</option>
+                  <option key={'no-job-selected'}>Select an Id to check the results</option>
                   {this.props.jobList.map((job) => <option key={job}>{job}</option>)}
                 </select>
               </div>
