@@ -24,6 +24,16 @@ class Results extends React.Component {
     }
   }
 
+  submitToRnacentral(event) {
+    event.preventDefault();
+    const state = store.getState();
+    state.rnacentral = true;
+    if (state.sequence) {
+      store.dispatch(actionCreators.onClearResult());
+      store.dispatch(actionCreators.onSubmit(state.sequence, []));
+    }
+  }
+
   render() {
     let h3Style = {
       color: this.props.customStyle && this.props.customStyle.h3Color ? this.props.customStyle.h3Color : "#666",
@@ -128,28 +138,31 @@ class Results extends React.Component {
           this.props.jobId && (this.props.status === "loading" || this.props.status === "success" || this.props.status === "partial_success") && [
             <div className="small-12 columns" key={`results-div`}>
               <h3 style={h3Style}>Similar sequences: { this.props.status === "loading" ? <i className="animated infinite flash">...</i> : <small>{ this.props.hitCount }</small> } { this.props.hits > 1000 ? <small>of { this.props.hits } <a href="https://test.rnacentral.org/help/sequence-search" style={{borderBottomStyle: "none"}} target="_blank"><i className="icon icon-generic icon-help" style={{fontSize: "70%"}}></i></a></small> : "" }</h3>
-              <div className="small-3 columns">
-                { this.props.entries && this.props.entries.length ?
-                  <Facets
-                      facets={ this.props.facets }
-                      selectedFacets={ this.props.selectedFacets }
-                      toggleFacet={ this.toggleFacet }
-                      ordering={ this.props.ordering }
-                      textSearchError={ this.props.textSearchError }
-                      hideFacet={ this.props.hideFacet}
-                      customStyle={ this.props.customStyle }
-                  /> : ''}
-              </div>
-              <div className="small-9 columns">
-                <section>
-                  { this.props.entries.map((entry, index) => (
-                  <ul key={`${entry}_${index}`}><Hit entry={entry} alignmentsCollapsed={this.props.alignmentsCollapsed} onToggleAlignmentsCollapsed={this.onToggleAlignmentsCollapsed} customStyle={this.props.customStyle} databases={this.props.databases} exactMatchUrsId={exactMatchUrsId}/></ul>
-                  )) }
-                  <div className="small-12 columns">
-                    {this.props.status === "loading" ? <i className="animated infinite flash">...</i> : (this.props.status === "success" || this.props.status === "partial_success") && (this.props.entries.length < this.props.hitCount) && (<a className="button small" onClick={this.props.onLoadMore} target="_blank">Load more</a>)}
+              {
+                this.props.entries && this.props.entries.length ? <div>
+                   <div className="small-3 columns">
+                     <Facets
+                       facets={ this.props.facets }
+                       selectedFacets={ this.props.selectedFacets }
+                       toggleFacet={ this.toggleFacet }
+                       ordering={ this.props.ordering }
+                       textSearchError={ this.props.textSearchError }
+                       hideFacet={ this.props.hideFacet}
+                       customStyle={ this.props.customStyle }
+                     />
                   </div>
-                </section>
-              </div>
+                  <div className="small-9 columns">
+                    <section>
+                      { this.props.entries.map((entry, index) => (
+                      <ul key={`${entry}_${index}`}><Hit entry={entry} alignmentsCollapsed={this.props.alignmentsCollapsed} onToggleAlignmentsCollapsed={this.onToggleAlignmentsCollapsed} customStyle={this.props.customStyle} databases={this.props.databases} exactMatchUrsId={exactMatchUrsId}/></ul>
+                      )) }
+                      <div className="small-12 columns">
+                        {this.props.status === "loading" ? <i className="animated infinite flash">...</i> : (this.props.status === "success" || this.props.status === "partial_success") && (this.props.entries.length < this.props.hitCount) && (<a className="button small" onClick={this.props.onLoadMore} target="_blank">Load more</a>)}
+                      </div>
+                    </section>
+                  </div>
+                </div> : this.props.rnacentral ? <div>No results.</div> : <div>The query sequence did not match any {this.props.databases} sequences. You can <a href="#" onClick={this.submitToRnacentral}>try to search against RNAcentral</a>.</div>
+              }
             </div>
           ]
         }
@@ -174,6 +187,7 @@ function mapStateToProps(state) {
     jobList: state.jobList,
     infernalEntries: state.infernalEntries,
     exactMatch: state.exactMatch,
+    rnacentral: state.rnacentral,
   };
 }
 

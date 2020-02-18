@@ -13,6 +13,7 @@ let initialState = {
   hits: null,
   fileUpload: false,
   exactMatch: null,
+  rnacentral: false,
 
   // nhmmer search
   status: statusChoices.notSubmitted,
