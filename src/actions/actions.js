@@ -63,7 +63,7 @@ export function onSubmit(sequence, databases) {
 export function onMultipleSubmit(sequence, databases) {
   let jobIds = [];
 
-  return function(dispatch) {
+  return async function(dispatch) {
     for (var i = 0; i < sequence.length; i++) {
       let newQuery = sequence[i];
       newQuery && fetch(routes.submitJob(), {

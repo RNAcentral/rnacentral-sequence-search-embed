@@ -159,7 +159,7 @@ const rootReducer = function (state = initialState, action) {
         jobId: null,
         sequence: "",
         hits: null,
-        status: "notSubmitted",
+        status: "loading",
         entries: [],
         facets: [],
         hitCount: 0,
@@ -169,7 +169,7 @@ const rootReducer = function (state = initialState, action) {
         selectedFacets: {},
         alignmentsCollapsed: true,
         textSearchError: false,
-        infernalStatus: "notSubmitted",
+        infernalStatus: "loading",
         infernalEntries: [],
         exactMatch: null,
       });
