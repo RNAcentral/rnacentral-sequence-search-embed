@@ -103,7 +103,7 @@ class Results extends React.Component {
           this.props.jobId && this.props.rfam && (
             <div className="small-12 columns" key={`infernal-div`}>
               <h3 style={h3Style}>Rfam classification: { this.props.infernalStatus === "loading" ? <i className="animated infinite flash">...</i> : this.props.infernalEntries && this.props.infernalEntries.length ? <small>{this.props.infernalEntries.length}</small> : <small>0</small> }</h3>
-              {this.props.infernalStatus === "success" && [
+              { this.props.infernalStatus === "loading" ? <i className="animated infinite flash">...</i> : this.props.infernalStatus === "success" && this.props.infernalEntries.length ? [
                 <table className="responsive-table" key={`infernal-table`}>
                   <thead>
                     <tr>
@@ -117,7 +117,7 @@ class Results extends React.Component {
                     </tr>
                   </thead>
                   <tbody>
-                  { this.props.infernalEntries.length ? this.props.infernalEntries.map((entry, index) => (
+                  {this.props.infernalEntries.map((entry, index) => (
                     <tr key={`${index}`}>
                       <td><a href={`https://rfam.org/family/${entry.target_name}`} target="_blank">{entry.description}</a></td>
                       <td><a href={`https://rfam.org/family/${entry.accession_rfam}`} target="_blank">{entry.accession_rfam}</a></td>
@@ -127,10 +127,10 @@ class Results extends React.Component {
                       <td>{entry.e_value}</td>
                       <td>{entry.strand}</td>
                     </tr>
-                  )) : <tr key={"noResults"}><td colSpan="7" style={{textAlign: 'center'}}>The query sequence did not match any Rfam families.</td></tr> }
+                  ))}
                   </tbody>
                 </table>
-              ]}
+              ] : <p>The query sequence did not match any <img src={'https://rnacentral.org/static/img/expert-db-logos/rfam.png'} alt="Rfam logo" style={{width: "6%", verticalAlign: "sub"}}/> families.</p>}
             </div>
           )
         }
@@ -161,7 +161,7 @@ class Results extends React.Component {
                       </div>
                     </section>
                   </div>
-                </div> : this.props.rnacentral ? <div>No results.</div> : <div>The query sequence did not match any {this.props.databases} sequences. You can <a href="#" onClick={this.submitToRnacentral}>try to search against RNAcentral</a>.</div>
+                </div> : this.props.status === "loading" ? <i className="animated infinite flash">...</i> : this.props.rnacentral ? <div>No results at <img src={'https://rnacentral.org/static/img/logo/rnacentral-logo.png'} alt="RNAcentral logo" style={{width: "2%", verticalAlign: "sub"}}/> RNAcentral.</div> : <div>The query sequence did not match any {this.props.databases} sequences. You can <a href="#" onClick={this.submitToRnacentral}>try to search against RNAcentral</a>.</div>
               }
             </div>
           ]
