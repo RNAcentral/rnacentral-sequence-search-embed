@@ -51,119 +51,133 @@ class Results extends React.Component {
     }
 
     return (
-      <div className="row">
+      <div>
         {
           this.props.jobList && this.props.jobList.length > 0 && (
-            <div>
-              <div className="small-12 columns">
-                <small>{this.props.jobList.length} sequences were submitted. </small>
-                <CSVLink data={Object.entries(this.props.jobList)} filename={"job-ids.csv"}>
-                  <small>Download the Ids</small>
-                </CSVLink>
-                <small> for future reference.</small>
+            <div key={`select-id-div`}>
+              <div className="row">
+                <div className="small-9 columns">
+                  <small>{this.props.jobList.length} sequences were submitted. </small>
+                  <CSVLink data={Object.entries(this.props.jobList)} filename={"job-ids.csv"}>
+                    <small>Download the Ids</small>
+                  </CSVLink>
+                  <small> for future reference.</small>
+                </div>
               </div>
-              <div className="small-12 columns">
-                <select onChange={this.onSeeResults}>
-                  <option key={'no-job-selected'}>Select an Id to check the results</option>
-                  {this.props.jobList.map((job) => <option key={job}>{job}</option>)}
-                </select>
+              <div className="row">
+                <div className="small-9 columns">
+                  <select onChange={this.onSeeResults}>
+                    <option key={'no-job-selected'}>Select an Id to check the results</option>
+                    {this.props.jobList.map((job) => <option key={job}>{job}</option>)}
+                  </select>
+                </div>
               </div>
             </div>
           )
         }
         {
           this.props.jobId && this.props.status === "partial_success" && (
-            <div className="small-12 columns">
-              <div className="callout warning">
-                <h4>Search against some databases failed.</h4>
-                <p>This usually happens when the nhmmer is unable to complete the search within a 5 minute time limit.</p>
+            <div className="row" key={`partial-success-div`}>
+              <div className="small-12 columns">
+                <div className="callout warning">
+                  <h4>Search against some databases failed.</h4>
+                  <p>This usually happens when the nhmmer is unable to complete the search within a 5 minute time limit.</p>
+                </div>
               </div>
             </div>
           )
         }
         {
           this.props.jobId && this.props.status === "does_not_exist" && (
-            <div className="small-12 columns">
-              <div className="callout alert">
-                <h4>Job with id='{ this.props.jobId }' does not exist.</h4>
+            <div className="row" key={`does-not-exist-div`}>
+              <div className="small-12 columns">
+                <div className="callout alert">
+                  <h4>Job with id='{ this.props.jobId }' does not exist.</h4>
+                </div>
               </div>
             </div>
           )
         }
         {
           this.props.jobId && this.props.status === "error" && (
-            <div className="small-12 columns">
-              <div className="callout alert">
-                <h4>There was an error.</h4>
-                <a href="mailto:rnacentral@gmail.com">Contact us</a> if the problem persists.
+            <div className="row" key={`error-div`}>
+              <div className="small-12 columns">
+                <div className="callout alert">
+                  <h4>There was an error.</h4>
+                  <a href="mailto:rnacentral@gmail.com">Contact us</a> if the problem persists.
+                </div>
               </div>
             </div>
           )
         }
         {
           this.props.jobId && this.props.rfam && (
-            <div className="small-12 columns" key={`infernal-div`}>
-              <h3 style={h3Style}>Rfam classification: { this.props.infernalStatus === "loading" ? <i className="animated infinite flash">...</i> : this.props.infernalEntries && this.props.infernalEntries.length ? <small>{this.props.infernalEntries.length}</small> : <small>0</small> }</h3>
-              { this.props.infernalStatus === "loading" ? <i className="animated infinite flash">...</i> : this.props.infernalStatus === "success" && this.props.infernalEntries.length ? [
-                <table className="responsive-table" key={`infernal-table`}>
-                  <thead>
-                    <tr>
-                      <th>Family</th>
-                      <th>Accession</th>
-                      <th>Start</th>
-                      <th>End</th>
-                      <th>Bit score</th>
-                      <th>E-value</th>
-                      <th>Strand</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                  {this.props.infernalEntries.map((entry, index) => (
-                    <tr key={`${index}`}>
-                      <td><a href={`https://rfam.org/family/${entry.target_name}`} target="_blank">{entry.description}</a></td>
-                      <td><a href={`https://rfam.org/family/${entry.accession_rfam}`} target="_blank">{entry.accession_rfam}</a></td>
-                      <td>{entry.seq_from}</td>
-                      <td>{entry.seq_to}</td>
-                      <td>{entry.score}</td>
-                      <td>{entry.e_value}</td>
-                      <td>{entry.strand}</td>
-                    </tr>
-                  ))}
-                  </tbody>
-                </table>
-              ] : <p>The query sequence did not match any <img src={'https://rnacentral.org/static/img/expert-db-logos/rfam.png'} alt="Rfam logo" style={{width: "6%", verticalAlign: "sub"}}/> families.</p>}
+            <div className="row" key={`infernal-div`}>
+              <div className="small-12 columns">
+                <h3 style={h3Style}>Rfam classification: { this.props.infernalStatus === "loading" ? <i className="animated infinite flash">...</i> : this.props.infernalEntries && this.props.infernalEntries.length ? <small>{this.props.infernalEntries.length}</small> : <small>0</small> }</h3>
+                { this.props.infernalStatus === "loading" ? <i className="animated infinite flash">...</i> : this.props.infernalStatus === "success" && this.props.infernalEntries.length ? [
+                  <table className="responsive-table" key={`infernal-table`}>
+                    <thead>
+                      <tr>
+                        <th>Family</th>
+                        <th>Accession</th>
+                        <th>Start</th>
+                        <th>End</th>
+                        <th>Bit score</th>
+                        <th>E-value</th>
+                        <th>Strand</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                    {this.props.infernalEntries.map((entry, index) => (
+                      <tr key={`${index}`}>
+                        <td><a href={`https://rfam.org/family/${entry.target_name}`} target="_blank">{entry.description}</a></td>
+                        <td><a href={`https://rfam.org/family/${entry.accession_rfam}`} target="_blank">{entry.accession_rfam}</a></td>
+                        <td>{entry.seq_from}</td>
+                        <td>{entry.seq_to}</td>
+                        <td>{entry.score}</td>
+                        <td>{entry.e_value}</td>
+                        <td>{entry.strand}</td>
+                      </tr>
+                    ))}
+                    </tbody>
+                  </table>
+                ] : <p>The query sequence did not match any <img src={'https://rnacentral.org/static/img/expert-db-logos/rfam.png'} alt="Rfam logo" style={{width: "6%", verticalAlign: "sub"}}/> families.</p>}
+              </div>
             </div>
           )
         }
         {
           this.props.jobId && (this.props.status === "loading" || this.props.status === "success" || this.props.status === "partial_success") && [
-            <div className="small-12 columns" key={`results-div`}>
-              <h3 style={h3Style}>Similar sequences: { this.props.status === "loading" ? <i className="animated infinite flash">...</i> : <small>{ this.props.hitCount }</small> } { this.props.hits > 1000 ? <small>of { this.props.hits } <a href="https://test.rnacentral.org/help/sequence-search" style={{borderBottomStyle: "none"}} target="_blank"><i className="icon icon-generic icon-help" style={{fontSize: "70%"}}></i></a></small> : "" }</h3>
-              {
-                this.props.entries && this.props.entries.length ? <div>
-                   <div className="small-3 columns">
-                     <Facets
-                       facets={ this.props.facets }
-                       selectedFacets={ this.props.selectedFacets }
-                       toggleFacet={ this.toggleFacet }
-                       ordering={ this.props.ordering }
-                       textSearchError={ this.props.textSearchError }
-                       hideFacet={ this.props.hideFacet}
-                       customStyle={ this.props.customStyle }
-                     />
-                  </div>
-                  <div className="small-9 columns">
-                    <section>
-                      { this.props.entries.map((entry, index) => (
-                      <ul key={`${entry}_${index}`}><Hit entry={entry} alignmentsCollapsed={this.props.alignmentsCollapsed} onToggleAlignmentsCollapsed={this.onToggleAlignmentsCollapsed} customStyle={this.props.customStyle} databases={this.props.databases} exactMatchUrsId={exactMatchUrsId}/></ul>
-                      )) }
-                      <div className="small-12 columns">
-                        {this.props.status === "loading" ? <i className="animated infinite flash">...</i> : (this.props.status === "success" || this.props.status === "partial_success") && (this.props.entries.length < this.props.hitCount) && (<a className="button small" onClick={this.props.onLoadMore} target="_blank">Load more</a>)}
-                      </div>
-                    </section>
-                  </div>
-                </div> : this.props.status === "loading" ? <i className="animated infinite flash">...</i> : this.props.rnacentral ? <div>No results at <img src={'https://rnacentral.org/static/img/logo/rnacentral-logo.png'} alt="RNAcentral logo" style={{width: "2%", verticalAlign: "sub"}}/> RNAcentral.</div> : <div>The query sequence did not match any {this.props.databases} sequences. You can <a href="#" onClick={this.submitToRnacentral}>try to search against RNAcentral</a>.</div>
-              }
+            <div className="row" key={`results-div`}>
+              <div className="small-12 columns">
+                <h3 style={h3Style}>Similar sequences: { this.props.status === "loading" ? <i className="animated infinite flash">...</i> : <small>{ this.props.hitCount }</small> } { this.props.hits > 1000 ? <small>of { this.props.hits } <a href="https://test.rnacentral.org/help/sequence-search" style={{borderBottomStyle: "none"}} target="_blank"><i className="icon icon-generic icon-help" style={{fontSize: "70%"}}></i></a></small> : "" }</h3>
+                {
+                  this.props.entries && this.props.entries.length ? <div>
+                     <div className="small-3 columns">
+                       <Facets
+                         facets={ this.props.facets }
+                         selectedFacets={ this.props.selectedFacets }
+                         toggleFacet={ this.toggleFacet }
+                         ordering={ this.props.ordering }
+                         textSearchError={ this.props.textSearchError }
+                         hideFacet={ this.props.hideFacet}
+                         customStyle={ this.props.customStyle }
+                       />
+                    </div>
+                    <div className="small-9 columns">
+                      <section>
+                        { this.props.entries.map((entry, index) => (
+                        <ul key={`${entry}_${index}`}><Hit entry={entry} alignmentsCollapsed={this.props.alignmentsCollapsed} onToggleAlignmentsCollapsed={this.onToggleAlignmentsCollapsed} customStyle={this.props.customStyle} databases={this.props.databases} exactMatchUrsId={exactMatchUrsId}/></ul>
+                        )) }
+                        <div className="small-12 columns">
+                          {this.props.status === "loading" ? <i className="animated infinite flash">...</i> : (this.props.status === "success" || this.props.status === "partial_success") && (this.props.entries.length < this.props.hitCount) && (<a className="button small" onClick={this.props.onLoadMore} target="_blank">Load more</a>)}
+                        </div>
+                      </section>
+                    </div>
+                  </div> : this.props.status === "loading" ? <i className="animated infinite flash">...</i> : this.props.rnacentral ? <div>No results at <img src={'https://rnacentral.org/static/img/logo/rnacentral-logo.png'} alt="RNAcentral logo" style={{width: "2%", verticalAlign: "sub"}}/> RNAcentral.</div> : <div>The query sequence did not match any {this.props.databases} sequences. You can <a href="#" onClick={this.submitToRnacentral}>try to search against RNAcentral</a>.</div>
+                }
+              </div>
             </div>
           ]
         }

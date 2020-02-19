@@ -197,7 +197,6 @@ const rootReducer = function (state = initialState, action) {
     case actions.TEXTAREA_CHANGE:
       return Object.assign({}, state, {
         jobId: null,
-        jobList: [],
         sequence: action.sequence,
         hits: null,
         status: "notSubmitted",
@@ -219,7 +218,6 @@ const rootReducer = function (state = initialState, action) {
     case actions.EXAMPLE_SEQUENCE:
       return Object.assign({}, state, {
         jobId: null,
-        jobList: [],
         sequence: action.sequence,
         hits: null,
         status: "notSubmitted",
