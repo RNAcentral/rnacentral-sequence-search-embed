@@ -24,11 +24,13 @@ class SearchForm extends React.Component {
       const exactMatchUrsId = exactMatchId.split('_')[0];
       const exactMatchOther = exactMatch.hitCount > 1 ? (exactMatch.hitCount - 1) + ' other sequences' : '';
 
-      return <div className="small-12 columns">
-        <div className="callout success">
-          <i className="icon icon-functional" data-icon="/" style={{fontSize: "80%", color: "#3c763d"}}> </i> Identical match on <img src={'https://rnacentral.org/static/img/logo/rnacentral-logo.png'} alt="RNAcentral logo" style={{width: "2%"}}/>: <a href={`https://rnacentral.org/rna/${exactMatchId}`} target='_blank'>{exactMatchDescription}</a>
-          {exactMatchOther && ' and'}
-          {exactMatchOther ? <a href={`https://rnacentral.org/search?q=${exactMatchUrsId}*`} target='_blank'> {exactMatchOther}</a> : ''}
+      return <div className="row">
+        <div className="small-9 columns">
+          <div className="callout success">
+            <i className="icon icon-functional" data-icon="/" style={{fontSize: "80%", color: "#3c763d"}}> </i> Identical match on <img src={'https://rnacentral.org/static/img/logo/rnacentral-logo.png'} alt="RNAcentral logo" style={{width: "2%"}}/>: <a href={`https://rnacentral.org/rna/${exactMatchId}`} target='_blank'>{exactMatchDescription}</a>
+            {exactMatchOther && ' and'}
+            {exactMatchOther ? <a href={`https://rnacentral.org/search?q=${exactMatchUrsId}*`} target='_blank'> {exactMatchOther}</a> : ''}
+          </div>
         </div>
       </div>
     }
@@ -66,46 +68,54 @@ class SearchForm extends React.Component {
             <small style={{marginLeft: "7px"}}>Local alignment using <a target='_blank' href='https://www.ncbi.nlm.nih.gov/pubmed/23842809'>nhmmer</a></small>
           </div>
         </div>
-        <div className="row">
+        <div>
           <form onSubmit={(e) => this.onSubmit(e)}>
-            <div className="small-9 columns">
-              <textarea id="sequence" name="sequence" rows="7" value={this.props.sequence} onChange={(e) => this.props.onSequenceTextareaChange(e)} placeholder="Enter RNA/DNA sequence (with an optional description in FASTA format) or job ID" />
-            </div>
-            <div className="small-3 columns">
-              <div className="row">
-                <input id="submit-button" style={{background: searchButtonColor}} name="submit" type="submit" value="Search" className="button" />
+            <div className="row">
+              <div className="small-9 columns">
+                <textarea id="sequence" name="sequence" rows="7" value={this.props.sequence} onChange={(e) => this.props.onSequenceTextareaChange(e)} placeholder="Enter RNA/DNA sequence (with an optional description in FASTA format) or job ID" />
               </div>
-              <div className="row">
-                <input id="clear-button" style={{background: clearButtonColor}} name="clear" type="submit" value="Clear" className="button" onClick={ this.props.onClearSequence } />
-              </div>
-              {
-                database.indexOf("RFAM") === -1 && <div>
-                  <div className="row">
-                    <label htmlFor="file-upload" className="custom-file-upload" style={{background: uploadButtonColor}}>Upload file</label>
-                    <input id="file-upload" type="file" accept=".fasta" onClick={ this.props.onClearSequence } onChange={this.props.onFileUpload} />
-                  </div>
-                  <div className="row"><small>Up to 50 queries</small></div>
+              <div className="small-3 columns">
+                <div className="row">
+                  <input id="submit-button" style={{background: searchButtonColor}} name="submit" type="submit" value="Search" className="button" />
                 </div>
-              }
+                <div className="row">
+                  <input id="clear-button" style={{background: clearButtonColor}} name="clear" type="submit" value="Clear" className="button" onClick={ this.props.onClearSequence } />
+                </div>
+                {
+                  database.indexOf("RFAM") === -1 && <div>
+                    <div className="row">
+                      <label htmlFor="file-upload" className="custom-file-upload" style={{background: uploadButtonColor}}>Upload file</label>
+                      <input id="file-upload" type="file" accept=".fasta" onClick={ this.props.onClearSequence } onChange={this.props.onFileUpload} />
+                    </div>
+                    <div className="row"><small>Up to 50 queries</small></div>
+                  </div>
+                }
+              </div>
             </div>
-            <div className="small-12 columns" style={{marginTop: "-10px", marginBottom: "10px"}}>
-              {this.props.examples ? <div id="examples"><ul>Examples: {this.showExamples()}</ul></div> : ""}
+            <div className="row">
+              <div className="small-9 columns" style={{marginTop: "-10px", marginBottom: "10px"}}>
+                {this.props.examples ? <div id="examples"><ul>Examples: {this.showExamples()}</ul></div> : ""}
+              </div>
             </div>
             {
               this.props.submissionError && (
-                <div className="small-12 columns">
-                  <div className="callout alert">
-                    <h3>Form submission failed</h3>
-                    { this.props.submissionError }
+                <div className="row">
+                  <div className="small-9 columns">
+                    <div className="callout alert">
+                      <h3>Form submission failed</h3>
+                      { this.props.submissionError }
+                    </div>
                   </div>
                 </div>
               )
             }
             {
               this.props.status === "invalidSequence" && (
-                <div className="small-12 columns">
-                  <div className="callout warning">
-                    {this.props.sequence.length < 10 ? <p>The sequence cannot be shorter than 10 nucleotides</p> : <p>The sequence cannot be longer than 7000 nucleotides</p>}
+                <div className="row">
+                  <div className="small-9 columns">
+                    <div className="callout warning">
+                      {this.props.sequence.length < 10 ? <p>The sequence cannot be shorter than 10 nucleotides</p> : <p>The sequence cannot be longer than 7000 nucleotides</p>}
+                    </div>
                   </div>
                 </div>
               )
