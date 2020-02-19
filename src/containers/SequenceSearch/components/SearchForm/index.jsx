@@ -57,6 +57,7 @@ class SearchForm extends React.Component {
     const searchButtonColor = this.props.customStyle && this.props.customStyle.searchButtonColor ? this.props.customStyle.searchButtonColor : "";
     const clearButtonColor = this.props.customStyle && this.props.customStyle.clearButtonColor ? this.props.customStyle.clearButtonColor : "#6c757d";
     const uploadButtonColor = this.props.customStyle && this.props.customStyle.uploadButtonColor ? this.props.customStyle.uploadButtonColor : "";
+    const database = this.props.databases ? this.props.databases.map(function(x){ return x.toUpperCase() }) : [];
     return (
       <div>
         <div className="row">
@@ -77,11 +78,15 @@ class SearchForm extends React.Component {
               <div className="row">
                 <input id="clear-button" style={{background: clearButtonColor}} name="clear" type="submit" value="Clear" className="button" onClick={ this.props.onClearSequence } />
               </div>
-              <div className="row">
-                <label htmlFor="file-upload" className="custom-file-upload" style={{background: uploadButtonColor}}>Upload file</label>
-                <input id="file-upload" type="file" accept=".fasta" onClick={ this.props.onClearSequence } onChange={this.props.onFileUpload} />
-              </div>
-              <div className="row"><small>Up to 50 queries</small></div>
+              {
+                database.indexOf("RFAM") === -1 && <div>
+                  <div className="row">
+                    <label htmlFor="file-upload" className="custom-file-upload" style={{background: uploadButtonColor}}>Upload file</label>
+                    <input id="file-upload" type="file" accept=".fasta" onClick={ this.props.onClearSequence } onChange={this.props.onFileUpload} />
+                  </div>
+                  <div className="row"><small>Up to 50 queries</small></div>
+                </div>
+              }
             </div>
             <div className="small-12 columns" style={{marginTop: "-10px", marginBottom: "10px"}}>
               {this.props.examples ? <div id="examples"><ul>Examples: {this.showExamples()}</ul></div> : ""}
