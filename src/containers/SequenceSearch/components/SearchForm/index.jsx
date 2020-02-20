@@ -17,19 +17,28 @@ class SearchForm extends React.Component {
 
   showExactMatch(){
     const exactMatch = this.props.exactMatch;
+    const database = this.props.databases;
 
     if (exactMatch && exactMatch.hitCount > 0) {
       const exactMatchDescription = exactMatch.entries[0].fields.description[0];
       const exactMatchId = exactMatch.entries[0].id;
+      const exactMatchUrl = exactMatch.entries[0].fields.url[0];
       const exactMatchUrsId = exactMatchId.split('_')[0];
-      const exactMatchOther = exactMatch.hitCount > 1 ? (exactMatch.hitCount - 1) + ' other sequences' : '';
+      const remainingExactMatch = exactMatch.hitCount > 1 ? (exactMatch.hitCount - 1) : null;
+      const exactMatchOther = remainingExactMatch && remainingExactMatch > 1 ? remainingExactMatch + ' other sequences' : remainingExactMatch && remainingExactMatch === 1 ? remainingExactMatch + ' other sequence' : '';
 
       return <div className="row">
         <div className="small-9 columns">
           <div className="callout success">
-            <i className="icon icon-functional" data-icon="/" style={{fontSize: "80%", color: "#3c763d"}}> </i> Identical match on <img src={'https://rnacentral.org/static/img/logo/rnacentral-logo.png'} alt="RNAcentral logo" style={{width: "2%"}}/>: <a href={`https://rnacentral.org/rna/${exactMatchId}`} target='_blank'>{exactMatchDescription}</a>
-            {exactMatchOther && ' and'}
-            {exactMatchOther ? <a href={`https://rnacentral.org/search?q=${exactMatchUrsId}*`} target='_blank'> {exactMatchOther}</a> : ''}
+            {
+              database.length === 0 ? <div>
+                <i className="icon icon-functional" data-icon="/" style={{fontSize: "80%", color: "#3c763d"}}> </i> Identical match: <a href={`https://rnacentral.org/rna/${exactMatchId}`} target='_blank'>{exactMatchDescription}</a>
+                {exactMatchOther && ' and '}
+                {exactMatchOther ? <a href={`https://rnacentral.org/search?q=${exactMatchUrsId}*`} target='_blank'>{exactMatchOther}</a> : ''}
+              </div> : <div>
+                <i className="icon icon-functional" data-icon="/" style={{fontSize: "80%", color: "#3c763d"}}> </i> Identical match: <a href={exactMatchUrl} target='_blank'>{exactMatchDescription}</a>
+              </div>
+            }
           </div>
         </div>
       </div>

@@ -12,5 +12,5 @@ module.exports = {
   consumersStatuses:   () => `${server}/api/consumers-statuses`,
   infernalJobStatus:   (jobId) => `${server}/api/infernal-status/${jobId}`,
   infernalJobResult:   (resultId) => `${server}/api/infernal-result/${resultId}`,
-  searchEndpoint:      (query) => `https://www.ebi.ac.uk/ebisearch/ws/rest/rnacentral?query=${query}&fields=description&format=json&sort=boost:descending`,
+  searchEndpoint:      (query) => `https://wwwdev.ebi.ac.uk/ebisearch/ws/rest/rnacentral?query=${query}&fields=description,url&format=json&sort=boost:descending`,
 };
