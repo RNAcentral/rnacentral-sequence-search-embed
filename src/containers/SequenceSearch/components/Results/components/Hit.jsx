@@ -24,7 +24,7 @@ class Hit extends React.Component {
               {exactMatchUrsId} {this.props.entry.description}
             </a>
           </div>
-          <div style={seqInfoStyle}>{ this.props.entry.rnacentral_id }</div>
+          {database.length === 0 && <div style={seqInfoStyle}>{ this.props.entry.rnacentral_id }</div>}
           <div style={seqInfoStyle}>{this.props.entry.target_length} nucleotides</div>
           <small>
             <a onClick={ this.props.onToggleAlignmentsCollapsed }>
