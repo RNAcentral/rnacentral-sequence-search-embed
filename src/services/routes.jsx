@@ -1,5 +1,7 @@
 // let server = 'https://search.rnacentral.org';
-let server = 'https://search.rnacentral.org/api/proxy?url=http://193.62.55.123:8002';
+// let server = 'https://search.rnacentral.org/api/proxy?url=http://193.62.55.123:8002';
+let server = 'http://193.62.55.44:8002/api/proxy?url=http://193.62.55.123:8002';
+
 
 module.exports = {
   rnacentralDatabases: () => `${server}/api/rnacentral-databases`,
