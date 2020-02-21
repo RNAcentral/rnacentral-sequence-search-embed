@@ -20,6 +20,10 @@ let buildQuery = function (selectedFacets) {
     if (facetText !== "") outputClauses.push("(" + facetText + ")");
   });
 
+  if (state.filter) {
+    outputClauses.push("(" + state.filter + ")")
+  }
+
   outputText = outputClauses.join(" AND ");
   return outputText;
 };
@@ -247,6 +251,39 @@ export function failedFetchResults(response) {
   }
 }
 
+export function onFilterResult() {
+  let state = store.getState();
+  let selectedFacets = {...state.selectedFacets};
+
+  return function(dispatch) {
+    fetch(routes.facetsSearch(state.jobId, buildQuery(selectedFacets), 0, state.size, state.ordering), {
+      method: 'GET',
+      mode: 'cors',
+      credentials: 'include',
+      headers: {
+        'Accept': 'application/json, text/plain, */*',
+        'Content-Type': 'application/json'
+      }
+    })
+    .then(function(response) {
+      if (response.ok) {
+        return response.json()
+      } else {
+        throw response;
+      }
+    })
+    .then(data => dispatch({type: types.FETCH_RESULTS, status: 'success', data: data}))
+    .catch(error => {dispatch({type: types.FETCH_RESULTS, status: 'error'})});
+  }
+}
+
+export function onClearFilter() {
+  return function(dispatch) {
+    dispatch({type: types.CLEAR_FILTER});
+    dispatch(onFilterResult());
+  }
+}
+
 export function onToggleFacet(event, facet, facetValue) {
   return function (dispatch) {
     let state = store.getState();
@@ -358,6 +395,10 @@ export function onExampleSequence(sequence) {
       })
       .then(data => dispatch({type: types.EXACT_MATCH, data: data}))
   }
+}
+
+export function onFilterChange(event) {
+  return {type: types.FILTER_CHANGE, data: event.target.value}
 }
 
 export function onClearSequence() {

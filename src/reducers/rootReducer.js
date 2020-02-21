@@ -200,6 +200,12 @@ const rootReducer = function (state = initialState, action) {
         return Object.assign({}, state, {exactMatch: action.data});
       }
 
+    case actions.FILTER_CHANGE:
+      return Object.assign({}, state, {filter: action.data});
+
+    case actions.CLEAR_FILTER:
+      return Object.assign({}, state, {filter: ""});
+
     case actions.TEXTAREA_CHANGE:
       return Object.assign({}, state, {
         jobId: null,
@@ -213,6 +219,7 @@ const rootReducer = function (state = initialState, action) {
         size: 20,
         ordering: "e_value",
         selectedFacets: {},
+        filter: "",
         alignmentsCollapsed: false,
         detailsCollapsed: true,
         textSearchError: false,
@@ -235,6 +242,7 @@ const rootReducer = function (state = initialState, action) {
         size: 20,
         ordering: "e_value",
         selectedFacets: {},
+        filter: "",
         alignmentsCollapsed: false,
         detailsCollapsed: true,
         textSearchError: false,
@@ -258,6 +266,7 @@ const rootReducer = function (state = initialState, action) {
         size: 20,
         ordering: "e_value",
         selectedFacets: {},
+        filter: "",
         alignmentsCollapsed: false,
         detailsCollapsed: true,
         textSearchError: false,

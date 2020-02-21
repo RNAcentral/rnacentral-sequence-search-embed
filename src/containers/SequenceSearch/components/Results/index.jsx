@@ -34,6 +34,14 @@ class Results extends React.Component {
     }
   }
 
+  onFilterSubmit(event) {
+    event.preventDefault();
+    const state = store.getState();
+    if (state.filter) {
+      store.dispatch(actionCreators.onFilterResult());
+    }
+  }
+
   render() {
     let h3Style = {
       color: this.props.customStyle && this.props.customStyle.h3Color ? this.props.customStyle.h3Color : "#666",
@@ -156,15 +164,15 @@ class Results extends React.Component {
                   this.props.entries && this.props.entries.length ? <div>
                      <div className="row">
                        <div className="small-12 medium-4 columns">
-                         <div className="input-group">
-                           <input className="input-group-field" type="text" placeholder="Search within results"/>
+                         <form className="input-group" onSubmit={(e) => this.onFilterSubmit(e)}>
+                           <input className="input-group-field" type="text" value={this.props.filter} onChange={(e) => this.props.onFilterChange(e)} placeholder="Search within results"/>
                            <div className="input-group-button">
-                             <button className="hollow button secondary">Filter</button>
+                             <button className="hollow button secondary" type="submit">Filter</button>
                            </div>
                            <div className="input-group-button">
-                             <button className="hollow button secondary">Clear</button>
+                             <button className="hollow button secondary" onClick={this.props.onClearFilter}>Clear</button>
                            </div>
-                         </div>
+                         </form>
                        </div>
                        <div className="small-12 medium-4 columns">
                          <select value={this.props.sortingOrder} onChange={this.props.onSort}>
@@ -228,6 +236,7 @@ function mapStateToProps(state) {
     selectedFacets: state.selectedFacets,
     hitCount: state.hitCount,
     ordering: state.ordering,
+    filter: state.filter,
     textSearchError: state.textSearchError,
     alignmentsCollapsed: state.alignmentsCollapsed,
     detailsCollapsed: state.detailsCollapsed,
@@ -244,7 +253,9 @@ function mapDispatchToProps(dispatch) {
     onToggleAlignmentsCollapsed: () => dispatch({ type: 'TOGGLE_ALIGNMENTS_COLLAPSED' }),
     onToggleDetailsCollapsed: () => dispatch({ type: 'TOGGLE_DETAILS_COLLAPSED' }),
     onLoadMore: (event) => dispatch(actionCreators.onLoadMore(event)),
-    onSort: (event) => dispatch(actionCreators.onSort(event))
+    onSort: (event) => dispatch(actionCreators.onSort(event)),
+    onFilterChange: (event) => dispatch(actionCreators.onFilterChange(event)),
+    onClearFilter: () => dispatch(actionCreators.onClearFilter())
   }
 }
 
