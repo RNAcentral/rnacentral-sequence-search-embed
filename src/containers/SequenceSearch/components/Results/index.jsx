@@ -116,7 +116,7 @@ class Results extends React.Component {
               <div className="small-12 columns">
                 <h3 style={h3Style}>Rfam classification: { this.props.infernalStatus === "loading" ? <i className="animated infinite flash">...</i> : this.props.infernalEntries && this.props.infernalEntries.length ? <small>{this.props.infernalEntries.length}</small> : <small>0</small> }</h3>
                 { this.props.infernalStatus === "loading" ? <i className="animated infinite flash">...</i> : this.props.infernalStatus === "success" && this.props.infernalEntries.length ? [
-                  <table className="responsive-table" key={`infernal-table`}>
+                  <table className="table-scroll" key={`infernal-table`}>
                     <thead>
                       <tr>
                         <th>Family</th>
@@ -151,9 +151,40 @@ class Results extends React.Component {
           this.props.jobId && (this.props.status === "loading" || this.props.status === "success" || this.props.status === "partial_success") && [
             <div className="row" key={`results-div`}>
               <div className="small-12 columns">
-                <h3 style={h3Style}>Similar sequences: { this.props.status === "loading" ? <i className="animated infinite flash">...</i> : <small>{ this.props.hitCount }</small> } { this.props.hits > 1000 ? <small>of { this.props.hits } <a href="https://test.rnacentral.org/help/sequence-search" style={{borderBottomStyle: "none"}} target="_blank"><i className="icon icon-generic icon-help" style={{fontSize: "70%"}}></i></a></small> : "" }</h3>
+                <h3 style={h3Style}>Similar sequences: { this.props.status === "loading" ? <i className="animated infinite flash">...</i> : <small>{ this.props.hitCount }</small> } { this.props.hits > 1000 ? <small>of { this.props.hits } <a href="https://rnacentral.org/help/sequence-search" style={{borderBottomStyle: "none"}} target="_blank"><i className="icon icon-generic icon-help" style={{fontSize: "70%"}}></i></a></small> : "" }</h3>
                 {
                   this.props.entries && this.props.entries.length ? <div>
+                     <div className="row">
+                       <div className="small-12 medium-4 columns">
+                         <div className="input-group">
+                           <input className="input-group-field" type="text" placeholder="Search within results"/>
+                           <div className="input-group-button">
+                             <button className="hollow button secondary">Filter</button>
+                           </div>
+                           <div className="input-group-button">
+                             <button className="hollow button secondary">Clear</button>
+                           </div>
+                         </div>
+                       </div>
+                       <div className="small-12 medium-4 columns">
+                         <select value={this.props.sortingOrder} onChange={this.props.onSort}>
+                           <option value="e_value">Sort by E-value (min to max) - default</option>
+                           <option value="-e_value">Sort by E-value (max to min)</option>
+                           <option value="identity">Sort by Identity (max to min)</option>
+                           <option value="-identity">Sort by Identity: (min to max)</option>
+                           <option value="query_coverage">Sort by Query coverage: (max to min)</option>
+                           <option value="-query_coverage">Sort by Query coverage: (min to max)</option>
+                           <option value="target_coverage">Sort by Target coverage: (max to min)</option>
+                           <option value="-target_coverage">Sort by Target coverage: (min to max)</option>
+                         </select>
+                       </div>
+                       <div className="small-12 medium-4 columns">
+                         <div className="button-group">
+                           <button className="hollow button secondary" onClick={this.props.onToggleAlignmentsCollapsed}>{this.props.alignmentsCollapsed ? 'Show alignments' : 'Hide alignments'}</button>
+                           <button className="hollow button secondary" onClick={this.props.onToggleDetailsCollapsed}>{this.props.detailsCollapsed ? 'Show details' : 'Hide details'}</button>
+                         </div>
+                       </div>
+                     </div>
                      <div className="small-3 columns">
                        <Facets
                          facets={ this.props.facets }
@@ -168,7 +199,7 @@ class Results extends React.Component {
                     <div className="small-9 columns">
                       <section>
                         { this.props.entries.map((entry, index) => (
-                        <ul key={`${entry}_${index}`}><Hit entry={entry} alignmentsCollapsed={this.props.alignmentsCollapsed} onToggleAlignmentsCollapsed={this.onToggleAlignmentsCollapsed} customStyle={this.props.customStyle} databases={this.props.databases} exactMatchUrsId={exactMatchUrsId}/></ul>
+                        <ul key={`${entry}_${index}`}><Hit entry={entry} customStyle={this.props.customStyle} databases={this.props.databases} exactMatchUrsId={exactMatchUrsId}/></ul>
                         )) }
                         <div className="small-12 columns">
                           {this.props.status === "loading" ? <i className="animated infinite flash">...</i> : (this.props.status === "success" || this.props.status === "partial_success") && (this.props.entries.length < this.props.hitCount) && (<a className="button small" onClick={this.props.onLoadMore} target="_blank">Load more</a>)}
@@ -198,6 +229,8 @@ function mapStateToProps(state) {
     hitCount: state.hitCount,
     ordering: state.ordering,
     textSearchError: state.textSearchError,
+    alignmentsCollapsed: state.alignmentsCollapsed,
+    detailsCollapsed: state.detailsCollapsed,
     jobId: state.jobId,
     jobList: state.jobList,
     infernalEntries: state.infernalEntries,
@@ -208,8 +241,10 @@ function mapStateToProps(state) {
 
 function mapDispatchToProps(dispatch) {
   return {
-    onToggleAlignmentsCollapsed : () => dispatch({ type: 'TOGGLE_ALIGNMENTS_COLLAPSED' }),
-    onLoadMore : (event) => dispatch(actionCreators.onLoadMore(event))
+    onToggleAlignmentsCollapsed: () => dispatch({ type: 'TOGGLE_ALIGNMENTS_COLLAPSED' }),
+    onToggleDetailsCollapsed: () => dispatch({ type: 'TOGGLE_DETAILS_COLLAPSED' }),
+    onLoadMore: (event) => dispatch(actionCreators.onLoadMore(event)),
+    onSort: (event) => dispatch(actionCreators.onSort(event))
   }
 }
 

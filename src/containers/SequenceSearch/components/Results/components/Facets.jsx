@@ -43,18 +43,6 @@ class Facets extends React.Component {
 
     return (
       <div>
-        <label>Sort by:
-          <select value={this.props.sortingOrder} onChange={this.props.onSort}>
-            <option value="e_value">E-value (min to max) - default</option>
-            <option value="-e_value">E-value (max to min)</option>
-            <option value="identity">Identity (max to min)</option>
-            <option value="-identity">Identity: (min to max)</option>
-            <option value="query_coverage">Query coverage: (max to min)</option>
-            <option value="-query_coverage">Query coverage: (min to max)</option>
-            <option value="target_coverage">Target coverage: (max to min)</option>
-            <option value="-target_coverage">Target coverage: (min to max)</option>
-          </select>
-        </label>
         <section>
           <div>
             { showFacet.map(facet => this.renderFacet(facet)) }
@@ -92,7 +80,6 @@ function mapDispatchToProps(dispatch) {
   return {
     onToggleFacet: (event, facet, facetValue) => dispatch(actionCreators.onToggleFacet(event, facet, facetValue)),
     onReload: () => dispatch(actionCreators.onReload()),
-    onSort: (event) => dispatch(actionCreators.onSort(event))
   }
 }
 

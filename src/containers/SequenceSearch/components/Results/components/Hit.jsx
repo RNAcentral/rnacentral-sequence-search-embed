@@ -26,32 +26,14 @@ class Hit extends React.Component {
           </div>
           {database.length === 0 && <div style={seqInfoStyle}>{ this.props.entry.rnacentral_id }</div>}
           <div style={seqInfoStyle}>{this.props.entry.target_length} nucleotides</div>
-          <small>
-            <a onClick={ this.props.onToggleAlignmentsCollapsed }>
-              { this.props.alignmentsCollapsed ? <span>&#x25B6; show alignments</span> : <span>&#x25BC; hide alignments</span> }
-            </a>
-          </small>
+          <div className={this.props.detailsCollapsed ? 'detail-collapsed' : ''}>
+            <span className="detail">E-value: { this.props.entry.e_value }</span>
+            <span className="detail">Identity: { `${parseFloat(this.props.entry.identity).toFixed(2)}%`}</span>
+            <span className="detail">Query coverage: { `${parseFloat(this.props.entry.query_coverage).toFixed(2)}%` }</span>
+            <span className="detail">Target coverage: { `${parseFloat(this.props.entry.target_coverage).toFixed(2)}%`}</span>
+            <span className="detail">Gaps: { `${parseFloat(this.props.entry.gaps).toFixed(2)}%` }</span>
+          </div>
           <div className={`callout alignment ${this.props.alignmentsCollapsed ? 'alignment-collapsed' : ''}`}>
-            <table className="responsive-table alignment-table">
-              <thead>
-                <tr>
-                  <th>E-value</th>
-                  <th>Identity</th>
-                  <th>Query coverage</th>
-                  <th>Target coverage</th>
-                  <th>Gaps</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>{ this.props.entry.e_value }</td>
-                  <td>{ `${parseFloat(this.props.entry.identity).toFixed(2)}%`}</td>
-                  <td>{ `${parseFloat(this.props.entry.query_coverage).toFixed(2)}%` }</td>
-                  <td>{ `${parseFloat(this.props.entry.target_coverage).toFixed(2)}%`}</td>
-                  <td>{ `${parseFloat(this.props.entry.gaps).toFixed(2)}%` }</td>
-                </tr>
-              </tbody>
-            </table>
             <p>{this.props.entry.alignment}</p>
           </div>
         </div>
@@ -70,13 +52,15 @@ function mapStateToProps(state) {
     hitCount: state.hitCount,
     ordering: state.ordering,
     textSearchError: state.textSearchError,
-    alignmentsCollapsed: state.alignmentsCollapsed
+    alignmentsCollapsed: state.alignmentsCollapsed,
+    detailsCollapsed: state.detailsCollapsed
   };
 }
 
 function mapDispatchToProps(dispatch) {
   return {
-    onToggleAlignmentsCollapsed: () => dispatch(actionCreators.onToggleAlignmentsCollapsed())
+    onToggleAlignmentsCollapsed: () => dispatch(actionCreators.onToggleAlignmentsCollapsed()),
+    onToggleDetailsCollapsed: () => dispatch(actionCreators.onToggleDetailsCollapsed()),
   }
 }
 

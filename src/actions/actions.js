@@ -329,6 +329,10 @@ export function onToggleAlignmentsCollapsed() {
   return {type: types.TOGGLE_ALIGNMENTS_COLLAPSED}
 }
 
+export function onToggleDetailsCollapsed() {
+  return {type: types.TOGGLE_DETAILS_COLLAPSED}
+}
+
 export function onSequenceTextAreaChange(event) {
   return function(dispatch) {
     let sequence = event.target.value;

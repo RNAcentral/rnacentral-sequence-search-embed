@@ -119,6 +119,11 @@ const rootReducer = function (state = initialState, action) {
         alignmentsCollapsed: !state.alignmentsCollapsed
       });
 
+    case actions.TOGGLE_DETAILS_COLLAPSED:
+      return Object.assign({}, state, {
+        detailsCollapsed: !state.detailsCollapsed
+      });
+
     // submission form
     case actions.SUBMIT_JOB:
       switch (action.status) {
@@ -167,7 +172,8 @@ const rootReducer = function (state = initialState, action) {
         size: 20,
         ordering: "e_value",
         selectedFacets: {},
-        alignmentsCollapsed: true,
+        alignmentsCollapsed: false,
+        detailsCollapsed: true,
         textSearchError: false,
         infernalStatus: "loading",
         infernalEntries: [],
@@ -207,7 +213,8 @@ const rootReducer = function (state = initialState, action) {
         size: 20,
         ordering: "e_value",
         selectedFacets: {},
-        alignmentsCollapsed: true,
+        alignmentsCollapsed: false,
+        detailsCollapsed: true,
         textSearchError: false,
         infernalStatus: "notSubmitted",
         infernalEntries: [],
@@ -228,7 +235,8 @@ const rootReducer = function (state = initialState, action) {
         size: 20,
         ordering: "e_value",
         selectedFacets: {},
-        alignmentsCollapsed: true,
+        alignmentsCollapsed: false,
+        detailsCollapsed: true,
         textSearchError: false,
         infernalStatus: "notSubmitted",
         infernalEntries: [],
@@ -250,7 +258,8 @@ const rootReducer = function (state = initialState, action) {
         size: 20,
         ordering: "e_value",
         selectedFacets: {},
-        alignmentsCollapsed: true,
+        alignmentsCollapsed: false,
+        detailsCollapsed: true,
         textSearchError: false,
         infernalStatus: "notSubmitted",
         infernalEntries: [],
