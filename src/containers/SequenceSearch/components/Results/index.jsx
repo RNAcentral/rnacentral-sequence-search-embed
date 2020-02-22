@@ -167,10 +167,10 @@ class Results extends React.Component {
                          <form className="input-group" onSubmit={(e) => this.onFilterSubmit(e)}>
                            <input className="input-group-field" type="text" value={this.props.filter} onChange={(e) => this.props.onFilterChange(e)} placeholder="Search within results"/>
                            <div className="input-group-button">
-                             <button className="hollow button secondary" type="submit">Filter</button>
+                             <button className={`hollow button secondary ${!this.props.filter && "disabled"}`} type="submit">Filter</button>
                            </div>
                            <div className="input-group-button">
-                             <button className="hollow button secondary" onClick={this.props.onClearFilter}>Clear</button>
+                             <button className={`hollow button secondary ${!this.props.filter && "disabled"}`} onClick={this.props.onClearFilter}>Clear</button>
                            </div>
                          </form>
                        </div>
