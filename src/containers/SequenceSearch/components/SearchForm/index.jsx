@@ -85,10 +85,10 @@ class SearchForm extends React.Component {
               </div>
               <div className="small-3 columns">
                 <div className="row">
-                  <input id="submit-button" style={{background: searchButtonColor}} name="submit" type="submit" value="Search" className="button" />
+                  <input id="submit-button" style={{background: searchButtonColor}} name="submit" type="submit" value="Search" className="button" disabled={!this.props.sequence ? "disabled" : ""}/>
                 </div>
                 <div className="row">
-                  <input id="clear-button" style={{background: clearButtonColor}} name="clear" type="submit" value="Clear" className="button" onClick={ this.props.onClearSequence } />
+                  <input id="clear-button" style={{background: clearButtonColor}} name="clear" type="submit" value="Clear" className="button" onClick={ this.props.onClearSequence } disabled={!this.props.sequence ? "disabled" : ""}/>
                 </div>
                 {
                   database.indexOf("RFAM") === -1 && <div>
