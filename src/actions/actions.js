@@ -87,6 +87,7 @@ export function onMultipleSubmit(sequence, databases) {
         if (response.ok) {
           return response.json();
         } else {
+          jobIds.push("Invalid sequence. Check your fasta file.");
           throw response;
         }
       })
