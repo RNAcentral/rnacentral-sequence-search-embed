@@ -178,6 +178,7 @@ const rootReducer = function (state = initialState, action) {
         infernalStatus: "loading",
         infernalEntries: [],
         exactMatch: null,
+        filter: "",
       });
 
     case actions.INVALID_SEQUENCE:
@@ -202,9 +203,6 @@ const rootReducer = function (state = initialState, action) {
 
     case actions.FILTER_CHANGE:
       return Object.assign({}, state, {filter: action.data});
-
-    case actions.CLEAR_FILTER:
-      return Object.assign({}, state, {filter: ""});
 
     case actions.TEXTAREA_CHANGE:
       return Object.assign({}, state, {

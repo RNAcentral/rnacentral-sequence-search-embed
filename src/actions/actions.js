@@ -254,7 +254,7 @@ export function failedFetchResults(response) {
 
 export function onFilterResult() {
   let state = store.getState();
-  let selectedFacets = {...state.selectedFacets};
+  let selectedFacets = state.filter ? {...state.selectedFacets} : {};
 
   return function(dispatch) {
     fetch(routes.facetsSearch(state.jobId, buildQuery(selectedFacets), 0, state.size, state.ordering), {
@@ -275,13 +275,6 @@ export function onFilterResult() {
     })
     .then(data => dispatch({type: types.FETCH_RESULTS, status: 'success', data: data}))
     .catch(error => {dispatch({type: types.FETCH_RESULTS, status: 'error'})});
-  }
-}
-
-export function onClearFilter() {
-  return function(dispatch) {
-    dispatch({type: types.CLEAR_FILTER});
-    dispatch(onFilterResult());
   }
 }
 

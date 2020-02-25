@@ -4,6 +4,7 @@ import { CSVLink } from "react-csv";
 
 import Facets from 'containers/SequenceSearch/components/Results/components/Facets.jsx';
 import Hit from 'containers/SequenceSearch/components/Results/components/Hit.jsx';
+import Filter from 'containers/SequenceSearch/components/Results/components/Filter.jsx';
 
 import 'containers/SequenceSearch/components/Results/index.scss';
 import * as actionCreators from 'actions/actions';
@@ -32,48 +33,6 @@ class Results extends React.Component {
       store.dispatch(actionCreators.onClearResult());
       store.dispatch(actionCreators.onSubmit(state.sequence, []));
     }
-  }
-
-  onFilterSubmit(event) {
-    event.preventDefault();
-    const state = store.getState();
-    if (state.filter) {
-      store.dispatch(actionCreators.onFilterResult());
-    }
-  }
-
-  showFilter(){
-    return <div className="row">
-       <div className="small-12 medium-4 columns">
-         <form className="input-group" onSubmit={(e) => this.onFilterSubmit(e)}>
-           <input className="input-group-field" type="text" value={this.props.filter} onChange={(e) => this.props.onFilterChange(e)} placeholder="Search within results"/>
-           <div className="input-group-button">
-             <button className={`hollow button secondary ${!this.props.filter && "disabled"}`} type="submit">Filter</button>
-           </div>
-           <div className="input-group-button">
-             <button className={`hollow button secondary ${!this.props.filter && "disabled"}`} onClick={this.props.onClearFilter}>Clear</button>
-           </div>
-         </form>
-       </div>
-       <div className="small-12 medium-4 columns">
-         <select value={this.props.sortingOrder} onChange={this.props.onSort}>
-           <option value="e_value">Sort by E-value (min to max) - default</option>
-           <option value="-e_value">Sort by E-value (max to min)</option>
-           <option value="identity">Sort by Identity (max to min)</option>
-           <option value="-identity">Sort by Identity: (min to max)</option>
-           <option value="query_coverage">Sort by Query coverage: (max to min)</option>
-           <option value="-query_coverage">Sort by Query coverage: (min to max)</option>
-           <option value="target_coverage">Sort by Target coverage: (max to min)</option>
-           <option value="-target_coverage">Sort by Target coverage: (min to max)</option>
-         </select>
-       </div>
-       <div className="small-12 medium-4 columns">
-         <div className="button-group">
-           <button className="hollow button secondary" onClick={this.props.onToggleAlignmentsCollapsed}>{this.props.alignmentsCollapsed ? 'Show alignments' : 'Hide alignments'}</button>
-           <button className="hollow button secondary" onClick={this.props.onToggleDetailsCollapsed}>{this.props.detailsCollapsed ? 'Show details' : 'Hide details'}</button>
-         </div>
-       </div>
-    </div>
   }
 
   render() {
@@ -195,8 +154,10 @@ class Results extends React.Component {
               <div className="small-12 columns">
                 <h3 style={h3Style}>Similar sequences: { this.props.status === "loading" ? <i className="animated infinite flash">...</i> : <small>{ this.props.hitCount }</small> } { this.props.hits > 1000 ? <small>of { this.props.hits } <a href="https://rnacentral.org/help/sequence-search" style={{borderBottomStyle: "none"}} target="_blank"><i className="icon icon-generic icon-help" style={{fontSize: "70%"}}></i></a></small> : "" }</h3>
                 {
+                  this.props.entries && this.props.entries.length || this.props.filter ? <Filter databases={this.props.databases}/> : ""
+                }
+                {
                   this.props.entries && this.props.entries.length ? <div>
-                     {this.showFilter()}
                      <div className="small-3 columns">
                        <Facets
                          facets={ this.props.facets }
@@ -218,7 +179,7 @@ class Results extends React.Component {
                         </div>
                       </section>
                     </div>
-                  </div> : this.props.status === "loading" ? <i className="animated infinite flash">...</i> : this.props.filter ? this.showFilter() : this.props.rnacentral ? <div>No results at <img src={'https://rnacentral.org/static/img/logo/rnacentral-logo.png'} alt="RNAcentral logo" style={{width: "2%", verticalAlign: "sub"}}/> RNAcentral.</div> : <div>The query sequence did not match any {this.props.databases} sequences. You can <a href="#" onClick={this.submitToRnacentral}>try to search against RNAcentral</a>.</div>
+                  </div> : this.props.status === "loading" ? <i className="animated infinite flash">...</i> : this.props.filter ? <div>No results. Try a different search or press the Clear button to view all results.</div> : this.props.rnacentral ? <div>No results at <img src={'https://rnacentral.org/static/img/logo/rnacentral-logo.png'} alt="RNAcentral logo" style={{width: "2%", verticalAlign: "sub"}}/> RNAcentral.</div> : <div>The query sequence did not match any {this.props.databases} sequences. You can <a href="#" onClick={this.submitToRnacentral}>try to search against RNAcentral</a>.</div>
                 }
               </div>
             </div>
@@ -254,12 +215,7 @@ function mapStateToProps(state) {
 
 function mapDispatchToProps(dispatch) {
   return {
-    onToggleAlignmentsCollapsed: () => dispatch({ type: 'TOGGLE_ALIGNMENTS_COLLAPSED' }),
-    onToggleDetailsCollapsed: () => dispatch({ type: 'TOGGLE_DETAILS_COLLAPSED' }),
     onLoadMore: (event) => dispatch(actionCreators.onLoadMore(event)),
-    onSort: (event) => dispatch(actionCreators.onSort(event)),
-    onFilterChange: (event) => dispatch(actionCreators.onFilterChange(event)),
-    onClearFilter: () => dispatch(actionCreators.onClearFilter())
   }
 }
 
