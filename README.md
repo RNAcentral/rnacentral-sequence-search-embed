@@ -124,8 +124,8 @@ facetColor          | change the color of the facet title                       
 facetSize           | change the size of the facet title                                                |
 seqTitleColor       | used in results, it changes the color of the title                                |
 seqTitleSize        | used in results, it changes the size of the title                                 |
-seqInfoColor        | used in results, it changes the color of the `URS and number of nucleotides` text |
-seqInfoSize         | used in results, it changes the size of the `URS and number of nucleotides` text  |
+seqInfoColor        | used in results, it changes the color of the text `number of nucleotides`         |
+seqInfoSize         | used in results, it changes the size of the text `number of nucleotides`          |
 searchButtonColor   | change the color of the `Search` button                                           |
 clearButtonColor    | change the color of the `Clear` button                                            |
 uploadButtonColor   | change the color of the `Upload file` button                                      |
