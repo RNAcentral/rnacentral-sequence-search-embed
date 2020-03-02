@@ -20,7 +20,7 @@ class Hit extends React.Component {
       <li className="result">
         <div className="text-search-result">
           <div>
-            <a style={seqTitleStyle} href={database.length !== 0 && this.props.entry.fields.url && this.props.entry.fields.url.length ? this.props.entry.fields.url[0] : `https://rnacentral.org/rna/${this.props.entry.rnacentral_id}`} target='_blank'>
+            <a style={seqTitleStyle} href={database.length !== 0 && this.props.entry.fields && this.props.entry.fields.url && this.props.entry.fields.url.length ? this.props.entry.fields.url[0] : `https://rnacentral.org/rna/${this.props.entry.rnacentral_id}`} target='_blank'>
               {exactMatchUrsId} {this.props.entry.description}
             </a>
           </div>
