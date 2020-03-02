@@ -41,6 +41,7 @@ class Results extends React.Component {
       fontSize: this.props.customStyle && this.props.customStyle.h3Size ? this.props.customStyle.h3Size : "",
       fontWeight: "300",
     };
+    const loadMoreButtonColor = this.props.customStyle && this.props.customStyle.loadMoreButtonColor ? this.props.customStyle.loadMoreButtonColor : "";
 
     // exact match URS ids
     const exactMatch = this.props.exactMatch;
@@ -175,7 +176,7 @@ class Results extends React.Component {
                         <ul key={`${entry}_${index}`}><Hit entry={entry} customStyle={this.props.customStyle} databases={this.props.databases} exactMatchUrsId={exactMatchUrsId}/></ul>
                         )) }
                         <div className="small-12 columns">
-                          {this.props.status === "loading" ? <i className="animated infinite flash">...</i> : (this.props.status === "success" || this.props.status === "partial_success") && (this.props.entries.length < this.props.hitCount) && (<a className="button small" onClick={this.props.onLoadMore} target="_blank">Load more</a>)}
+                          {this.props.status === "loading" ? <i className="animated infinite flash">...</i> : (this.props.status === "success" || this.props.status === "partial_success") && (this.props.entries.length < this.props.hitCount) && (<a className="button small" onClick={this.props.onLoadMore} target="_blank" style={{background: loadMoreButtonColor}}>Load more</a>)}
                         </div>
                       </section>
                     </div>
