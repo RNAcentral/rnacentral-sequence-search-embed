@@ -130,6 +130,7 @@ seqInfoSize         | used in results, it changes the size of the text `number o
 searchButtonColor   | change the color of the `Search` button                                           |
 clearButtonColor    | change the color of the `Clear` button                                            |
 uploadButtonColor   | change the color of the `Upload file` button                                      |
+hideUploadButton    | hide the `Upload file` button. Use "hideUploadButton": "true" to hide the button  |
 loadMoreButtonColor | change the color of the `Load more` button                                        |
 
 ## Developer details
