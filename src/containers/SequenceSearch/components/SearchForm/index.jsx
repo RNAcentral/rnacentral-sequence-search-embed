@@ -20,6 +20,7 @@ class SearchForm extends React.Component {
     const database = this.props.databases;
 
     if (exactMatch && exactMatch.hitCount > 0) {
+      const exactMatchBackgroundColor = this.props.customStyle && this.props.customStyle.exactMatchBackgroundColor ? this.props.customStyle.exactMatchBackgroundColor : "";
       const exactMatchDescription = exactMatch.entries[0].fields.description[0];
       const exactMatchId = exactMatch.entries[0].id;
       const exactMatchUrl = exactMatch.entries[0].fields.url[0];
@@ -29,7 +30,7 @@ class SearchForm extends React.Component {
 
       return <div className="row">
         <div className="small-9 columns">
-          <div className="callout success">
+          <div className="callout success" style={{backgroundColor: exactMatchBackgroundColor}}>
             {
               database.length === 0 ? <div>
                 <i className="icon icon-functional" data-icon="/" style={{fontSize: "80%", color: "#3c763d"}}> </i> Identical match: <a href={`https://rnacentral.org/rna/${exactMatchId}`} target='_blank'>{exactMatchDescription}</a>
