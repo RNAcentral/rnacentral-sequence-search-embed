@@ -28,6 +28,9 @@ let buildQuery = function (selectedFacets) {
   return outputText;
 };
 
+export function toggleInfernalAlignmentsCollapsed() {
+  return {type: types.TOGGLE_INFERNAL_ALIGNMENTS_COLLAPSED };
+}
 
 export function toggleAlignmentsCollapsed() {
   return {type: types.TOGGLE_ALIGNMENTS_COLLAPSED };

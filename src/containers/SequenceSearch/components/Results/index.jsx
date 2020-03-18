@@ -129,11 +129,12 @@ class Results extends React.Component {
                         <th>Bit score</th>
                         <th>E-value</th>
                         <th>Strand</th>
+                        <th>Alignment</th>
                       </tr>
                     </thead>
-                    <tbody>
                     {this.props.infernalEntries.map((entry, index) => (
-                      <tr key={`${index}`}>
+                    <tbody key={`${index}`}>
+                      <tr>
                         <td><a href={`https://rfam.org/family/${entry.target_name}`} target="_blank">{entry.description}</a></td>
                         <td><a href={`https://rfam.org/family/${entry.accession_rfam}`} target="_blank">{entry.accession_rfam}</a></td>
                         <td>{entry.seq_from}</td>
@@ -141,9 +142,19 @@ class Results extends React.Component {
                         <td>{entry.score}</td>
                         <td>{entry.e_value}</td>
                         <td>{entry.strand}</td>
+                        <td>
+                          <a onClick={ this.props.onToggleInfernalAlignmentsCollapsed }>
+                            { this.props.infernalAlignmentsCollapsed ? <span>&#x25B6; Show</span> : <span>&#x25BC; Hide</span> }
+                          </a>
+                        </td>
                       </tr>
-                    ))}
+                      <tr>
+                        <td colSpan={8} className={`callout alignment`} style={{borderTop: "none"}}>
+                          {this.props.infernalAlignmentsCollapsed ? '' : entry.alignment }
+                        </td>
+                      </tr>
                     </tbody>
+                    ))}
                   </table>
                 ] : <p>The query sequence did not match any <img src={'https://rnacentral.org/static/img/expert-db-logos/rfam.png'} alt="Rfam logo" style={{width: "6%", verticalAlign: "sub"}}/> families.</p>}
               </div>
@@ -210,6 +221,7 @@ function mapStateToProps(state) {
     jobId: state.jobId,
     jobList: state.jobList,
     infernalEntries: state.infernalEntries,
+    infernalAlignmentsCollapsed: state.infernalAlignmentsCollapsed,
     exactMatch: state.exactMatch,
     rnacentral: state.rnacentral,
   };
@@ -218,6 +230,7 @@ function mapStateToProps(state) {
 function mapDispatchToProps(dispatch) {
   return {
     onLoadMore: (event) => dispatch(actionCreators.onLoadMore(event)),
+    onToggleInfernalAlignmentsCollapsed: (event) => dispatch(actionCreators.toggleInfernalAlignmentsCollapsed(event)),
   }
 }
 

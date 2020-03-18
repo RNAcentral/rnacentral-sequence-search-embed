@@ -119,6 +119,11 @@ const rootReducer = function (state = initialState, action) {
         alignmentsCollapsed: !state.alignmentsCollapsed
       });
 
+    case actions.TOGGLE_INFERNAL_ALIGNMENTS_COLLAPSED:
+      return Object.assign({}, state, {
+        infernalAlignmentsCollapsed: !state.infernalAlignmentsCollapsed
+      });
+
     case actions.TOGGLE_DETAILS_COLLAPSED:
       return Object.assign({}, state, {
         detailsCollapsed: !state.detailsCollapsed
