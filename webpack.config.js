@@ -1,5 +1,6 @@
 const path = require('path');
 const webpack = require('webpack');
+const dotenv = require('dotenv');
 
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
@@ -11,6 +12,15 @@ module.exports = function(env) {
   let environment;
   if (env && env.prod) environment = 'production';
   else environment = 'development';
+
+  // call dotenv and it will return an Object with a parsed key
+  const branch = dotenv.config().parsed;
+
+  // reduce it to a nice object
+  const envKeys = Object.keys(branch).reduce((prev, next) => {
+    prev[`process.env.${next}`] = JSON.stringify(branch[next]);
+    return prev;
+  }, {});
 
   return {
     target: 'web',
@@ -31,7 +41,8 @@ module.exports = function(env) {
         template: "src/index.html",
         filename: environment === 'production' ? path.join(__dirname, "index.html") : "index.html"
       }),
-      new webpack.ProvidePlugin({ $: 'jquery', jQuery: 'jquery', jquery: 'jquery' })
+      new webpack.ProvidePlugin({ $: 'jquery', jQuery: 'jquery', jquery: 'jquery' }),
+      new webpack.DefinePlugin(envKeys)
     ],
     module: {
       rules: [
