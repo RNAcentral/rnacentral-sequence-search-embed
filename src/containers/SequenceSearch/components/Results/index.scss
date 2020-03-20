@@ -54,3 +54,14 @@
   max-height: 10em;
   overflow-y: auto;
 }
+
+.alignment-rfam {
+  font-family: monospace;
+  padding: 0;
+  white-space: pre;
+  //font-size: smaller;
+  line-height: 1.42857143;
+  text-align: left;
+  background-color: white;
+  border-spacing: 10px;
+}

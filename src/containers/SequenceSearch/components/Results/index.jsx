@@ -149,8 +149,8 @@ class Results extends React.Component {
                         </td>
                       </tr>
                       <tr>
-                        <td colSpan={8} className={`callout alignment`} style={{borderTop: "none"}}>
-                          {this.props.infernalAlignmentsCollapsed ? '' : entry.alignment }
+                        <td colSpan={8} className="callout alignment-rfam">
+                          {this.props.infernalAlignmentsCollapsed ? '' : entry.alignment + '\n' }
                         </td>
                       </tr>
                     </tbody>
