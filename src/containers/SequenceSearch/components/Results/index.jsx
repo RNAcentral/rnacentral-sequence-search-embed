@@ -35,6 +35,26 @@ class Results extends React.Component {
     }
   }
 
+  linkAlignment(index){
+    let result = null;
+    let infernalAlignments = this.props.infernalAlignments;
+    let found = infernalAlignments.some(el => el.id === index && el.alignment === true);
+
+    if (!found) {
+        result = <span>&#x25B6; Show</span>
+    } else {
+        infernalAlignments.map((item) => {
+            if(index==item.id && item.alignment===true){
+                result = <span>&#x25BC; Hide</span>
+            } else if(index==item.id && item.alignment===false){
+                result = <span>&#x25B6; Show</span>
+            }
+        })
+    }
+
+    return result
+  }
+
   render() {
     let h3Style = {
       color: this.props.customStyle && this.props.customStyle.h3Color ? this.props.customStyle.h3Color : "#666",
@@ -143,14 +163,14 @@ class Results extends React.Component {
                         <td>{entry.e_value}</td>
                         <td>{entry.strand}</td>
                         <td>
-                          <a onClick={ this.props.onToggleInfernalAlignmentsCollapsed }>
-                            { this.props.infernalAlignmentsCollapsed ? <span>&#x25B6; Show</span> : <span>&#x25BC; Hide</span> }
+                          <a onClick={() => this.props.onToggleInfernalAlignments(index)}>
+                            { this.linkAlignment(index) }
                           </a>
                         </td>
                       </tr>
                       <tr>
                         <td colSpan={8} className={`callout alignment`} style={{borderTop: "none"}}>
-                          {this.props.infernalAlignmentsCollapsed ? '' : entry.alignment }
+                          { entry.alignment }
                         </td>
                       </tr>
                     </tbody>
@@ -221,7 +241,7 @@ function mapStateToProps(state) {
     jobId: state.jobId,
     jobList: state.jobList,
     infernalEntries: state.infernalEntries,
-    infernalAlignmentsCollapsed: state.infernalAlignmentsCollapsed,
+    infernalAlignments: state.infernalAlignments,
     exactMatch: state.exactMatch,
     rnacentral: state.rnacentral,
   };
@@ -230,7 +250,7 @@ function mapStateToProps(state) {
 function mapDispatchToProps(dispatch) {
   return {
     onLoadMore: (event) => dispatch(actionCreators.onLoadMore(event)),
-    onToggleInfernalAlignmentsCollapsed: (event) => dispatch(actionCreators.toggleInfernalAlignmentsCollapsed(event)),
+    onToggleInfernalAlignments: (index) => dispatch(actionCreators.toggleInfernalAlignments(index))
   }
 }
 

@@ -281,6 +281,28 @@ export function onFilterResult() {
   }
 }
 
+export function toggleInfernalAlignments(index) {
+  return function (dispatch) {
+    let state = store.getState();
+    let infernalAlignments = [...state.infernalAlignments];
+    let newInfernalAlignments = [];
+    let found = infernalAlignments.some(el => el.id === index);
+
+    if (!found) {
+        infernalAlignments.push({ id: index, alignment: true });
+    } else {
+        infernalAlignments.map(item => {
+            if(item.id==index){
+              newInfernalAlignments = infernalAlignments.filter(el => el !== item);
+              infernalAlignments = [...newInfernalAlignments, { id: item.id, alignment: !item.alignment }]
+            }
+        });
+    }
+
+    dispatch({type: types.TOGGLE_INFERNAL_ALIGNMENTS, data: infernalAlignments});
+  }
+}
+
 export function onToggleFacet(event, facet, facetValue) {
   return function (dispatch) {
     let state = store.getState();

@@ -32,7 +32,7 @@ let initialState = {
   // cmscan search
   infernalStatus: statusChoices.notSubmitted,
   infernalEntries: [],
-  infernalAlignmentsCollapsed: true,
+  infernalAlignments: [],
 };
 
 export default initialState;
