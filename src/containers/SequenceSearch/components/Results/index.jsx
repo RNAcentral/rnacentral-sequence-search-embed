@@ -155,9 +155,12 @@ class Results extends React.Component {
                         <td>{entry.e_value}</td>
                         <td>{entry.strand}</td>
                         <td>
-                          <a onClick={ this.props.onToggleInfernalAlignmentsCollapsed }>
-                            { this.props.infernalAlignmentsCollapsed ? <span>&#x25B6; Show</span> : <span>&#x25BC; Hide</span> }
-                          </a>
+                          {
+                            entry.alignment ?
+                            <a onClick={ this.props.onToggleInfernalAlignmentsCollapsed }>
+                              { this.props.infernalAlignmentsCollapsed ? <span>&#x25B6; Show</span> : <span>&#x25BC; Hide</span> }
+                            </a> : "Not available"
+                          }
                         </td>
                       </tr>
                       <tr>
