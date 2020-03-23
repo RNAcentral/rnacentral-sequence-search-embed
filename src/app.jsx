@@ -22,7 +22,6 @@ class RNAcentralSequenceSearch extends HTMLElement {
     super();
 
     // prepare DOM and shadow DOM
-    const rnacentralStyle = `<style>:host { all:initial }</style>`;
     const shadowRoot = this.attachShadow({mode: 'open'});
     const mountPoint = document.createElement('html');
     shadowRoot.appendChild(mountPoint);
@@ -36,7 +35,6 @@ class RNAcentralSequenceSearch extends HTMLElement {
 
     // render React
     ReactDOM.render([
-      <style key={rnacentralStyle} dangerouslySetInnerHTML={{__html: rnacentralStyle}}/>,
       <style key={ebiGlobal} dangerouslySetInnerHTML={{__html: ebiGlobal}}/>,
       <style key={themeLight} dangerouslySetInnerHTML={{__html: themeLight}}/>,
       <style key={fonts} dangerouslySetInnerHTML={{__html: fonts}}/>,
