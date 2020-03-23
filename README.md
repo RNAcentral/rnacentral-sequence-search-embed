@@ -120,7 +120,8 @@ parameter                   | description                                       
 ----------------------------|-----------------------------------------------------------------------------------|
 h3Color                     | change the color of the `Similar sequences` and `Rfam classification` text        |
 h3Size                      | change the size of the `Similar sequences` and `Rfam classification` text         |
-exactMatchBackgroundColor   | change the background color of the "Exact match" area                             | 
+exactMatchBackgroundColor   | change the background color of the "Exact match" area                             |
+jobIdBackgroundColor        | change the background color of the "Job id" area                                  | 
 similarSeqText              | change the `Similar sequences` text                                               | 
 facetColor                  | change the color of the facet title                                               |
 facetSize                   | change the size of the facet title                                                |
