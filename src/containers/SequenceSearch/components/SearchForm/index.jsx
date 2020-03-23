@@ -82,7 +82,7 @@ class SearchForm extends React.Component {
           <form onSubmit={(e) => this.onSubmit(e)}>
             <div className="row">
               <div className="small-9 columns">
-                <textarea id="sequence" name="sequence" rows="7" value={this.props.sequence} onChange={(e) => this.props.onSequenceTextareaChange(e)} placeholder="Enter RNA/DNA sequence (with an optional description in FASTA format) or job ID" />
+                <textarea id="sequence" name="sequence" rows="7" value={this.props.sequence} onChange={(e) => this.props.onSequenceTextareaChange(e)} placeholder="Enter RNA/DNA sequence (with an optional description in FASTA format) or job id" />
               </div>
               <div className="small-3 columns">
                 <div className="row">

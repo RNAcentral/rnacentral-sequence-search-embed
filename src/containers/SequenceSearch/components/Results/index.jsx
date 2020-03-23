@@ -43,6 +43,7 @@ class Results extends React.Component {
     };
     const loadMoreButtonColor = this.props.customStyle && this.props.customStyle.loadMoreButtonColor ? this.props.customStyle.loadMoreButtonColor : "";
     const similarSeqText = this.props.customStyle && this.props.customStyle.similarSeqText ? this.props.customStyle.similarSeqText : "Similar sequences";
+    const jobIdBackgroundColor = this.props.customStyle && this.props.customStyle.jobIdBackgroundColor ? this.props.customStyle.jobIdBackgroundColor : "";
 
     // exact match URS ids
     const exactMatch = this.props.exactMatch;
@@ -79,9 +80,20 @@ class Results extends React.Component {
           )
         }
         {
+          (this.props.jobId && this.props.jobList && !this.props.jobList.length > 0 || this.props.jobId && this.props.jobList && this.props.jobList.length > 0 && !this.props.jobList.includes(this.props.jobId) ) && (
+            <div className="row" key={`job-id`}>
+              <div className="small-9 columns">
+                <div className="callout secondary" style={{backgroundColor: jobIdBackgroundColor}}>
+                  <p>Job id: <span className="job-id">{ this.props.jobId }</span></p>
+                </div>
+              </div>
+            </div>
+          )
+        }
+        {
           this.props.jobId && this.props.status === "partial_success" && (
             <div className="row" key={`partial-success-div`}>
-              <div className="small-12 columns">
+              <div className="small-9 columns">
                 <div className="callout warning">
                   <h4>Search against some databases failed.</h4>
                   <p>This usually happens when the nhmmer is unable to complete the search within a 5 minute time limit.</p>
@@ -93,7 +105,7 @@ class Results extends React.Component {
         {
           this.props.jobId && this.props.status === "does_not_exist" && (
             <div className="row" key={`does-not-exist-div`}>
-              <div className="small-12 columns">
+              <div className="small-9 columns">
                 <div className="callout alert">
                   <h4>Job with id='{ this.props.jobId }' does not exist.</h4>
                 </div>
@@ -104,7 +116,7 @@ class Results extends React.Component {
         {
           this.props.jobId && this.props.status === "error" && (
             <div className="row" key={`error-div`}>
-              <div className="small-12 columns">
+              <div className="small-9 columns">
                 <div className="callout alert">
                   <h4>There was an error.</h4>
                   <a href="mailto:rnacentral@gmail.com">Contact us</a> if the problem persists.
