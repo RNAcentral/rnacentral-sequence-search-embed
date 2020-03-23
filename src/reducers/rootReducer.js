@@ -182,6 +182,7 @@ const rootReducer = function (state = initialState, action) {
         textSearchError: false,
         infernalStatus: "loading",
         infernalEntries: [],
+        infernalAlignmentsCollapsed: true,
         exactMatch: null,
         filter: "",
       });
@@ -228,6 +229,7 @@ const rootReducer = function (state = initialState, action) {
         textSearchError: false,
         infernalStatus: "notSubmitted",
         infernalEntries: [],
+        infernalAlignmentsCollapsed: true,
         fileUpload: false,
         rnacentral: false,
       });
@@ -251,6 +253,7 @@ const rootReducer = function (state = initialState, action) {
         textSearchError: false,
         infernalStatus: "notSubmitted",
         infernalEntries: [],
+        infernalAlignmentsCollapsed: true,
         fileUpload: false,
         rnacentral: false,
       });
@@ -275,6 +278,7 @@ const rootReducer = function (state = initialState, action) {
         textSearchError: false,
         infernalStatus: "notSubmitted",
         infernalEntries: [],
+        infernalAlignmentsCollapsed: true,
         fileUpload: false,
         exactMatch: null,
         rnacentral: false,
