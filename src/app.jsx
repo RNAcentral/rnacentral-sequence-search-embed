@@ -23,6 +23,7 @@ class RNAcentralSequenceSearch extends HTMLElement {
 
     // prepare DOM and shadow DOM
     const shadowRoot = this.attachShadow({mode: 'open'});
+    shadowRoot.innerHTML = `<style>:host { all: initial; }</style>`;
     const mountPoint = document.createElement('html');
     shadowRoot.appendChild(mountPoint);
 
