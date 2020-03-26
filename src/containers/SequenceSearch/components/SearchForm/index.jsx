@@ -1,7 +1,7 @@
 import React from 'react';
 import {connect} from 'react-redux';
 
-import * as actions from "../../../../actions/actions";
+import * as actionCreators from 'actions/actions';
 import {store} from "app.jsx";
 
 
@@ -10,9 +10,14 @@ class SearchForm extends React.Component {
     const examples = this.props.examples;
     return examples.map(example =>
       <li key={example.description}>
-        <a onClick={() => this.props.onExampleSequence(example.sequence)}>{example.description}</a>
+        <a onClick={() => this.exampleSequence(example.sequence)}>{example.description}</a>
         <small>{!!(example.urs) ? ` (${example.urs})` : " "}</small>
       </li>)
+  }
+
+  exampleSequence(sequence) {
+    store.dispatch(actionCreators.onExampleSequence(sequence));
+    store.dispatch(actionCreators.onSubmit(sequence, this.props.databases));
   }
 
   showExactMatch(){
@@ -53,13 +58,13 @@ class SearchForm extends React.Component {
     // split the sequence for batch queries and set a limit on the number of queries
     if (state.fileUpload && state.sequence) {
       let getSequence = state.sequence.split(/(?=>)/g).slice(0, 50);
-      store.dispatch(actions.onMultipleSubmit(getSequence, this.props.databases));
+      store.dispatch(actionCreators.onMultipleSubmit(getSequence, this.props.databases));
     } else if (state.sequence && state.sequence.match("^([0-9a-fA-F]{8})-(([0-9a-fA-F]{4}\\-){3})([0-9a-fA-F]{12})$")) {
-      store.dispatch(actions.updateJobId(state.sequence));
+      store.dispatch(actionCreators.updateJobId(state.sequence));
     } else if (state.sequence && (state.sequence.length < 10 || state.sequence.length > 7000)) {
-      store.dispatch(actions.invalidSequence());
+      store.dispatch(actionCreators.invalidSequence());
     } else if (state.sequence) {
-      store.dispatch(actions.onSubmit(state.sequence, this.props.databases));
+      store.dispatch(actionCreators.onSubmit(state.sequence, this.props.databases));
     }
 
     state.sequence = "";
@@ -154,10 +159,9 @@ const mapStateToProps = (state) => ({
 });
 
 const mapDispatchToProps = (dispatch) => ({
-  onSequenceTextareaChange: (event) => dispatch(actions.onSequenceTextAreaChange(event)),
-  onExampleSequence: (sequence) => dispatch(actions.onExampleSequence(sequence)),
-  onClearSequence: () => dispatch(actions.onClearSequence()),
-  onFileUpload: (event) => dispatch(actions.onFileUpload(event))
+  onSequenceTextareaChange: (event) => dispatch(actionCreators.onSequenceTextAreaChange(event)),
+  onClearSequence: () => dispatch(actionCreators.onClearSequence()),
+  onFileUpload: (event) => dispatch(actionCreators.onFileUpload(event))
 });
 
 
