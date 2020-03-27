@@ -14,7 +14,7 @@ class Facets extends React.Component {
   renderFacet(facet) {
     let facetStyle = {
       color: this.props.customStyle && this.props.customStyle.facetColor ? this.props.customStyle.facetColor : "#007c82",
-      fontSize: this.props.customStyle && this.props.customStyle.facetSize ? this.props.customStyle.facetSize : "1.25rem",
+      fontSize: this.props.customStyle && this.props.customStyle.facetSize ? this.props.customStyle.facetSize : "20px",
     };
     return [
       <legend key={`legend-${facet.id}`}><span style={facetStyle}>{ facet.label }</span></legend>,
