@@ -6,7 +6,6 @@ import Facets from 'containers/SequenceSearch/components/Results/components/Face
 import Hit from 'containers/SequenceSearch/components/Results/components/Hit.jsx';
 import Filter from 'containers/SequenceSearch/components/Results/components/Filter.jsx';
 
-import 'containers/SequenceSearch/components/Results/index.scss';
 import * as actionCreators from 'actions/actions';
 import {store} from "app.jsx";
 
