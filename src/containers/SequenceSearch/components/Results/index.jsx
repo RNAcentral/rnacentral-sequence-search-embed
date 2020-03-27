@@ -37,9 +37,8 @@ class Results extends React.Component {
 
   render() {
     let h3Style = {
-      color: this.props.customStyle && this.props.customStyle.h3Color ? this.props.customStyle.h3Color : "#666",
-      fontSize: this.props.customStyle && this.props.customStyle.h3Size ? this.props.customStyle.h3Size : "",
-      fontWeight: "300",
+      color: this.props.customStyle && this.props.customStyle.h3Color ? this.props.customStyle.h3Color : "#007c82",
+      fontSize: this.props.customStyle && this.props.customStyle.h3Size ? this.props.customStyle.h3Size : "1.75rem",
     };
     const loadMoreButtonColor = this.props.customStyle && this.props.customStyle.loadMoreButtonColor ? this.props.customStyle.loadMoreButtonColor : "";
     const similarSeqText = this.props.customStyle && this.props.customStyle.similarSeqText ? this.props.customStyle.similarSeqText : "Similar sequences";
@@ -127,9 +126,9 @@ class Results extends React.Component {
           this.props.jobId && this.props.rfam && (
             <div className="row" key={`infernal-div`}>
               <div className="col-sm-12">
-                <h3 style={h3Style}>Rfam classification: { this.props.infernalStatus === "loading" ? <div className="spinner-border spinner-border-sm" role="status" /> : this.props.infernalEntries && this.props.infernalEntries.length ? <small>{this.props.infernalEntries.length}</small> : <small>0</small> }</h3>
+                <span className="result-title" style={h3Style}>Rfam classification:</span><span className="result-title"> { this.props.infernalStatus === "loading" ? <div className="spinner-border spinner-border-sm" role="status" /> : this.props.infernalEntries && this.props.infernalEntries.length ? <small>{this.props.infernalEntries.length}</small> : <small>0</small> }</span>
                 { this.props.infernalStatus === "success" && this.props.infernalEntries.length ? [
-                  <div className="table-responsive">
+                  <div className="table-responsive mt-1">
                     <table className="table" key={`infernal-table`}>
                       <thead class="thead-light">
                         <tr>
@@ -184,7 +183,9 @@ class Results extends React.Component {
         {
           this.props.jobId && (this.props.status === "loading" || this.props.status === "success" || this.props.status === "partial_success") && [
             <div className="row" key={`results-div`}>
-              <h3 style={h3Style}>{similarSeqText}: { this.props.status === "loading" ? <div className="spinner-border spinner-border-sm" role="status" /> : <small>{ this.props.hitCount }</small> } { this.props.hits > 1000 ? <small>of { this.props.hits } <a href="https://rnacentral.org/help/sequence-search" style={{borderBottomStyle: "none"}} target="_blank"><i className="icon icon-generic icon-help" style={{fontSize: "70%"}}></i></a></small> : "" }</h3>
+              <div className="col-sm-12 mb-1">
+                <span className="result-title" style={h3Style}>{similarSeqText}:</span><span className="result-title"> { this.props.status === "loading" ? <div className="spinner-border spinner-border-sm" role="status" /> : <small>{ this.props.hitCount }</small> } { this.props.hits > 1000 ? <small>of { this.props.hits } <a href="https://rnacentral.org/help/sequence-search" style={{borderBottomStyle: "none"}} target="_blank"><i className="icon icon-generic icon-help" style={{fontSize: "70%"}}></i></a></small> : "" }</span>
+              </div>
               {
                 this.props.entries && this.props.entries.length || this.props.filter ? <Filter databases={this.props.databases}/> : ""
               }
