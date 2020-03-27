@@ -14,28 +14,24 @@ class Hit extends React.Component {
     };
     let seqInfoStyle = {
       color: this.props.customStyle && this.props.customStyle.seqInfoColor ? this.props.customStyle.seqInfoColor : "",
-      fontSize: this.props.customStyle && this.props.customStyle.seqInfoSize ? this.props.customStyle.seqInfoSize : "14px",
+      fontSize: this.props.customStyle && this.props.customStyle.seqInfoSize ? this.props.customStyle.seqInfoSize : "",
     };
     return (
-      <li className="result">
-        <div className="text-search-result">
-          <div>
-            <a style={seqTitleStyle} href={database.length !== 0 && this.props.entry.fields && this.props.entry.fields.url && this.props.entry.fields.url.length ? this.props.entry.fields.url[0] : `https://rnacentral.org/rna/${this.props.entry.rnacentral_id}`} target='_blank'>
-              {exactMatchUrsId} {this.props.entry.description}
-            </a>
-          </div>
-          {database.length === 0 && <div style={seqInfoStyle}>{ this.props.entry.rnacentral_id }</div>}
-          <div style={seqInfoStyle}>{this.props.entry.target_length} nucleotides</div>
-          <div className={this.props.detailsCollapsed ? 'detail-collapsed' : ''}>
-            <span className="detail">E-value: { this.props.entry.e_value }</span>
-            <span className="detail">Identity: { `${parseFloat(this.props.entry.identity).toFixed(2)}%`}</span>
-            <span className="detail">Query coverage: { `${parseFloat(this.props.entry.query_coverage).toFixed(2)}%` }</span>
-            <span className="detail">Target coverage: { `${parseFloat(this.props.entry.target_coverage).toFixed(2)}%`}</span>
-            <span className="detail">Gaps: { `${parseFloat(this.props.entry.gaps).toFixed(2)}%` }</span>
-          </div>
-          <div className={`callout alignment ${this.props.alignmentsCollapsed ? 'alignment-collapsed' : ''}`}>
-            <p>{this.props.entry.alignment}</p>
-          </div>
+      <li>
+        <a className="text-dark custom-link" style={seqTitleStyle} href={database.length !== 0 && this.props.entry.fields && this.props.entry.fields.url && this.props.entry.fields.url.length ? this.props.entry.fields.url[0] : `https://rnacentral.org/rna/${this.props.entry.rnacentral_id}`} target='_blank'>
+          {exactMatchUrsId} {this.props.entry.description}
+        </a>
+        {database.length === 0 && <p style={seqInfoStyle}>{ this.props.entry.rnacentral_id }</p>}
+        <div className="mt-2" style={seqInfoStyle}>{this.props.entry.target_length} nucleotides</div>
+        <div className={this.props.detailsCollapsed ? 'detail-collapsed' : 'mt-1'}>
+          <span className="detail">E-value: { this.props.entry.e_value }</span>
+          <span className="detail">Identity: { `${parseFloat(this.props.entry.identity).toFixed(2)}%`}</span>
+          <span className="detail">Query coverage: { `${parseFloat(this.props.entry.query_coverage).toFixed(2)}%` }</span>
+          <span className="detail">Target coverage: { `${parseFloat(this.props.entry.target_coverage).toFixed(2)}%`}</span>
+          <span className="detail">Gaps: { `${parseFloat(this.props.entry.gaps).toFixed(2)}%` }</span>
+        </div>
+        <div className={`alignment ${this.props.alignmentsCollapsed ? 'alignment-collapsed' : ''}`}>
+          <p>{this.props.entry.alignment}</p>
         </div>
       </li>
     )

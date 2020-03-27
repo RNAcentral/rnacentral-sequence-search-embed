@@ -18,18 +18,18 @@ class Facets extends React.Component {
     };
     return [
       <legend key={`legend-${facet.id}`}><h5 style={facetStyle}>{ facet.label }</h5></legend>,
-      <ul key={facet.id} className="vertical menu facet">
+      <ul key={facet.id} className="list-unstyled facet">
         {
           facet.facetValues.map(facetValue => (
-            <li key={`li ${facetValue.label}`}>
-              <span className="facetValue">
-                <input id={`checkbox-${facet.id}-${facetValue.value}`} type="checkbox"
+            <li className="facetValue" key={`li ${facetValue.label}`}>
+              <div className="form-check">
+                <input className="form-check-input" id={`checkbox-${facet.id}-${facetValue.value}`} type="checkbox"
                   defaultChecked={this.props.selectedFacets.hasOwnProperty(facet.id) && this.props.selectedFacets[facet.id].indexOf(facetValue.value) !== -1}
                   onClick={(e) => {
                     this.props.onToggleFacet(e, facet, facetValue)
                   }}/>
-                <label htmlFor={`checkbox-${facet.id}-${facetValue.value}`}>{facetValue.label}&nbsp;<small>({facetValue.count})</small></label>
-              </span>
+                <label className="form-check-label mt-1" htmlFor={`checkbox-${facet.id}-${facetValue.value}`}>{facetValue.label}&nbsp;<small>({facetValue.count})</small></label>
+              </div>
             </li>
           ))
         }
@@ -42,20 +42,20 @@ class Facets extends React.Component {
     let showFacet = this.props.hideFacet ? this.props.facets.filter(facet => !this.props.hideFacet.includes(facet.id)) : this.props.facets;
 
     return (
-      <div>
+      <div className="row">
         <section>
           <div>
             { showFacet.map(facet => this.renderFacet(facet)) }
           </div>
           {
             this.props.textSearchError &&
-            <div className="callout alert">
+            <div className="alert alert-danger">
               <h3>Failed to retrieve text search data.</h3>
               <a onClick={ this.props.onReload }>&lsaquo; Reload</a>
             </div>
           }
           <small>
-            Powered by <a href="http://www.ebi.ac.uk/ebisearch/" target="_blank">EBI Search</a>.
+            Powered by <a className="text-dark custom-link" href="http://www.ebi.ac.uk/ebisearch/" target="_blank">EBI Search</a>.
           </small>
         </section>
       </div>

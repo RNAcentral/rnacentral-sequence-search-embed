@@ -1,0 +1,116 @@
+/* General */
+
+.custom-link {
+  text-decoration-style: dotted !important;
+}
+.custom-link:hover {
+  text-decoration: underline !important
+}
+
+
+/* Search form */
+
+// div with sequence examples
+#examples ul{
+  list-style: none;
+  padding: 0;
+  margin: 10px 0;
+}
+
+#examples ul li {
+  display: inline;
+  padding-right: 10px;
+}
+
+// styling the input type=“file” button
+input[type="file"] {
+  display: none;
+}
+
+.custom-file-upload {
+  border: 1px solid #ccc;
+  border-radius: 0.25rem;
+  display: inline-block;
+  padding: 6px 12px;
+  cursor: pointer;
+  line-height: 1.5;
+}
+
+
+/* Search results */
+
+.job-id {
+  font-family: Consolas, "Liberation Mono", Courier, monospace;
+  font-weight: normal;
+  padding: 0.125rem 0.3125rem 0.0625rem;
+  overflow-x: auto;
+  font-size: .95rem;
+}
+
+.alignment {
+  font-family: monospace;
+  padding: 1%;
+  margin: 5px 0 10px 0;
+  overflow: auto;
+  word-wrap: normal;
+  white-space: pre;
+  font-size: smaller;
+  line-height: 1.42857143;
+  color: #333;
+  word-break: break-all;
+  font-weight: normal;
+  font-style: normal;
+  text-decoration: none;
+  text-align: left;
+  text-indent: 0;
+  box-sizing: border-box;
+  background-color: white;
+  border-style: dotted;
+  border-width: 1px;
+  border-radius: 4px;
+  border-color: #999;
+  max-height: 160px;
+}
+
+.alignment-table {
+  font-size: small;
+}
+
+.alignment-collapsed {
+  display: none;
+}
+
+.detail-collapsed {
+  display: none;
+}
+
+.detail {
+  font-family: monospace;
+  margin-right: 20px;
+}
+
+.facet {
+  overflow: auto;
+  max-height: 20em;
+}
+
+.facetValue {
+  white-space: nowrap;
+}
+
+.sequence {
+  word-wrap: break-word;
+  white-space: pre-wrap;
+  max-height: 10em;
+  overflow-y: auto;
+}
+
+.alignment-rfam {
+  font-family: monospace;
+  padding: 0;
+  white-space: pre;
+  line-height: 1.42857143;
+  text-align: left;
+  background-color: white;
+  border-spacing: 10px;
+}

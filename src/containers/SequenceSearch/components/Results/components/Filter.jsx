@@ -24,19 +24,17 @@ class Filter extends Component {
   render() {
     return (
       <div className="row">
-        <div className="small-12 medium-4 columns">
-          <form className="input-group" onSubmit={(e) => this.onFilterSubmit(e)} onReset={(e) => this.onFilterReset(e)}>
-            <input className="input-group-field" type="text" value={this.props.filter} onChange={(e) => this.props.onFilterChange(e)} placeholder="Search within results"/>
-            <div className="input-group-button">
-              <button className={`hollow button secondary ${!this.props.filter && "disabled"}`} type="submit" name="submit">Filter</button>
-            </div>
-            <div className="input-group-button">
-              <button className={`hollow button secondary ${!this.props.filter && "disabled"}`} type="reset" name="reset">Clear</button>
+        <div className="col-sm-4">
+          <form onSubmit={(e) => this.onFilterSubmit(e)} onReset={(e) => this.onFilterReset(e)}>
+            <div className="input-group">
+              <input className="form-control" type="text" value={this.props.filter} onChange={(e) => this.props.onFilterChange(e)} placeholder="Search within results"/>
+              <button type="submit" className={`btn btn-outline-secondary ${!this.props.filter && "disabled"}`}>Filter</button>
+              <button type="reset" className={`btn btn-outline-secondary ${!this.props.filter && "disabled"}`}>Clear</button>
             </div>
           </form>
         </div>
-        <div className="small-12 medium-4 columns">
-          <select value={this.props.sortingOrder} onChange={this.props.onSort}>
+        <div className="col-sm-4">
+          <select className="form-select" value={this.props.sortingOrder} onChange={this.props.onSort}>
             <option value="e_value">Sort by E-value (min to max) - default</option>
             <option value="-e_value">Sort by E-value (max to min)</option>
             <option value="identity">Sort by Identity (max to min)</option>
@@ -47,10 +45,10 @@ class Filter extends Component {
             <option value="-target_coverage">Sort by Target coverage: (min to max)</option>
           </select>
         </div>
-        <div className="small-12 medium-4 columns">
-          <div className="button-group">
-            <button className="hollow button secondary" onClick={this.props.onToggleAlignmentsCollapsed}>{this.props.alignmentsCollapsed ? 'Show alignments' : 'Hide alignments'}</button>
-            <button className="hollow button secondary" onClick={this.props.onToggleDetailsCollapsed}>{this.props.detailsCollapsed ? 'Show details' : 'Hide details'}</button>
+        <div className="col-sm-4">
+          <div className="input-group">
+            <button className="btn btn-outline-secondary" onClick={this.props.onToggleAlignmentsCollapsed}>{this.props.alignmentsCollapsed ? 'Show alignments' : 'Hide alignments'}</button>
+            <button className="btn btn-outline-secondary" onClick={this.props.onToggleDetailsCollapsed}>{this.props.detailsCollapsed ? 'Show details' : 'Hide details'}</button>
           </div>
         </div>
       </div>
