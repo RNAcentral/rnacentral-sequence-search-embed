@@ -21,8 +21,8 @@ class Hit extends React.Component {
         <a className="text-dark custom-link" style={seqTitleStyle} href={database.length !== 0 && this.props.entry.fields && this.props.entry.fields.url && this.props.entry.fields.url.length ? this.props.entry.fields.url[0] : `https://rnacentral.org/rna/${this.props.entry.rnacentral_id}`} target='_blank'>
           {exactMatchUrsId} {this.props.entry.description}
         </a>
-        {database.length === 0 && <p style={seqInfoStyle}>{ this.props.entry.rnacentral_id }</p>}
-        <div className="mt-2" style={seqInfoStyle}>{this.props.entry.target_length} nucleotides</div>
+        {database.length === 0 && <div className="mt-2" style={seqInfoStyle}>{ this.props.entry.rnacentral_id }</div>}
+        {database.length === 0 ? '' : <div className="mt-2" style={seqInfoStyle}>{this.props.entry.target_length} nucleotides</div>}
         <div className={this.props.detailsCollapsed ? 'detail-collapsed' : 'mt-1'}>
           <span className="detail">E-value: { this.props.entry.e_value }</span>
           <span className="detail">Identity: { `${parseFloat(this.props.entry.identity).toFixed(2)}%`}</span>
