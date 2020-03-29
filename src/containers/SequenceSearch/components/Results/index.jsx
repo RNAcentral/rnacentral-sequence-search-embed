@@ -126,7 +126,7 @@ class Results extends React.Component {
             <div className="row" key={`infernal-div`}>
               <div className="col-sm-12">
                 <span className="result-title" style={h3Style}>Rfam classification:</span><span className="result-title"> { this.props.infernalStatus === "loading" ? <div className="spinner-border spinner-border-sm" role="status" /> : this.props.infernalEntries && this.props.infernalEntries.length ? <small>{this.props.infernalEntries.length}</small> : <small>0</small> }</span>
-                { this.props.infernalStatus === "success" && this.props.infernalEntries.length ? [
+                { this.props.infernalStatus === "loading" ? '' : this.props.infernalStatus === "success" && this.props.infernalEntries.length ? [
                   <div className="table-responsive mt-1">
                     <table className="table" key={`infernal-table`}>
                       <thead class="thead-light">
@@ -209,7 +209,7 @@ class Results extends React.Component {
                       {this.props.status === "loading" ? <div className="spinner-border" role="status" /> : (this.props.status === "success" || this.props.status === "partial_success") && (this.props.entries.length < this.props.hitCount) && (<button className="btn btn-secondary" onClick={this.props.onLoadMore} style={{background: loadMoreButtonColor}}>Load more</button>)}
                     </section>
                   </div>
-                </div> : this.props.filter ? <div>No results. Try a different search or press the Clear button to view all results.</div> : this.props.rnacentral ? <div>No results at <img src={'https://rnacentral.org/static/img/logo/rnacentral-logo.png'} alt="RNAcentral logo" style={{width: "2%", verticalAlign: "sub"}}/> RNAcentral.</div> : <div>The query sequence did not match any {this.props.databases} sequences. You can <a className="text-dark custom-link" href="#" onClick={this.submitToRnacentral}>try to search against RNAcentral</a>.</div>
+                </div> : this.props.status === "loading" ? '' : this.props.filter ? <div>No results. Try a different search or press the Clear button to view all results.</div> : this.props.rnacentral ? <div>No results at <img src={'https://rnacentral.org/static/img/logo/rnacentral-logo.png'} alt="RNAcentral logo" style={{width: "2%", verticalAlign: "sub"}}/> RNAcentral.</div> : <div>The query sequence did not match any {this.props.databases} sequences. You can <a className="text-dark custom-link" href="#" onClick={this.submitToRnacentral}>try to search against RNAcentral</a>.</div>
               }
             </div>
           ]
