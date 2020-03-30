@@ -145,8 +145,8 @@ class Results extends React.Component {
                       {this.props.infernalEntries.map((entry, index) => (
                         <React.Fragment>
                           <tr>
-                            <td><a className="text-dark custom-link" href={`https://rfam.org/family/${entry.target_name}`} target="_blank">{entry.description}</a></td>
-                            <td><a className="text-dark custom-link" href={`https://rfam.org/family/${entry.accession_rfam}`} target="_blank">{entry.accession_rfam}</a></td>
+                            <td><a className="custom-link" href={`https://rfam.org/family/${entry.target_name}`} target="_blank">{entry.description}</a></td>
+                            <td><a className="custom-link" href={`https://rfam.org/family/${entry.accession_rfam}`} target="_blank">{entry.accession_rfam}</a></td>
                             <td>{entry.seq_from}</td>
                             <td>{entry.seq_to}</td>
                             <td>{entry.score}</td>
