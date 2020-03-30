@@ -10,7 +10,7 @@ class SearchForm extends React.Component {
     const examples = this.props.examples;
     return examples.map(example =>
       <li key={example.description}>
-        <a className="text-dark custom-link" onClick={() => this.exampleSequence(example.sequence)}>{example.description}</a>
+        <a className="custom-link" onClick={() => this.exampleSequence(example.sequence)}>{example.description}</a>
         <small>{!!(example.urs) ? ` (${example.urs})` : " "}</small>
       </li>)
   }
@@ -38,11 +38,11 @@ class SearchForm extends React.Component {
           <div className="alert alert-success" style={{backgroundColor: exactMatchBackgroundColor}}>
             {
               database.length === 0 ? <div>
-                Identical match: <a href={`https://rnacentral.org/rna/${exactMatchId}`} target='_blank'>{exactMatchDescription}</a>
+                Identical match: <a className="custom-link" href={`https://rnacentral.org/rna/${exactMatchId}`} target='_blank'>{exactMatchDescription}</a>
                 {exactMatchOther && ' and '}
-                {exactMatchOther ? <a href={`https://rnacentral.org/search?q=${exactMatchUrsId}*`} target='_blank'>{exactMatchOther}</a> : ''}
+                {exactMatchOther ? <a className="custom-link" href={`https://rnacentral.org/search?q=${exactMatchUrsId}*`} target='_blank'>{exactMatchOther}</a> : ''}
               </div> : <div>
-                Identical match: <a href={exactMatchUrl} target='_blank'>{exactMatchDescription}</a>
+                Identical match: <a className="custom-link" href={exactMatchUrl} target='_blank'>{exactMatchDescription}</a>
               </div>
             }
           </div>
@@ -79,8 +79,8 @@ class SearchForm extends React.Component {
       <div className="rna">
         <div className="row">
           <div className="col-sm-12">
-            { this.props.databases.length === 0 ? '' : <small><img src={'https://rnacentral.org/static/img/logo/rnacentral-logo.png'} alt="RNAcentral logo" style={{width: "1%", verticalAlign: "text-top"}}/> Powered by <a className="text-dark custom-link" style={{marginRight: "7px"}} target='_blank' href='https://rnacentral.org/'>RNAcentral</a>|</small>}
-            <small style={{marginLeft: "7px"}}>Local alignment using <a target='_blank' className="text-dark custom-link" href='https://www.ncbi.nlm.nih.gov/pubmed/23842809'>nhmmer</a></small>
+            { this.props.databases.length === 0 ? '' : <small><img src={'https://rnacentral.org/static/img/logo/rnacentral-logo.png'} alt="RNAcentral logo" style={{width: "1%", verticalAlign: "text-top"}}/> Powered by <a className="custom-link" style={{marginRight: "7px"}} target='_blank' href='https://rnacentral.org/'>RNAcentral</a>|</small>}
+            <small style={{marginLeft: "7px"}}>Local alignment using <a target='_blank' className="custom-link" href='https://www.ncbi.nlm.nih.gov/pubmed/23842809'>nhmmer</a></small>
           </div>
         </div>
         <form onSubmit={(e) => this.onSubmit(e)}>

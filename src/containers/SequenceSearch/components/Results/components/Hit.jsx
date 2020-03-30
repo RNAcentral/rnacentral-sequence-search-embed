@@ -18,7 +18,7 @@ class Hit extends React.Component {
     };
     return (
       <li>
-        <a className="text-dark custom-link" style={seqTitleStyle} href={database.length !== 0 && this.props.entry.fields && this.props.entry.fields.url && this.props.entry.fields.url.length ? this.props.entry.fields.url[0] : `https://rnacentral.org/rna/${this.props.entry.rnacentral_id}`} target='_blank'>
+        <a className="custom-link" style={seqTitleStyle} href={database.length !== 0 && this.props.entry.fields && this.props.entry.fields.url && this.props.entry.fields.url.length ? this.props.entry.fields.url[0] : `https://rnacentral.org/rna/${this.props.entry.rnacentral_id}`} target='_blank'>
           {exactMatchUrsId} {this.props.entry.description}
         </a>
         {database.length === 0 && <div className="mt-2" style={seqInfoStyle}>{ this.props.entry.rnacentral_id }</div>}

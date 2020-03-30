@@ -1,7 +1,12 @@
 /* General */
 
+// check https://github.com/styled-components/styled-components to customize the link color
+a {
+    color: #337ab7 !important;
+}
+
 .custom-link {
-  text-decoration-style: dotted !important;
+  text-decoration: none !important;
 }
 .custom-link:hover {
   text-decoration: underline !important

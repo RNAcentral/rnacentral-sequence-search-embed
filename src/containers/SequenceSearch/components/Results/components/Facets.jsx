@@ -55,7 +55,7 @@ class Facets extends React.Component {
             </div>
           }
           <small>
-            Powered by <a className="text-dark custom-link" href="http://www.ebi.ac.uk/ebisearch/" target="_blank">EBI Search</a>.
+            Powered by <a className="custom-link" href="http://www.ebi.ac.uk/ebisearch/" target="_blank">EBI Search</a>.
           </small>
         </section>
       </div>
