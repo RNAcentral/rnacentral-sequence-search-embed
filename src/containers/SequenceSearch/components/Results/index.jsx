@@ -129,7 +129,7 @@ class Results extends React.Component {
                 { this.props.infernalStatus === "loading" ? '' : this.props.infernalStatus === "success" && this.props.infernalEntries.length ? [
                   <div className="table-responsive mt-1">
                     <table className="table" key={`infernal-table`}>
-                      <thead class="thead-light">
+                      <thead>
                         <tr>
                           <th>Family</th>
                           <th>Accession</th>
@@ -144,7 +144,7 @@ class Results extends React.Component {
                       <tbody>
                       {this.props.infernalEntries.map((entry, index) => (
                         <React.Fragment>
-                          <tr>
+                          <tr key={index}>
                             <td><a className="custom-link" href={`https://rfam.org/family/${entry.target_name}`} target="_blank">{entry.description}</a></td>
                             <td><a className="custom-link" href={`https://rfam.org/family/${entry.accession_rfam}`} target="_blank">{entry.accession_rfam}</a></td>
                             <td>{entry.seq_from}</td>
