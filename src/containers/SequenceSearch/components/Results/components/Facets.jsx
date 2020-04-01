@@ -11,13 +11,25 @@ class Facets extends React.Component {
     this.renderFacet = this.renderFacet.bind(this);
   }
 
+  renameFacet(facet){
+    if (facet==='QC warning found') {
+      return 'QC warnings'
+    } else if (facet==='Has GO annotation') {
+      return 'GO annotations'
+    } else if (facet==='Has Conserved structure') {
+      return 'Conserved motifs'
+    } else {
+      return facet
+    }
+  }
+
   renderFacet(facet) {
     let facetStyle = {
       color: this.props.customStyle && this.props.customStyle.facetColor ? this.props.customStyle.facetColor : "#007c82",
       fontSize: this.props.customStyle && this.props.customStyle.facetSize ? this.props.customStyle.facetSize : "20px",
     };
     return [
-      <legend key={`legend-${facet.id}`}><span style={facetStyle}>{ facet.label }</span></legend>,
+      <legend key={`legend-${facet.id}`}><span style={facetStyle}>{ this.renameFacet(facet.label) }</span></legend>,
       <ul key={facet.id} className="list-unstyled facet">
         {
           facet.facetValues.map(facetValue => (
