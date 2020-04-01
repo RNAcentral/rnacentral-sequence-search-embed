@@ -125,7 +125,7 @@ class Results extends React.Component {
           this.props.jobId && this.props.rfam && (
             <div className="row" key={`infernal-div`}>
               <div className="col-sm-12">
-                <span className="result-title" style={h3Style}>Rfam classification</span><span className="result-title"> { this.props.infernalStatus === "loading" ? <div className="spinner-border spinner-border-sm  mb-1" role="status" /> : this.props.infernalEntries && this.props.infernalEntries.length ? <small>{this.props.infernalEntries.length}</small> : <small>0</small> }</span>
+                <span className="result-title" style={h3Style}>Rfam classification</span>{ this.props.infernalStatus === "loading" ? <div className="spinner-border spinner-border-sm  mb-1" role="status" /> : '' }
                 { this.props.infernalStatus === "loading" ? '' : this.props.infernalStatus === "success" && this.props.infernalEntries.length ? [
                   <div className="table-responsive mt-1">
                     <table className="table" key={`infernal-table`}>
