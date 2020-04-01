@@ -125,7 +125,7 @@ class Results extends React.Component {
           this.props.jobId && this.props.rfam && (
             <div className="row" key={`infernal-div`}>
               <div className="col-sm-12">
-                <span className="result-title" style={h3Style}>Rfam classification:</span><span className="result-title"> { this.props.infernalStatus === "loading" ? <div className="spinner-border spinner-border-sm  mb-1" role="status" /> : this.props.infernalEntries && this.props.infernalEntries.length ? <small>{this.props.infernalEntries.length}</small> : <small>0</small> }</span>
+                <span className="result-title" style={h3Style}>Rfam classification</span><span className="result-title"> { this.props.infernalStatus === "loading" ? <div className="spinner-border spinner-border-sm  mb-1" role="status" /> : this.props.infernalEntries && this.props.infernalEntries.length ? <small>{this.props.infernalEntries.length}</small> : <small>0</small> }</span>
                 { this.props.infernalStatus === "loading" ? '' : this.props.infernalStatus === "success" && this.props.infernalEntries.length ? [
                   <div className="table-responsive mt-1">
                     <table className="table" key={`infernal-table`}>
@@ -183,7 +183,7 @@ class Results extends React.Component {
           this.props.jobId && (this.props.status === "loading" || this.props.status === "success" || this.props.status === "partial_success") && [
             <div className="row" key={`results-div`}>
               <div className="col-sm-12 mb-1">
-                <span className="result-title" style={h3Style}>{similarSeqText}:</span><span className="result-title"> { this.props.status === "loading" ? <div className="spinner-border spinner-border-sm mb-1" role="status" /> : <small>{ this.props.hitCount }</small> } { this.props.hits > 1000 ? <small>of { this.props.hits } <a href="https://rnacentral.org/help/sequence-search" style={{borderBottomStyle: "none"}} target="_blank"><i className="icon icon-generic icon-help" style={{fontSize: "70%"}}></i></a></small> : "" }</span>
+                <span className="result-title" style={h3Style}>{similarSeqText}</span><span className="result-title"> { this.props.status === "loading" ? <div className="spinner-border spinner-border-sm mb-1" role="status" /> : <small>{ this.props.hitCount }</small> } { this.props.hits > 1000 ? <small>of { this.props.hits } <a href="https://rnacentral.org/help/sequence-search" style={{borderBottomStyle: "none"}} target="_blank"><i className="icon icon-generic icon-help" style={{fontSize: "70%"}}></i></a></small> : "" }</span>
               </div>
               {
                 this.props.entries && this.props.entries.length || this.props.filter ? <Filter databases={this.props.databases}/> : ""
