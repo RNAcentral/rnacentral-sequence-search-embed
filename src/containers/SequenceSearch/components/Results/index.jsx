@@ -162,7 +162,7 @@ class Results extends React.Component {
                             </td>
                           </tr>
                           {
-                            this.props.infernalAlignmentsCollapsed ? '' :
+                            this.props.infernalAlignmentsCollapsed ? null :
                               <tr>
                                 <td colSpan={8} className="alignment-rfam">
                                   { entry.alignment + '\n' }
