@@ -144,7 +144,7 @@ class Results extends React.Component {
                       <tbody>
                       {this.props.infernalEntries.map((entry, index) => (
                         <React.Fragment>
-                          <tr key={index}>
+                          <tr key={`infernal-table-${index}`}>
                             <td><a className="custom-link" href={`https://rfam.org/family/${entry.target_name}`} target="_blank">{entry.description}</a></td>
                             <td><a className="custom-link" href={`https://rfam.org/family/${entry.accession_rfam}`} target="_blank">{entry.accession_rfam}</a></td>
                             <td>{entry.seq_from}</td>

@@ -23,7 +23,7 @@ class Filter extends Component {
 
   render() {
     return (
-      <div className="row">
+      <div className="row" key={`filter-div`}>
         <div className="col-sm-4">
           <form onSubmit={(e) => this.onFilterSubmit(e)} onReset={(e) => this.onFilterReset(e)}>
             <div className="input-group">
