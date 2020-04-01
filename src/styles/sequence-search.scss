@@ -142,4 +142,9 @@ input[type="file"] {
   text-align: left;
   background-color: white;
   border-spacing: 10px;
+  max-width: 768px;
+}
+
+tr.noBorder td {
+  border: 0 !important;
 }

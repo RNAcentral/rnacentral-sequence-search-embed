@@ -125,7 +125,7 @@ class Results extends React.Component {
           this.props.jobId && this.props.rfam && (
             <div className="row" key={`infernal-div`}>
               <div className="col-sm-12">
-                <span className="result-title" style={h3Style}>Rfam classification</span>{ this.props.infernalStatus === "loading" ? <div className="spinner-border spinner-border-sm  mb-1" role="status" /> : '' }
+                <span className="result-title" style={h3Style}>Rfam classification </span>{ this.props.infernalStatus === "loading" ? <div className="spinner-border spinner-border-sm  mb-1" role="status" /> : '' }
                 { this.props.infernalStatus === "loading" ? '' : this.props.infernalStatus === "success" && this.props.infernalEntries.length ? [
                   <div className="table-responsive mt-1">
                     <table className="table" key={`infernal-table`}>
@@ -144,7 +144,7 @@ class Results extends React.Component {
                       <tbody>
                       {this.props.infernalEntries.map((entry, index) => (
                         <React.Fragment>
-                          <tr key={`infernal-table-${index}`}>
+                          <tr key={`infernal-table-${index}`} className="noBorder">
                             <td><a className="custom-link" href={`https://rfam.org/family/${entry.target_name}`} target="_blank">{entry.description}</a></td>
                             <td><a className="custom-link" href={`https://rfam.org/family/${entry.accession_rfam}`} target="_blank">{entry.accession_rfam}</a></td>
                             <td>{entry.seq_from}</td>
@@ -165,7 +165,7 @@ class Results extends React.Component {
                             this.props.infernalAlignmentsCollapsed ? null :
                               <tr>
                                 <td colSpan={8} className="alignment-rfam">
-                                  { entry.alignment + '\n' }
+                                  <div>{ entry.alignment + '\n' }</div>
                                 </td>
                               </tr>
                           }
