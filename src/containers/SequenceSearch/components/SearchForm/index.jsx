@@ -10,7 +10,7 @@ class SearchForm extends React.Component {
     const examples = this.props.examples;
     return examples.map(example =>
       <li key={example.description}>
-        <a className="custom-link" href="#" onClick={() => this.exampleSequence(example.sequence)}>{example.description}</a>
+        <a className="custom-link" onClick={() => this.exampleSequence(example.sequence)}>{example.description}</a>
         <small>{!!(example.urs) ? ` (${example.urs})` : " "}</small>
       </li>)
   }

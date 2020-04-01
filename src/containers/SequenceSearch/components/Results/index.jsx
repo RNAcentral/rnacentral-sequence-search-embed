@@ -155,7 +155,7 @@ class Results extends React.Component {
                             <td>
                               {
                                 entry.alignment ?
-                                <a className="custom-link" href="#" onClick={ this.props.onToggleInfernalAlignmentsCollapsed }>
+                                <a className="custom-link" onClick={ this.props.onToggleInfernalAlignmentsCollapsed }>
                                   { this.props.infernalAlignmentsCollapsed ? <span>&#x25B6; Show</span> : <span>&#x25BC; Hide</span> }
                                 </a> : "Not available"
                               }
