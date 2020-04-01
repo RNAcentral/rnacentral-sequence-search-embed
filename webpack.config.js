@@ -67,9 +67,8 @@ module.exports = function(env) {
           test: /\.(png|jpe?g|gif)(\?v=\d+\.\d+\.\d+)?$/,
           loader: 'url-loader',
           options: {
-            limit: 10000,
+            limit: 150000,
             name: '[name].[ext]',
-            fallback: require.resolve('file-loader'),
           },
         },
         {
