@@ -78,9 +78,10 @@ class SearchForm extends React.Component {
     return (
       <div className="rna">
         <div className="row">
-          <div className="col-sm-12">
+          <div className="col-sm-9">
             { this.props.databases.length === 0 ? '' : <small><img src={'https://rnacentral.org/static/img/logo/rnacentral-logo.png'} alt="RNAcentral logo" style={{width: "1%", verticalAlign: "text-top"}}/> Powered by <a className="custom-link" style={{marginRight: "7px"}} target='_blank' href='https://rnacentral.org/'>RNAcentral</a>|</small>}
             <small style={{marginLeft: "7px"}}>Local alignment using <a target='_blank' className="custom-link" href='https://www.ncbi.nlm.nih.gov/pubmed/23842809'>nhmmer</a></small>
+            { this.props.jobId ? <small className="float-right">Job id: {this.props.jobId}</small> : ''}
           </div>
         </div>
         <form onSubmit={(e) => this.onSubmit(e)}>
@@ -148,6 +149,7 @@ const mapStateToProps = (state) => ({
   infernalEntries: state.infernalEntries,
   fileUpload: state.fileUpload,
   exactMatch: state.exactMatch,
+  jobId: state.jobId,
 });
 
 const mapDispatchToProps = (dispatch) => ({

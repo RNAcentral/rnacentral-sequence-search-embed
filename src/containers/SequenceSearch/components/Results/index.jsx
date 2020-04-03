@@ -76,17 +76,6 @@ class Results extends React.Component {
           )
         }
         {
-          (this.props.jobId && this.props.jobList && !this.props.jobList.length > 0 || this.props.jobId && this.props.jobList && this.props.jobList.length > 0 && !this.props.jobList.includes(this.props.jobId) ) && (
-            <div className="row" key={`job-id`}>
-              <div className="col-sm-9">
-                <div className="alert alert-secondary" style={{backgroundColor: jobIdBackgroundColor}}>
-                  Job id: <span className="job-id">{ this.props.jobId }</span>
-                </div>
-              </div>
-            </div>
-          )
-        }
-        {
           this.props.jobId && this.props.status === "partial_success" && (
             <div className="row" key={`partial-success-div`}>
               <div className="col-sm-9">
