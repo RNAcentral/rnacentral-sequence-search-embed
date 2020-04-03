@@ -172,7 +172,7 @@ class Results extends React.Component {
           this.props.jobId && (this.props.status === "loading" || this.props.status === "success" || this.props.status === "partial_success") && [
             <div className="row" key={`results-div`}>
               <div className="col-sm-12 mb-1">
-                <span className="result-title" style={h3Style}>{similarSeqText}</span><span className="result-title"> { this.props.status === "loading" ? <div className="spinner-border spinner-border-sm mb-1" role="status" /> : <small>{ this.props.hitCount }</small> } { this.props.hits > 1000 ? <small>of { this.props.hits } <a href="https://rnacentral.org/help/sequence-search" style={{borderBottomStyle: "none"}} target="_blank"><i className="icon icon-generic icon-help" style={{fontSize: "70%"}}></i></a></small> : "" }</span>
+                <span className="result-title" style={h3Style}>{similarSeqText} </span>{ this.props.status === "loading" ? <div className="spinner-border spinner-border-sm mb-1" role="status" /> : <span className="result-title"><small>{ this.props.hitCount }</small></span> }
               </div>
               {
                 this.props.entries && this.props.entries.length || this.props.filter ? <Filter databases={this.props.databases}/> : ""
