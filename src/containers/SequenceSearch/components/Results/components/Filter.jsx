@@ -27,7 +27,7 @@ class Filter extends Component {
         <div className="col-sm-4">
           <form onSubmit={(e) => this.onFilterSubmit(e)} onReset={(e) => this.onFilterReset(e)}>
             <div className="input-group">
-              <input className="form-control" type="text" value={this.props.filter} onChange={(e) => this.props.onFilterChange(e)} placeholder="Search within results"/>
+              <input className="form-control" type="text" value={this.props.filter} onChange={(e) => this.props.onFilterChange(e)} placeholder="Text search within results"/>
               <button type="submit" className={`btn btn-outline-secondary ${!this.props.filter && "disabled"}`}>Filter</button>
               <button type="reset" className={`btn btn-outline-secondary ${!this.props.filter && "disabled"}`}>Clear</button>
             </div>
