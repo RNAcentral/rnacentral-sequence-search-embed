@@ -153,7 +153,7 @@ class Results extends React.Component {
                           {
                             this.props.infernalAlignmentsCollapsed ? null :
                               <tr>
-                                <td colSpan={8} style={{overflowX: "scroll", whiteSpace:"nowrap"}}>
+                                <td className="alignment-rfam-td" colSpan={8}>
                                   <div className="alignment-rfam">{ entry.alignment + '\n' }</div>
                                 </td>
                               </tr>

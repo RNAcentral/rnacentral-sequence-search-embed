@@ -127,6 +127,11 @@ input[type="file"] {
   max-width: 768px;
 }
 
+.alignment-rfam-td {
+  overflow-x: scroll;
+  white-space: nowrap;
+}
+
 tr.noBorder td {
   border: 0 !important;
 }
