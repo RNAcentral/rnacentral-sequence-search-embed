@@ -79,9 +79,9 @@ class SearchForm extends React.Component {
       <div className="rna">
         <div className="row">
           <div className="col-sm-9">
-            { this.props.databases.length === 0 ? '' : <small><img src={'https://rnacentral.org/static/img/logo/rnacentral-logo.png'} alt="RNAcentral logo" style={{width: "1%", verticalAlign: "text-top"}}/> Powered by <a className="custom-link" style={{marginRight: "7px"}} target='_blank' href='https://rnacentral.org/'>RNAcentral</a>|</small>}
-            <small style={{marginLeft: "7px"}}>Local alignment using <a target='_blank' className="custom-link" href='https://www.ncbi.nlm.nih.gov/pubmed/23842809'>nhmmer</a></small>
-            { this.props.jobId ? <small className="float-right">Job id: {this.props.jobId}</small> : ''}
+            { this.props.databases.length === 0 ? '' : <small className="text-muted"><img src={'https://rnacentral.org/static/img/logo/rnacentral-logo.png'} alt="RNAcentral logo" style={{width: "1%", verticalAlign: "text-top"}}/> Powered by <a className="custom-link mr-2" target='_blank' href='https://rnacentral.org/'>RNAcentral</a>|</small>}
+            <small className="text-muted ml-2">Local alignment using <a target='_blank' className="custom-link" href='https://www.ncbi.nlm.nih.gov/pubmed/23842809'>nhmmer</a></small>
+            { this.props.jobId ? <small className="text-muted float-right">Job id: {this.props.jobId}</small> : ''}
           </div>
         </div>
         <form onSubmit={(e) => this.onSubmit(e)}>
@@ -101,7 +101,7 @@ class SearchForm extends React.Component {
           </div>
           <div className="row">
             <div className="col-sm-9">
-              {this.props.examples ? <div id="examples"><ul>Examples: {this.showExamples()}</ul></div> : ""}
+              {this.props.examples ? <div id="examples"><ul className="text-muted">Examples: {this.showExamples()}</ul></div> : ""}
             </div>
           </div>
           {
