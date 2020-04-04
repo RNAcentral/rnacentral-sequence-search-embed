@@ -40,7 +40,9 @@ class Facets extends React.Component {
                   onClick={(e) => {
                     this.props.onToggleFacet(e, facet, facetValue)
                   }}/>
-                <label className="form-check-label mt-1" htmlFor={`checkbox-${facet.id}-${facetValue.value}`}>{facetValue.label}&nbsp;<small>({facetValue.count})</small></label>
+                <label className="form-check-label mt-1" htmlFor={`checkbox-${facet.id}-${facetValue.value}`}>
+                  <a className="custom-link">{facetValue.label}&nbsp;<small>({facetValue.count})</small></a>
+                </label>
               </div>
             </li>
           ))
