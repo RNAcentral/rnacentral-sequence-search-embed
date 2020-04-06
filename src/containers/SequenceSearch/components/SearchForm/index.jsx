@@ -42,11 +42,11 @@ class SearchForm extends React.Component {
           <div className="alert alert-success" style={{backgroundColor: exactMatchBackgroundColor}}>
             {
               database.length === 0 ? <div>
-                <FaCheckCircle style={{verticalAlign: "-10%"}} /> Identical match: <a className="custom-link" href={`https://rnacentral.org/rna/${exactMatchId}`} target='_blank'>{exactMatchDescription}</a>
+                <FaCheckCircle style={{verticalAlign: "-10%", marginLeft: "-5px"}} /> Identical match: <a className="custom-link" href={`https://rnacentral.org/rna/${exactMatchId}`} target='_blank'>{exactMatchDescription}</a>
                 {exactMatchOther && ' and '}
                 {exactMatchOther ? <a className="custom-link" href={`https://rnacentral.org/search?q=${exactMatchUrsId}*`} target='_blank'>{exactMatchOther}</a> : ''}
               </div> : <div>
-                <FaCheckCircle style={{verticalAlign: "-10%"}} /> Identical match: <a className="custom-link" href={exactMatchUrl} target='_blank'>{exactMatchDescription}</a>
+                <FaCheckCircle style={{verticalAlign: "-10%", marginLeft: "-5px"}} /> Identical match: <a className="custom-link" href={exactMatchUrl} target='_blank'>{exactMatchDescription}</a>
               </div>
             }
           </div>
