@@ -9,6 +9,8 @@ import Filter from 'containers/SequenceSearch/components/Results/components/Filt
 import * as actionCreators from 'actions/actions';
 import {store} from "app.jsx";
 
+import { MdHelpOutline } from 'react-icons/md'
+
 
 class Results extends React.Component {
   constructor(props) {
@@ -114,7 +116,7 @@ class Results extends React.Component {
           this.props.jobId && this.props.rfam && (
             <div className="row" key={`infernal-div`}>
               <div className="col-sm-12">
-                <span className="result-title" style={h3Style}>Rfam classification </span>{ this.props.infernalStatus === "loading" ? <div className="spinner-border spinner-border-sm  mb-1" role="status" /> : '' }
+                <span style={h3Style}>Rfam classification </span>{ this.props.infernalStatus === "loading" ? <div className="spinner-border spinner-border-sm  mb-1" role="status" /> : <span style={h3Style}><a className="text-muted" style={{fontSize: "65%", verticalAlign: "10%"}} href="https://rnacentral.org/help/sequence-search" target="_blank"><MdHelpOutline /></a></span> }
                 { this.props.infernalStatus === "loading" ? '' : this.props.infernalStatus === "success" && this.props.infernalEntries.length ? [
                   <div className="table-responsive mt-1">
                     <table className="table" key={`infernal-table`}>
@@ -172,7 +174,7 @@ class Results extends React.Component {
           this.props.jobId && (this.props.status === "loading" || this.props.status === "success" || this.props.status === "partial_success") && [
             <div className="row" key={`results-div`}>
               <div className="col-sm-12 mb-1">
-                <span className="result-title" style={h3Style}>{similarSeqText} </span>{ this.props.status === "loading" ? <div className="spinner-border spinner-border-sm mb-1" role="status" /> : <span className="result-title"><small>{ this.props.hitCount }</small></span> }
+                <span style={h3Style}>{similarSeqText} </span>{ this.props.status === "loading" ? <div className="spinner-border spinner-border-sm mb-1" role="status" /> : <span style={h3Style}><small className="text-muted" style={{fontSize: "65%"}}>{ this.props.hitCount }</small>{ this.props.hits > 1000 ? <small className="text-muted" style={{fontSize: "65%"}}> of { this.props.hits } <a className="text-muted" style={{verticalAlign: "10%"}} href="https://rnacentral.org/help/sequence-search" target="_blank"> <MdHelpOutline /></a></small> : ''}</span> }
               </div>
               {
                 this.props.entries && this.props.entries.length || this.props.filter ? <Filter databases={this.props.databases}/> : ""

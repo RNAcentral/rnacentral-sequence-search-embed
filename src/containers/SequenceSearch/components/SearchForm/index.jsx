@@ -4,6 +4,10 @@ import {connect} from 'react-redux';
 import * as actionCreators from 'actions/actions';
 import {store} from "app.jsx";
 
+import { FaSearch, FaCheckCircle } from 'react-icons/fa';
+import { FiTrash2 } from 'react-icons/fi';
+import { MdFileUpload } from 'react-icons/md';
+
 
 class SearchForm extends React.Component {
   showExamples(){
@@ -38,11 +42,11 @@ class SearchForm extends React.Component {
           <div className="alert alert-success" style={{backgroundColor: exactMatchBackgroundColor}}>
             {
               database.length === 0 ? <div>
-                Identical match: <a className="custom-link" href={`https://rnacentral.org/rna/${exactMatchId}`} target='_blank'>{exactMatchDescription}</a>
+                <FaCheckCircle style={{verticalAlign: "-10%"}} /> Identical match: <a className="custom-link" href={`https://rnacentral.org/rna/${exactMatchId}`} target='_blank'>{exactMatchDescription}</a>
                 {exactMatchOther && ' and '}
                 {exactMatchOther ? <a className="custom-link" href={`https://rnacentral.org/search?q=${exactMatchUrsId}*`} target='_blank'>{exactMatchOther}</a> : ''}
               </div> : <div>
-                Identical match: <a className="custom-link" href={exactMatchUrl} target='_blank'>{exactMatchDescription}</a>
+                <FaCheckCircle style={{verticalAlign: "-10%"}} /> Identical match: <a className="custom-link" href={exactMatchUrl} target='_blank'>{exactMatchDescription}</a>
               </div>
             }
           </div>
@@ -90,10 +94,10 @@ class SearchForm extends React.Component {
               <textarea className="form-control" id="sequence" name="sequence" rows="7" value={this.props.sequence} onChange={(e) => this.props.onSequenceTextareaChange(e)} placeholder="Enter RNA/DNA sequence (with an optional description in FASTA format) or job id" />
             </div>
             <div className="col-sm-3">
-              <button className="btn btn-primary mb-2" style={{background: searchButtonColor}} type="submit" disabled={!this.props.sequence ? "disabled" : ""}>Search</button><br />
-              <button className="btn btn-secondary mb-2" style={{background: clearButtonColor}} type="submit" onClick={ this.props.onClearSequence } disabled={!this.props.sequence ? "disabled" : ""}>Clear</button><br />
+              <button className="btn btn-primary mb-2" style={{background: searchButtonColor}} type="submit" disabled={!this.props.sequence ? "disabled" : ""}><FaSearch style={{verticalAlign: 'text-top'}}/> Search</button><br />
+              <button className="btn btn-secondary mb-2" style={{background: clearButtonColor}} type="submit" onClick={ this.props.onClearSequence } disabled={!this.props.sequence ? "disabled" : ""}><FiTrash2 style={{verticalAlign: 'text-top'}}/> Clear</button><br />
               <div style={{display: hideUploadButton}}>
-                <label htmlFor="file-upload" className="custom-file-upload" style={{background: uploadButtonColor}}>Upload file</label>
+                <label htmlFor="file-upload" className="custom-file-upload" style={{background: uploadButtonColor}}><MdFileUpload /> Upload file</label>
                 <input id="file-upload" type="file" accept=".fasta" onClick={ this.props.onClearSequence } onChange={this.props.onFileUpload} />
                 <div className="row"><small>Up to 50 queries</small></div>
               </div>

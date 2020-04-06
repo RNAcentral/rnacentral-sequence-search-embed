@@ -4,6 +4,8 @@ import {connect} from "react-redux";
 import * as actionCreators from 'actions/actions';
 import images from 'images/expert-db-logos/index'
 
+import { FaCheckCircle } from 'react-icons/fa';
+
 
 class Hit extends React.Component {
   render() {
@@ -13,7 +15,7 @@ class Hit extends React.Component {
     });
     const showExpertDb = images.filter(({src, title}) => newExpertDb.includes(title));
     const database = this.props.databases;
-    const exactMatchUrsId = this.props.exactMatchUrsId.indexOf(this.props.entry.rnacentral_id) > -1 ? <i className="icon icon-functional" data-icon="/" style={{fontSize: "75%", color: "#3c763d"}}> </i> : '';
+    const exactMatchUrsId = this.props.exactMatchUrsId.indexOf(this.props.entry.rnacentral_id) > -1 ? <FaCheckCircle style={{color: '#3c763d', verticalAlign: '-1px'}}/> : '';
     let seqTitleStyle = {
       color: this.props.customStyle && this.props.customStyle.seqTitleColor ? this.props.customStyle.seqTitleColor : "",
       fontSize: this.props.customStyle && this.props.customStyle.seqTitleSize ? this.props.customStyle.seqTitleSize : "20px",
@@ -24,8 +26,8 @@ class Hit extends React.Component {
     };
     return (
       <li>
-        <a className="custom-link" style={seqTitleStyle} href={database.length !== 0 && this.props.entry.fields && this.props.entry.fields.url && this.props.entry.fields.url.length ? this.props.entry.fields.url[0] : `https://rnacentral.org/rna/${this.props.entry.rnacentral_id}`} target='_blank'>
-          {exactMatchUrsId} {this.props.entry.description}
+        {exactMatchUrsId} <a className="custom-link" style={seqTitleStyle} href={database.length !== 0 && this.props.entry.fields && this.props.entry.fields.url && this.props.entry.fields.url.length ? this.props.entry.fields.url[0] : `https://rnacentral.org/rna/${this.props.entry.rnacentral_id}`} target='_blank'>
+          {this.props.entry.description}
         </a>
         {database.length === 0 && <div className="text-muted mt-2" style={seqInfoStyle}>{ this.props.entry.rnacentral_id } {showExpertDb.map((db, index) => <img key={index} className="ml-2" src={db.src} style={{height: "16px"}} />)}</div>}
         {database.length === 0 ? '' : <div className="text-muted mt-2" style={seqInfoStyle}>{this.props.entry.target_length} nucleotides</div>}
