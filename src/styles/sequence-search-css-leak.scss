@@ -1,3 +1,22 @@
+/* CSS leak */
+
+body {
+  font-size: 1.5rem !important;
+}
+
+.form-control {
+  font-size: 1.5rem !important;
+}
+
+.form-select {
+  font-size: 1.5rem !important;
+}
+
+.btn {
+  font-size: 1.5rem !important;
+  height: 38px;
+}
+
 /* General */
 
 // check https://github.com/styled-components/styled-components to customize the link color
@@ -5,10 +24,15 @@ a {
   color: #337ab7 !important;
 }
 
+.btn-icon {
+  vertical-align: 1px;
+}
+
 .custom-link {
   text-decoration: none !important;
   cursor: pointer;
 }
+
 .custom-link:hover {
   text-decoration: underline !important
 }
@@ -50,7 +74,7 @@ input[type="file"] {
   font-weight: normal;
   padding: 0.125rem 0.3125rem 0.0625rem;
   overflow-x: auto;
-  font-size: .95rem;
+  //font-size: .95rem;
 }
 
 .alignment {
