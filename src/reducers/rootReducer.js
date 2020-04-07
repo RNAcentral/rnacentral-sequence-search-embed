@@ -158,6 +158,9 @@ const rootReducer = function (state = initialState, action) {
           return newState;
       }
 
+    case actions.SUBMIT_URS:
+      return Object.assign({}, state, {status: "error", submissionError: action.response.statusText});
+
     case actions.UPDATE_JOB_ID:
       return Object.assign({}, state, {jobId: action.data, rnacentral: false});
 
@@ -232,6 +235,7 @@ const rootReducer = function (state = initialState, action) {
         infernalAlignmentsCollapsed: true,
         fileUpload: false,
         rnacentral: false,
+        submissionError: null,
       });
 
     case actions.EXAMPLE_SEQUENCE:
@@ -256,6 +260,7 @@ const rootReducer = function (state = initialState, action) {
         infernalAlignmentsCollapsed: true,
         fileUpload: false,
         rnacentral: false,
+        submissionError: null,
       });
 
     case actions.CLEAR_SEQUENCE:
@@ -282,6 +287,7 @@ const rootReducer = function (state = initialState, action) {
         fileUpload: false,
         exactMatch: null,
         rnacentral: false,
+        submissionError: null,
       });
 
     case actions.FILE_UPLOAD:

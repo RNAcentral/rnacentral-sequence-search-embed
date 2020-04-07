@@ -105,6 +105,21 @@ export function onMultipleSubmit(sequence, databases) {
   }
 }
 
+export function onSubmitUrs(urs, database) {
+  return function(dispatch) {
+    fetch(routes.rnacentralUrs(urs))
+    .then(function(response) {
+      if (response.ok) {
+        return response.json()
+      } else {
+        throw response;
+      }
+    })
+    .then(data => {dispatch(onSubmit(data.sequence, database))})
+    .catch(error => {dispatch({type: types.SUBMIT_URS, response: error})});
+  }
+}
+
 export function updateJobId(jobId) {
   return function(dispatch) {
     dispatch({type: types.UPDATE_JOB_ID, data: jobId});

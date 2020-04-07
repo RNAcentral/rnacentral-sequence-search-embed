@@ -65,6 +65,8 @@ class SearchForm extends React.Component {
       store.dispatch(actionCreators.onMultipleSubmit(getSequence, this.props.databases));
     } else if (state.sequence && state.sequence.match("^([0-9a-fA-F]{8})-(([0-9a-fA-F]{4}\\-){3})([0-9a-fA-F]{12})$")) {
       store.dispatch(actionCreators.updateJobId(state.sequence));
+    } else if (state.sequence && state.sequence.match("^URS[A-Fa-f0-9]{10}$")) {
+      store.dispatch(actionCreators.onSubmitUrs(state.sequence, this.props.databases));
     } else if (state.sequence && (state.sequence.length < 10 || state.sequence.length > 7000)) {
       store.dispatch(actionCreators.invalidSequence());
     } else if (state.sequence) {
@@ -113,7 +115,6 @@ class SearchForm extends React.Component {
               <div className="row">
                 <div className="col-sm-9">
                   <div className="alert alert-danger">
-                    <h3>Form submission failed</h3>
                     { this.props.submissionError }
                   </div>
                 </div>
@@ -125,7 +126,7 @@ class SearchForm extends React.Component {
               <div className="row">
                 <div className="col-sm-9">
                   <div className="alert alert-warning">
-                    {this.props.sequence.length < 10 ? <p>The sequence cannot be shorter than 10 nucleotides</p> : <p>The sequence cannot be longer than 7000 nucleotides</p>}
+                    {this.props.sequence.length < 10 ? "The sequence cannot be shorter than 10 nucleotides" : "The sequence cannot be longer than 7000 nucleotides"}
                   </div>
                 </div>
               </div>
@@ -143,6 +144,7 @@ class SearchForm extends React.Component {
 const mapStateToProps = (state) => ({
   status: state.status,
   infernalStatus: state.infernalStatus,
+  submissionError: state.submissionError,
   sequence: state.sequence,
   hits: state.hits,
   entries: state.entries,

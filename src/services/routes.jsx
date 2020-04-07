@@ -13,4 +13,5 @@ module.exports = {
   infernalJobStatus:   (jobId) => `${server}/api/infernal-status/${jobId}`,
   infernalJobResult:   (resultId) => `${server}/api/infernal-result/${resultId}`,
   searchEndpoint:      (query) => `https://${ebiDevOrProd}.ebi.ac.uk/ebisearch/ws/rest/rnacentral?query=${query}&fields=description,url&format=json&sort=boost:descending`,
+  rnacentralUrs:       (urs) => `http://test.rnacentral.org/api/v1/rna/${urs}`,
 };
