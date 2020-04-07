@@ -118,6 +118,7 @@ Parameters that you can use to customise some elements of this embeddable compon
 
 parameter                   | description                                                                       |
 ----------------------------|-----------------------------------------------------------------------------------|
+fixCss                      | fix the CSS. Use *"fixCss": "true"* if the button sizes are different             |
 h3Color                     | change the color of the `Similar sequences` and `Rfam classification` text        |
 h3Size                      | change the size of the `Similar sequences` and `Rfam classification` text         |
 exactMatchBackgroundColor   | change the background color of the "Exact match" area                             |
@@ -132,7 +133,7 @@ seqInfoSize                 | used in results, it changes the size of the text `
 searchButtonColor           | change the color of the `Search` button                                           |
 clearButtonColor            | change the color of the `Clear` button                                            |
 uploadButtonColor           | change the color of the `Upload file` button                                      |
-hideUploadButton            | hide the `Upload file` button. Use "hideUploadButton": "true" to hide the button  |
+hideUploadButton            | hide the `Upload file` button. Use *"hideUploadButton": "true"* to hide the button|
 loadMoreButtonColor         | change the color of the `Load more` button                                        |
 
 ## Developer details

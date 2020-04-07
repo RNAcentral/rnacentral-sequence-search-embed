@@ -22,19 +22,21 @@ class Filter extends Component {
   }
 
   render() {
+    const fixCss = this.props.customStyle && this.props.customStyle.fixCss && this.props.customStyle.fixCss === "true" ? "1.5rem" : "";
+
     return (
       <div className="row" key={`filter-div`}>
         <div className="col-sm-4">
           <form onSubmit={(e) => this.onFilterSubmit(e)} onReset={(e) => this.onFilterReset(e)}>
             <div className="input-group">
-              <input className="form-control" type="text" value={this.props.filter} onChange={(e) => this.props.onFilterChange(e)} placeholder="Text search within results"/>
-              <button type="submit" className={`btn btn-outline-secondary ${!this.props.filter && "disabled"}`}>Filter</button>
-              <button type="reset" className={`btn btn-outline-secondary ${!this.props.filter && "disabled"}`}>Clear</button>
+              <input className="form-control" style={{fontSize: fixCss}} type="text" value={this.props.filter} onChange={(e) => this.props.onFilterChange(e)} placeholder="Text search within results"/>
+              <button type="submit" className={`btn btn-outline-secondary ${!this.props.filter && "disabled"}`} style={{fontSize: fixCss}}>Filter</button>
+              <button type="reset" className={`btn btn-outline-secondary ${!this.props.filter && "disabled"}`} style={{fontSize: fixCss}}>Clear</button>
             </div>
           </form>
         </div>
         <div className="col-sm-4">
-          <select className="form-select" value={this.props.sortingOrder} onChange={this.props.onSort}>
+          <select className="form-select" style={{fontSize: fixCss}} value={this.props.sortingOrder} onChange={this.props.onSort}>
             <option value="e_value">Sort by E-value (min to max) - default</option>
             <option value="-e_value">Sort by E-value (max to min)</option>
             <option value="identity">Sort by Identity (max to min)</option>
@@ -47,8 +49,8 @@ class Filter extends Component {
         </div>
         <div className="col-sm-4">
           <div className="input-group">
-            <button className="btn btn-outline-secondary" onClick={this.props.onToggleAlignmentsCollapsed}>{this.props.alignmentsCollapsed ? 'Show alignments' : 'Hide alignments'}</button>
-            <button className="btn btn-outline-secondary" onClick={this.props.onToggleDetailsCollapsed}>{this.props.detailsCollapsed ? 'Show details' : 'Hide details'}</button>
+            <button className="btn btn-outline-secondary" style={{fontSize: fixCss}} onClick={this.props.onToggleAlignmentsCollapsed}>{this.props.alignmentsCollapsed ? 'Show alignments' : 'Hide alignments'}</button>
+            <button className="btn btn-outline-secondary" style={{fontSize: fixCss}} onClick={this.props.onToggleDetailsCollapsed}>{this.props.detailsCollapsed ? 'Show details' : 'Hide details'}</button>
           </div>
         </div>
       </div>

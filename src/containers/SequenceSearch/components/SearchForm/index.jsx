@@ -81,6 +81,8 @@ class SearchForm extends React.Component {
     const clearButtonColor = this.props.customStyle && this.props.customStyle.clearButtonColor ? this.props.customStyle.clearButtonColor : "#6c757d";
     const uploadButtonColor = this.props.customStyle && this.props.customStyle.uploadButtonColor ? this.props.customStyle.uploadButtonColor : "";
     const hideUploadButton = this.props.customStyle && this.props.customStyle.hideUploadButton && this.props.customStyle.hideUploadButton === "true" ? "none" : "initial";
+    const fixCss = this.props.customStyle && this.props.customStyle.fixCss && this.props.customStyle.fixCss === "true" ? "1.5rem" : "";
+    const fixCssBtn = this.props.customStyle && this.props.customStyle.fixCss && this.props.customStyle.fixCss === "true" ? "38px" : "";
     return (
       <div className="rna">
         <div className="row">
@@ -93,11 +95,11 @@ class SearchForm extends React.Component {
         <form onSubmit={(e) => this.onSubmit(e)}>
           <div className="row mt-1">
             <div className="col-sm-9">
-              <textarea className="form-control" id="sequence" name="sequence" rows="7" value={this.props.sequence} onChange={(e) => this.props.onSequenceTextareaChange(e)} placeholder="Enter RNA/DNA sequence (with an optional description in FASTA format) or job id" />
+              <textarea style={{fontSize: fixCss}} className="form-control" id="sequence" name="sequence" rows="7" value={this.props.sequence} onChange={(e) => this.props.onSequenceTextareaChange(e)} placeholder="Enter RNA/DNA sequence (with an optional description in FASTA format) or job id" />
             </div>
             <div className="col-sm-3">
-              <button className="btn btn-primary mb-2" style={{background: searchButtonColor}} type="submit" disabled={!this.props.sequence ? "disabled" : ""}><span className="btn-icon"><FaSearch /></span> Search</button><br />
-              <button className="btn btn-secondary mb-2" style={{background: clearButtonColor}} type="submit" onClick={ this.props.onClearSequence } disabled={!this.props.sequence ? "disabled" : ""}><span className="btn-icon"><FiTrash2 /></span> Clear</button><br />
+              <button className="btn btn-primary mb-2" style={{background: searchButtonColor, fontSize: fixCss, height: fixCssBtn}} type="submit" disabled={!this.props.sequence ? "disabled" : ""}><span className="btn-icon"><FaSearch /></span> Search</button><br />
+              <button className="btn btn-secondary mb-2" style={{background: clearButtonColor, fontSize: fixCss, height: fixCssBtn}} type="submit" onClick={ this.props.onClearSequence } disabled={!this.props.sequence ? "disabled" : ""}><span className="btn-icon"><FiTrash2 /></span> Clear</button><br />
               <div style={{display: hideUploadButton}}>
                 <label htmlFor="file-upload" className="custom-file-upload" style={{background: uploadButtonColor}}><MdFileUpload /> Upload file</label>
                 <input id="file-upload" type="file" accept=".fasta" onClick={ this.props.onClearSequence } onChange={this.props.onFileUpload} />

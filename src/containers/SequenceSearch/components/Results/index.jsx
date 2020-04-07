@@ -44,6 +44,8 @@ class Results extends React.Component {
     const loadMoreButtonColor = this.props.customStyle && this.props.customStyle.loadMoreButtonColor ? this.props.customStyle.loadMoreButtonColor : "";
     const similarSeqText = this.props.customStyle && this.props.customStyle.similarSeqText ? this.props.customStyle.similarSeqText : "Similar sequences";
     const jobIdBackgroundColor = this.props.customStyle && this.props.customStyle.jobIdBackgroundColor ? this.props.customStyle.jobIdBackgroundColor : "";
+    const fixCss = this.props.customStyle && this.props.customStyle.fixCss && this.props.customStyle.fixCss === "true" ? "1.5rem" : "";
+    const fixCssBtn = this.props.customStyle && this.props.customStyle.fixCss && this.props.customStyle.fixCss === "true" ? "38px" : "";
 
     // exact match URS ids
     const exactMatch = this.props.exactMatch;
@@ -68,7 +70,7 @@ class Results extends React.Component {
                     </CSVLink>
                     <span> for future reference.</span>
                   </label>
-                  <select className="form-select mb-3" id="selectJobId" onChange={this.onSeeResults}>
+                  <select className="form-select mb-3" style={{fontSize: fixCss}} id="selectJobId" onChange={this.onSeeResults}>
                     <option key={'no-job-selected'}>Select an Id to check the results</option>
                     {this.props.jobList.map((job) => <option key={job}>{job}</option>)}
                   </select>
@@ -177,7 +179,7 @@ class Results extends React.Component {
                 <span style={h3Style}>{similarSeqText} </span>{ this.props.status === "loading" ? <div className="spinner-border spinner-border-sm mb-1" role="status" /> : <span style={h3Style}><small className="text-muted" style={{fontSize: "65%"}}>{ this.props.hitCount }</small>{ this.props.hits > 1000 ? <small className="text-muted" style={{fontSize: "65%"}}> of { this.props.hits } <a className="text-muted" style={{verticalAlign: "10%"}} href="https://rnacentral.org/help/sequence-search" target="_blank"> <MdHelpOutline /></a></small> : ''}</span> }
               </div>
               {
-                this.props.entries && this.props.entries.length || this.props.filter ? <Filter databases={this.props.databases}/> : ""
+                this.props.entries && this.props.entries.length || this.props.filter ? <Filter databases={this.props.databases} customStyle={ this.props.customStyle }/> : ""
               }
               {
                 this.props.entries && this.props.entries.length ? <div className="row mt-3">
@@ -197,7 +199,7 @@ class Results extends React.Component {
                       { this.props.entries.map((entry, index) => (
                       <ul className="list-unstyled" key={`${entry}_${index}`}><Hit entry={entry} customStyle={this.props.customStyle} databases={this.props.databases} exactMatchUrsId={exactMatchUrsId}/></ul>
                       )) }
-                      {this.props.status === "loading" ? <div className="spinner-border" role="status" /> : (this.props.status === "success" || this.props.status === "partial_success") && (this.props.entries.length < this.props.hitCount) && (<button className="btn btn-secondary" onClick={this.props.onLoadMore} style={{background: loadMoreButtonColor}}>Load more</button>)}
+                      {this.props.status === "loading" ? <div className="spinner-border" role="status" /> : (this.props.status === "success" || this.props.status === "partial_success") && (this.props.entries.length < this.props.hitCount) && (<button className="btn btn-secondary" onClick={this.props.onLoadMore} style={{background: loadMoreButtonColor, fontSize: fixCss, height: fixCssBtn}}>Load more</button>)}
                     </section>
                   </div>
                 </div> : this.props.status === "loading" ? '' : this.props.filter ? <div  className="mt-3">No results. Try a different search or press the Clear button to view all results.</div> : this.props.rnacentral ? <div className="mt-2">No results at <img src={'https://rnacentral.org/static/img/logo/rnacentral-logo.png'} alt="RNAcentral logo" style={{width: "1%", verticalAlign: "sub"}}/> RNAcentral.</div> : <div className="mt-2">The query sequence did not match any {this.props.databases} sequences. You can <a className="custom-link" href="#" onClick={this.submitToRnacentral}>try to search against RNAcentral</a>.</div>
