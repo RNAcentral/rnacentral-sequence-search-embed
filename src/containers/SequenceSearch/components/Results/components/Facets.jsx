@@ -23,6 +23,22 @@ class Facets extends React.Component {
     }
   }
 
+  renameFacetValue(facet, facetValue){
+    if (facet==='qc_warning_found'){
+      if (facetValue.label==='False') {facetValue.label = 'No warnings'}
+      else if (facetValue.label==='True') {facetValue.label = 'Warnings found'}
+    }
+    if (facet==='has_go_annotations') {
+      if (facetValue.label==='True') { facetValue.label = 'Found'; }
+      else if (facetValue.label==='False') { facetValue.label = 'Not found'; }
+    }
+    if (facet==='has_conserved_structure') {
+      if (facetValue.label === 'True') { facetValue.label = 'Found'; }
+      else if (facetValue.label === 'False') { facetValue.label = 'Not found'; }
+    }
+    return <a className="custom-link">{facetValue.label}&nbsp;<small>({facetValue.count})</small></a>
+  }
+
   renderFacet(facet) {
     let facetStyle = {
       color: this.props.customStyle && this.props.customStyle.facetColor ? this.props.customStyle.facetColor : "#007c82",
@@ -41,7 +57,7 @@ class Facets extends React.Component {
                     this.props.onToggleFacet(e, facet, facetValue)
                   }}/>
                 <label className="form-check-label mt-1" htmlFor={`checkbox-${facet.id}-${facetValue.value}`}>
-                  <a className="custom-link">{facetValue.label}&nbsp;<small>({facetValue.count})</small></a>
+                  { this.renameFacetValue(facet.id, facetValue) }
                 </label>
               </div>
             </li>
