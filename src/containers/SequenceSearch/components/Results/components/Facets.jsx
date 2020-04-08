@@ -47,7 +47,6 @@ class Facets extends React.Component {
             </li>
           ))
         }
-        <br/>
       </ul>
     ];
   }
