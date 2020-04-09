@@ -115,8 +115,15 @@ export function onSubmitUrs(urs, database) {
         throw response;
       }
     })
-    .then(data => {dispatch(onSubmit(data.sequence, database))})
-    .catch(error => {dispatch({type: types.SUBMIT_URS, response: error})});
+    .then(data => {
+      if(data.sequence.length < 10 || data.sequence.length > 7000) {
+        dispatch({type: types.SUBMIT_URS, status: 'invalid', data: data.sequence});
+        dispatch(invalidSequence())
+      } else {
+        dispatch(onSubmit(data.sequence, database))
+      }
+    })
+    .catch(error => {dispatch({type: types.SUBMIT_URS, status: 'error', response: error})});
   }
 }
 

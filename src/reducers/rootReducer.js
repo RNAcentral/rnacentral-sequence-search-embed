@@ -159,7 +159,14 @@ const rootReducer = function (state = initialState, action) {
       }
 
     case actions.SUBMIT_URS:
-      return Object.assign({}, state, {status: "error", submissionError: action.response.statusText});
+      switch (action.status) {
+        case 'invalid':
+          return Object.assign({}, state, {sequence: action.data, submissionError: ""});
+        case 'error':
+          return Object.assign({}, state, {submissionError: action.response.statusText});
+        default:
+          return newState;
+      }
 
     case actions.UPDATE_JOB_ID:
       return Object.assign({}, state, {jobId: action.data, rnacentral: false});
