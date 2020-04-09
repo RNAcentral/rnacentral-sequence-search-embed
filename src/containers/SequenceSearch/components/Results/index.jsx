@@ -120,7 +120,7 @@ class Results extends React.Component {
               <div className="col-sm-12">
                 <span style={h3Style}>Rfam classification </span>{ this.props.infernalStatus === "loading" ? <div className="spinner-border spinner-border-sm  mb-1" role="status" /> : <span style={h3Style}><a className="text-muted" style={{fontSize: "65%", verticalAlign: "10%"}} href="https://rnacentral.org/help/sequence-search" target="_blank"><MdHelpOutline /></a></span> }
                 { this.props.infernalStatus === "loading" ? '' : this.props.infernalStatus === "success" && this.props.infernalEntries.length ? [
-                  <div className="table-responsive mt-1">
+                  <div className="table-responsive mt-3">
                     <table className="table" key={`infernal-table`}>
                       <thead>
                         <tr>
@@ -167,7 +167,7 @@ class Results extends React.Component {
                       </tbody>
                     </table>
                   </div>
-                ] : <p>The query sequence did not match any <img src={'https://rnacentral.org/static/img/expert-db-logos/rfam.png'} alt="Rfam logo" style={{width: "6%", verticalAlign: "sub"}}/> families.</p>}
+                ] : <p className="mt-3">The query sequence did not match any <img src={'https://rnacentral.org/static/img/expert-db-logos/rfam.png'} alt="Rfam logo" style={{width: "4%", verticalAlign: "sub"}}/> families.</p>}
               </div>
             </div>
           )
@@ -202,7 +202,7 @@ class Results extends React.Component {
                       {this.props.status === "loading" ? <div className="spinner-border" role="status" /> : (this.props.status === "success" || this.props.status === "partial_success") && (this.props.entries.length < this.props.hitCount) && (<button className="btn btn-secondary" onClick={this.props.onLoadMore} style={{background: loadMoreButtonColor, fontSize: fixCss, height: fixCssBtn}}>Load more</button>)}
                     </section>
                   </div>
-                </div> : this.props.status === "loading" ? '' : this.props.filter ? <div  className="mt-3">No results. Try a different search or press the Clear button to view all results.</div> : this.props.rnacentral ? <div className="mt-2">No results at <img src={'https://rnacentral.org/static/img/logo/rnacentral-logo.png'} alt="RNAcentral logo" style={{width: "1%", verticalAlign: "sub"}}/> RNAcentral.</div> : <div className="mt-2">The query sequence did not match any {this.props.databases} sequences. You can <a className="custom-link" href="#" onClick={this.submitToRnacentral}>try to search against RNAcentral</a>.</div>
+                </div> : this.props.status === "loading" ? '' : this.props.filter ? <div  className="mt-3">No results. Try a different search or press the Clear button to view all results.</div> : this.props.rnacentral ? <div className="mt-1">No results at <img src={'https://rnacentral.org/static/img/logo/rnacentral-logo.png'} alt="RNAcentral logo" style={{width: "1%", verticalAlign: "sub"}}/> RNAcentral.</div> : <div className="mt-1">The query sequence did not match any {this.props.databases} sequences. You can <a className="custom-link" href="#" onClick={this.submitToRnacentral}>try to search against RNAcentral</a>.</div>
               }
             </div>
           ]
