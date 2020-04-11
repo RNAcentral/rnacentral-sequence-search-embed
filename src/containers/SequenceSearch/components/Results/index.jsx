@@ -179,30 +179,40 @@ class Results extends React.Component {
                 <span style={h3Style}>{similarSeqText} </span>{ this.props.status === "loading" ? <div className="spinner-border spinner-border-sm mb-1" role="status" /> : <span style={h3Style}><small className="text-muted" style={{fontSize: "65%"}}>{ this.props.hitCount }</small>{ this.props.hits > 1000 ? <small className="text-muted" style={{fontSize: "65%"}}> of { this.props.hits } <a className="text-muted" style={{verticalAlign: "10%"}} href="https://rnacentral.org/help/sequence-search" target="_blank"> <MdHelpOutline /></a></small> : ''}</span> }
               </div>
               {
-                this.props.entries && this.props.entries.length || this.props.filter ? <Filter databases={this.props.databases} customStyle={ this.props.customStyle }/> : ""
-              }
-              {
-                this.props.entries && this.props.entries.length ? <div className="row mt-3">
-                  <div className="col-sm-3">
-                    <Facets
-                       facets={ this.props.facets }
-                       selectedFacets={ this.props.selectedFacets }
-                       toggleFacet={ this.toggleFacet }
-                       ordering={ this.props.ordering }
-                       textSearchError={ this.props.textSearchError }
-                       hideFacet={ this.props.hideFacet}
-                       customStyle={ this.props.customStyle }
-                    />
+                this.props.searchInProgress && this.props.jobList.length === 0 ? <div className="col-sm-12 mt-3">
+                  <div className="progress">
+                    <div className="progress-bar" role="progressbar" style={{width: `${this.props.searchInProgress}%`}} aria-valuenow={this.props.searchInProgress} aria-valuemin="0" aria-valuemax="100">
+                      Searching...
+                    </div>
                   </div>
-                  <div className="col-sm-9">
-                    <section>
-                      { this.props.entries.map((entry, index) => (
-                      <ul className="list-unstyled" key={`${entry}_${index}`}><Hit entry={entry} customStyle={this.props.customStyle} databases={this.props.databases} exactMatchUrsId={exactMatchUrsId}/></ul>
-                      )) }
-                      {this.props.status === "loading" ? <div className="spinner-border" role="status" /> : (this.props.status === "success" || this.props.status === "partial_success") && (this.props.entries.length < this.props.hitCount) && (<button className="btn btn-secondary" onClick={this.props.onLoadMore} style={{background: loadMoreButtonColor, fontSize: fixCss, height: fixCssBtn}}>Load more</button>)}
-                    </section>
-                  </div>
-                </div> : this.props.status === "loading" ? '' : this.props.filter ? <div  className="mt-3">No results. Try a different search or press the Clear button to view all results.</div> : this.props.rnacentral ? <div className="mt-1">No results at <img src={'https://rnacentral.org/static/img/logo/rnacentral-logo.png'} alt="RNAcentral logo" style={{width: "1%", verticalAlign: "sub"}}/> RNAcentral.</div> : <div className="mt-1">The query sequence did not match any {this.props.databases} sequences. You can <a className="custom-link" href="#" onClick={this.submitToRnacentral}>try to search against RNAcentral</a>.</div>
+                </div> : <div>
+                  {
+                    this.props.entries && this.props.entries.length || this.props.filter ? <Filter databases={this.props.databases} customStyle={ this.props.customStyle }/> : ""
+                  }
+                  {
+                    this.props.entries && this.props.entries.length ? <div className="row mt-3">
+                      <div className="col-sm-3">
+                        <Facets
+                           facets={ this.props.facets }
+                           selectedFacets={ this.props.selectedFacets }
+                           toggleFacet={ this.toggleFacet }
+                           ordering={ this.props.ordering }
+                           textSearchError={ this.props.textSearchError }
+                           hideFacet={ this.props.hideFacet}
+                           customStyle={ this.props.customStyle }
+                        />
+                      </div>
+                      <div className="col-sm-9">
+                        <section>
+                          { this.props.entries.map((entry, index) => (
+                          <ul className="list-unstyled" key={`${entry}_${index}`}><Hit entry={entry} customStyle={this.props.customStyle} databases={this.props.databases} exactMatchUrsId={exactMatchUrsId}/></ul>
+                          )) }
+                          {this.props.status === "loading" ? <div className="spinner-border" role="status" /> : (this.props.status === "success" || this.props.status === "partial_success") && (this.props.entries.length < this.props.hitCount) && (<button className="btn btn-secondary" onClick={this.props.onLoadMore} style={{background: loadMoreButtonColor, fontSize: fixCss, height: fixCssBtn}}>Load more</button>)}
+                        </section>
+                      </div>
+                    </div> : this.props.status === "loading" ? '' : this.props.filter ? <div  className="mt-3">No results. Try a different search or press the Clear button to view all results.</div> : this.props.rnacentral ? <div className="mt-1">No results at <img src={'https://rnacentral.org/static/img/logo/rnacentral-logo.png'} alt="RNAcentral logo" style={{width: "1%", verticalAlign: "sub"}}/> RNAcentral.</div> : <div className="mt-1">The query sequence did not match any {this.props.databases} sequences. You can <a className="custom-link" href="#" onClick={this.submitToRnacentral}>try to search against RNAcentral</a>.</div>
+                  }
+                </div>
               }
             </div>
           ]
@@ -233,6 +243,7 @@ function mapStateToProps(state) {
     infernalAlignmentsCollapsed: state.infernalAlignmentsCollapsed,
     exactMatch: state.exactMatch,
     rnacentral: state.rnacentral,
+    searchInProgress: state.searchInProgress,
   };
 }
 

@@ -22,7 +22,8 @@ const rootReducer = function (state = initialState, action) {
           size: 20,
           ordering: 'e_value',
           selectedFacets: {},
-          textSearchError: action.data.textSearchError
+          textSearchError: action.data.textSearchError,
+          searchInProgress: ""
         });
 
       } else if (action.status === 'error') {
@@ -206,6 +207,9 @@ const rootReducer = function (state = initialState, action) {
       } else {
         return Object.assign({}, state, {status: action.status})
       }
+
+    case actions.SEARCH_PROGRESS:
+      return Object.assign({}, state, {searchInProgress: action.data});
 
     case actions.SET_STATUS_TIMEOUT:
       return Object.assign({}, state, {statusTimeout: action.statusTimeout});

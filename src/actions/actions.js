@@ -166,7 +166,15 @@ export function fetchStatus(jobId) {
       }
     })
     .then((data) => {
-      if (data.status === 'started' || data.status === 'pending' || data.status === 'running') {
+      if (data.status==='started' || data.status==='pending' || data.status==='running') {
+        // Given jobChunks from jobStatus route, estimates the search progress.
+        let finishedChunk = 0;
+        data.chunks.map(item => {
+          if (item.status==='success' || item.status==='timeout' || item.status==='error'){
+            finishedChunk = finishedChunk + 1
+          }
+        });
+        dispatch({type: types.SEARCH_PROGRESS, data: finishedChunk * 100 / data.chunks.length });
         let statusTimeout = setTimeout(() => store.dispatch(fetchStatus(jobId)), 2000);
         dispatch({type: types.SET_STATUS_TIMEOUT, timeout: statusTimeout});
       } else if (data.status === 'success' || data.status === 'partial_success') {
