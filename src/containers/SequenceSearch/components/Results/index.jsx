@@ -194,7 +194,7 @@ class Results extends React.Component {
               <div className="col-sm-12 mt-3 mb-3">
                 <span style={h3Style}>{similarSeqText} </span>{ this.props.status === "loading" ? <div className="spinner-border spinner-border-sm mb-1" role="status" /> : <span style={h3Style}><small className="text-muted" style={{fontSize: "65%"}}>{ this.props.hitCount }</small>{ this.props.hits > 1000 ? <small className="text-muted" style={{fontSize: "65%"}}> of { this.props.hits } <a className="text-muted" style={{verticalAlign: "10%"}} href="https://rnacentral.org/help/sequence-search" target="_blank"> <MdHelpOutline /></a></small> : ''}</span> }
               </div>
-              { this.showSearchInProgress() }
+              { this.props.databases.length === 0 ? this.showSearchInProgress() : '' }
               <div>
                 {
                   this.props.entries && this.props.entries.length || this.props.filter ? <Filter databases={this.props.databases} customStyle={ this.props.customStyle }/> : ""
