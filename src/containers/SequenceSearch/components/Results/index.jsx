@@ -132,12 +132,12 @@ class Results extends React.Component {
         }
         {
           this.props.jobId && this.props.rfam && (
-            <div className="row" key={`infernal-div`}>
+            <div className="row">
               <div className="col-sm-12">
                 <span style={h3Style}>Rfam classification </span>{ this.props.infernalStatus === "loading" ? <div className="spinner-border spinner-border-sm  mb-1" role="status" /> : <span style={h3Style}><a className="text-muted" style={{fontSize: "65%", verticalAlign: "10%"}} href="https://rnacentral.org/help/sequence-search" target="_blank"><MdHelpOutline /></a></span> }
                 { this.props.infernalStatus === "loading" ? '' : this.props.infernalStatus === "success" && this.props.infernalEntries.length ? [
-                  <div className="table-responsive mt-3">
-                    <table className="table" key={`infernal-table`}>
+                  <div className="table-responsive mt-3" key={`infernal-div`}>
+                    <table className="table">
                       <thead>
                         <tr>
                           <th>Family</th>
@@ -152,8 +152,8 @@ class Results extends React.Component {
                       </thead>
                       <tbody>
                       {this.props.infernalEntries.map((entry, index) => (
-                        <React.Fragment>
-                          <tr key={`infernal-table-${index}`} className="noBorder">
+                        <React.Fragment key={`react-fragment-${index}`}>
+                          <tr className="noBorder">
                             <td><a className="custom-link" href={`https://rfam.org/family/${entry.target_name}`} target="_blank">{entry.description}</a></td>
                             <td><a className="custom-link" href={`https://rfam.org/family/${entry.accession_rfam}`} target="_blank">{entry.accession_rfam}</a></td>
                             <td>{entry.seq_from}</td>
