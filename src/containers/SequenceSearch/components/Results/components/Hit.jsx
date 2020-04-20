@@ -9,7 +9,7 @@ import { FaCheckCircle } from 'react-icons/fa';
 
 class Hit extends React.Component {
   render() {
-    const expertDb = this.props.entry.fields.expert_db;
+    const expertDb = this.props.entry.fields && this.props.entry.fields.expert_db ? this.props.entry.fields.expert_db : [];
     const newExpertDb = expertDb.map((item) => {
       return item.toLowerCase();
     });
