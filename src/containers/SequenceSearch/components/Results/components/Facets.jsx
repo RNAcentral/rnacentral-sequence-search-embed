@@ -2,6 +2,9 @@ import React from 'react';
 import {connect} from "react-redux";
 
 import * as actionCreators from 'actions/actions';
+import {store} from "app.jsx";
+
+import { AiOutlineReload } from 'react-icons/ai';
 
 
 class Facets extends React.Component {
@@ -9,6 +12,14 @@ class Facets extends React.Component {
     super(props);
 
     this.renderFacet = this.renderFacet.bind(this);
+  }
+
+  onReload() {
+    const state = store.getState();
+    if (state.sequence) {
+      store.dispatch(actionCreators.onClearResult());
+      store.dispatch(actionCreators.onSubmit(state.sequence, this.props.databases));
+    }
   }
 
   renameFacet(facet){
@@ -79,8 +90,8 @@ class Facets extends React.Component {
           {
             this.props.textSearchError &&
             <div className="alert alert-danger">
-              <h3>Failed to retrieve text search data.</h3>
-              <a onClick={ this.props.onReload }>&lsaquo; Reload</a>
+              <p>Failed to retrieve text search data.</p>
+              <p><a className="custom-link" onClick={ () => this.onReload() }><AiOutlineReload style={{verticalAlign: '-1px'}} /> Reload</a></p>
             </div>
           }
           <small>

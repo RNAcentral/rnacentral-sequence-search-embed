@@ -210,6 +210,7 @@ class Results extends React.Component {
                          textSearchError={ this.props.textSearchError }
                          hideFacet={ this.props.hideFacet}
                          customStyle={ this.props.customStyle }
+                         databases={this.props.databases}
                       />
                     </div>
                     <div className="col-sm-9">
