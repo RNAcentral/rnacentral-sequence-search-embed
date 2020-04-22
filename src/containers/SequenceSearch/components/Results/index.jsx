@@ -59,7 +59,6 @@ class Results extends React.Component {
     };
     const loadMoreButtonColor = this.props.customStyle && this.props.customStyle.loadMoreButtonColor ? this.props.customStyle.loadMoreButtonColor : "";
     const similarSeqText = this.props.customStyle && this.props.customStyle.similarSeqText ? this.props.customStyle.similarSeqText : "Similar sequences";
-    const jobIdBackgroundColor = this.props.customStyle && this.props.customStyle.jobIdBackgroundColor ? this.props.customStyle.jobIdBackgroundColor : "";
     const fixCss = this.props.customStyle && this.props.customStyle.fixCss && this.props.customStyle.fixCss === "true" ? "1.5rem" : "";
     const fixCssBtn = this.props.customStyle && this.props.customStyle.fixCss && this.props.customStyle.fixCss === "true" ? "38px" : "";
 
