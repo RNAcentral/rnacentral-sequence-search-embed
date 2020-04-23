@@ -134,3 +134,8 @@ input[type="file"] {
 tr.noBorder td {
   border: 0 !important;
 }
+
+.desaturate {
+  -webkit-filter: grayscale(60%);
+  filter: grayscale(60%);
+}
