@@ -83,11 +83,12 @@ class SearchForm extends React.Component {
     const hideUploadButton = this.props.customStyle && this.props.customStyle.hideUploadButton && this.props.customStyle.hideUploadButton === "true" ? "none" : "initial";
     const fixCss = this.props.customStyle && this.props.customStyle.fixCss && this.props.customStyle.fixCss === "true" ? "1.5rem" : "";
     const fixCssBtn = this.props.customStyle && this.props.customStyle.fixCss && this.props.customStyle.fixCss === "true" ? "38px" : "";
+    const hideRnacentral = this.props.customStyle && this.props.customStyle.hideRnacentral && this.props.customStyle.hideRnacentral === "true" ? "none" : "initial";
     return (
       <div className="rna">
         <div className="row">
           <div className="col-sm-9">
-            { this.props.databases.length === 0 ? '' : <small className="text-muted"><img src={'https://rnacentral.org/static/img/logo/rnacentral-logo.png'} alt="RNAcentral logo" style={{width: "1%", verticalAlign: "text-top"}}/> Powered by <a className="custom-link mr-2" target='_blank' href='https://rnacentral.org/'>RNAcentral</a>|</small>}
+            <small className="text-muted" style={{display: hideRnacentral}}><img src={'https://rnacentral.org/static/img/logo/rnacentral-logo.png'} alt="RNAcentral logo" style={{width: "1%", verticalAlign: "text-top"}}/> Powered by <a className="custom-link mr-2" target='_blank' href='https://rnacentral.org/'>RNAcentral</a>|</small>
             <small className="text-muted ml-2">Local alignment using <a target='_blank' className="custom-link" href='https://www.ncbi.nlm.nih.gov/pubmed/23842809'>nhmmer</a></small>
             { this.props.jobId ? <small className="text-muted float-right">Job id: {this.props.jobId}</small> : ''}
           </div>
