@@ -42,9 +42,9 @@ class Results extends React.Component {
     for (const item of state.searchInProgress) {
       if (item.jobId === state.jobId){
         return <div className="col-sm-12 mt-3">
-          <div className="progress">
+          <div className="progress" style={{height: "20px"}}>
             <div className="progress-bar" role="progressbar" style={{width: `${item.finishedChunk}%`}} aria-valuenow={item.finishedChunk} aria-valuemin="0" aria-valuemax="100">
-              Searching...
+              <span style={{fontSize: "12px"}}>Searching...</span>
             </div>
           </div>
         </div>
