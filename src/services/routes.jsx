@@ -1,4 +1,4 @@
-let server = process.env.REACT_APP_BRANCH === 'dev' ? 'http://193.62.55.100/:8002' : 'https://search.rnacentral.org';
+let server = process.env.REACT_APP_BRANCH === 'dev' ? 'http://193.62.55.123:8002' : 'https://search.rnacentral.org';
 let ebiDevOrProd = process.env.REACT_APP_BRANCH === 'dev' ? 'wwwdev' : 'www';
 
 module.exports = {
