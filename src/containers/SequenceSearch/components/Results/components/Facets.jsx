@@ -35,6 +35,7 @@ class Facets extends React.Component {
   }
 
   renameFacetValue(facet, facetValue){
+    const linkColor = this.props.customStyle && this.props.customStyle.linkColor ? this.props.customStyle.linkColor : "#337ab7";
     if (facet==='qc_warning_found'){
       if (facetValue.label==='False') {facetValue.label = 'No warnings'}
       else if (facetValue.label==='True') {facetValue.label = 'Warnings found'}
@@ -47,7 +48,7 @@ class Facets extends React.Component {
       if (facetValue.label === 'True') { facetValue.label = 'Found'; }
       else if (facetValue.label === 'False') { facetValue.label = 'Not found'; }
     }
-    return <a className="custom-link">{facetValue.label}&nbsp;<small>({facetValue.count})</small></a>
+    return <a className="custom-link" style={{color: linkColor}}>{facetValue.label}&nbsp;<small>({facetValue.count})</small></a>
   }
 
   renderFacet(facet) {
@@ -80,6 +81,7 @@ class Facets extends React.Component {
 
   render() {
     let showFacet = this.props.hideFacet ? this.props.facets.filter(facet => !this.props.hideFacet.includes(facet.id)) : this.props.facets;
+    const linkColor = this.props.customStyle && this.props.customStyle.linkColor ? this.props.customStyle.linkColor : "#337ab7";
 
     return (
       <div className="row">
@@ -95,7 +97,7 @@ class Facets extends React.Component {
             </div>
           }
           <small>
-            Powered by <a className="custom-link" href="http://www.ebi.ac.uk/ebisearch/" target="_blank">EBI Search</a>.
+            Powered by <a className="custom-link" style={{color: linkColor}} href="http://www.ebi.ac.uk/ebisearch/" target="_blank">EBI Search</a>.
           </small>
         </section>
       </div>

@@ -61,6 +61,7 @@ class Results extends React.Component {
     const similarSeqText = this.props.customStyle && this.props.customStyle.similarSeqText ? this.props.customStyle.similarSeqText : "Similar sequences";
     const fixCss = this.props.customStyle && this.props.customStyle.fixCss && this.props.customStyle.fixCss === "true" ? "1.5rem" : "";
     const fixCssBtn = this.props.customStyle && this.props.customStyle.fixCss && this.props.customStyle.fixCss === "true" ? "38px" : "";
+    const linkColor = this.props.customStyle && this.props.customStyle.linkColor ? this.props.customStyle.linkColor : "#337ab7";
 
     // exact match URS ids
     const exactMatch = this.props.exactMatch;
@@ -153,8 +154,8 @@ class Results extends React.Component {
                       {this.props.infernalEntries.map((entry, index) => (
                         <React.Fragment key={`react-fragment-${index}`}>
                           <tr className="noBorder">
-                            <td><a className="custom-link" href={`https://rfam.org/family/${entry.target_name}`} target="_blank">{entry.description}</a></td>
-                            <td><a className="custom-link" href={`https://rfam.org/family/${entry.accession_rfam}`} target="_blank">{entry.accession_rfam}</a></td>
+                            <td><a className="custom-link" style={{color: linkColor}} href={`https://rfam.org/family/${entry.target_name}`} target="_blank">{entry.description}</a></td>
+                            <td><a className="custom-link" style={{color: linkColor}} href={`https://rfam.org/family/${entry.accession_rfam}`} target="_blank">{entry.accession_rfam}</a></td>
                             <td>{entry.seq_from}</td>
                             <td>{entry.seq_to}</td>
                             <td>{entry.score}</td>
@@ -164,7 +165,7 @@ class Results extends React.Component {
                               {
                                 entry.alignment ?
                                 <a className="custom-link" onClick={ this.props.onToggleInfernalAlignmentsCollapsed }>
-                                  { this.props.infernalAlignmentsCollapsed ? <span>&#x25B6; Show</span> : <span>&#x25BC; Hide</span> }
+                                  { this.props.infernalAlignmentsCollapsed ? <span style={{color: linkColor}}>&#x25B6; Show</span> : <span style={{color: linkColor}}>&#x25BC; Hide</span> }
                                 </a> : "Not available"
                               }
                             </td>
@@ -220,7 +221,7 @@ class Results extends React.Component {
                         {this.props.status === "loading" ? <div className="spinner-border" role="status" /> : (this.props.status === "success" || this.props.status === "partial_success") && (this.props.entries.length < this.props.hitCount) && (<button className="btn btn-secondary" onClick={this.props.onLoadMore} style={{background: loadMoreButtonColor, borderColor: loadMoreButtonColor, fontSize: fixCss, height: fixCssBtn}}>Load more</button>)}
                       </section>
                     </div>
-                  </div> : this.props.status === "loading" ? '' : this.props.filter ? <div className="mt-3">No results. Try a different search or press the Clear button to view all results.</div> : this.props.rnacentral || this.props.databases.length === 0 ? <div className="mt-1">No results at <img src={'https://rnacentral.org/static/img/logo/rnacentral-logo.png'} alt="RNAcentral logo" style={{width: "1%", verticalAlign: "sub"}}/> RNAcentral.</div> : <div className="mt-1">The query sequence did not match any {this.props.databases} sequences. You can <a className="custom-link" href="#" onClick={this.submitToRnacentral}>try to search against RNAcentral</a>.</div>
+                  </div> : this.props.status === "loading" ? '' : this.props.filter ? <div className="mt-3">No results. Try a different search or press the Clear button to view all results.</div> : this.props.rnacentral || this.props.databases.length === 0 ? <div className="mt-1">No results at <img src={'https://rnacentral.org/static/img/logo/rnacentral-logo.png'} alt="RNAcentral logo" style={{width: "1%", verticalAlign: "sub"}}/> RNAcentral.</div> : <div className="mt-1">The query sequence did not match any {this.props.databases} sequences. You can <a className="custom-link" style={{color: linkColor}} href="#" onClick={this.submitToRnacentral}>try to search against RNAcentral</a>.</div>
                 }
               </div>
             </div>

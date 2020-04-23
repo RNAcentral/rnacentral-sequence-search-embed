@@ -17,7 +17,7 @@ class Hit extends React.Component {
     const database = this.props.databases;
     const exactMatchUrsId = this.props.exactMatchUrsId.indexOf(this.props.entry.rnacentral_id) > -1 ? <FaCheckCircle style={{color: '#3c763d', verticalAlign: '-1px'}}/> : '';
     let seqTitleStyle = {
-      color: this.props.customStyle && this.props.customStyle.seqTitleColor ? this.props.customStyle.seqTitleColor : "",
+      color: this.props.customStyle && this.props.customStyle.linkColor ? this.props.customStyle.linkColor : "#337ab7",
       fontSize: this.props.customStyle && this.props.customStyle.seqTitleSize ? this.props.customStyle.seqTitleSize : "20px",
     };
     let seqInfoStyle = {

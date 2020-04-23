@@ -10,11 +10,11 @@ import { MdFileUpload } from 'react-icons/md';
 
 
 class SearchForm extends React.Component {
-  showExamples(){
+  showExamples(linkColor){
     const examples = this.props.examples;
     return examples.map(example =>
       <li key={example.description}>
-        <a className="custom-link" onClick={() => this.exampleSequence(example.sequence)}>{example.description}</a>
+        <a className="custom-link" style={{color: linkColor}} onClick={() => this.exampleSequence(example.sequence)}>{example.description}</a>
         <small>{!!(example.urs) ? ` (${example.urs})` : " "}</small>
       </li>)
   }
@@ -24,7 +24,7 @@ class SearchForm extends React.Component {
     store.dispatch(actionCreators.onSubmit(sequence, this.props.databases));
   }
 
-  showExactMatch(){
+  showExactMatch(linkColor){
     const exactMatch = this.props.exactMatch;
     const database = this.props.databases;
 
@@ -42,11 +42,11 @@ class SearchForm extends React.Component {
           <div className="alert alert-success" style={{backgroundColor: exactMatchBackgroundColor, borderColor: exactMatchBackgroundColor}}>
             {
               database.length === 0 ? <div>
-                <FaCheckCircle style={{verticalAlign: "-10%", marginLeft: "-5px"}} /> Identical match: <a className="custom-link" href={`https://rnacentral.org/rna/${exactMatchId}`} target='_blank'>{exactMatchDescription}</a>
+                <FaCheckCircle style={{verticalAlign: "-10%", marginLeft: "-5px"}} /> Identical match: <a className="custom-link" style={{color: linkColor}} href={`https://rnacentral.org/rna/${exactMatchId}`} target='_blank'>{exactMatchDescription}</a>
                 {exactMatchOther && ' and '}
-                {exactMatchOther ? <a className="custom-link" href={`https://rnacentral.org/search?q=${exactMatchUrsId}*`} target='_blank'>{exactMatchOther}</a> : ''}
+                {exactMatchOther ? <a className="custom-link" style={{color: linkColor}} href={`https://rnacentral.org/search?q=${exactMatchUrsId}*`} target='_blank'>{exactMatchOther}</a> : ''}
               </div> : <div>
-                <FaCheckCircle style={{verticalAlign: "-10%", marginLeft: "-5px"}} /> Identical match: <a className="custom-link" href={exactMatchUrl} target='_blank'>{exactMatchDescription}</a>
+                <FaCheckCircle style={{verticalAlign: "-10%", marginLeft: "-5px"}} /> Identical match: <a className="custom-link" style={{color: linkColor}} href={exactMatchUrl} target='_blank'>{exactMatchDescription}</a>
               </div>
             }
           </div>
@@ -84,12 +84,13 @@ class SearchForm extends React.Component {
     const fixCss = this.props.customStyle && this.props.customStyle.fixCss && this.props.customStyle.fixCss === "true" ? "1.5rem" : "";
     const fixCssBtn = this.props.customStyle && this.props.customStyle.fixCss && this.props.customStyle.fixCss === "true" ? "38px" : "";
     const hideRnacentral = this.props.customStyle && this.props.customStyle.hideRnacentral && this.props.customStyle.hideRnacentral === "true" ? "none" : "initial";
+    const linkColor = this.props.customStyle && this.props.customStyle.linkColor ? this.props.customStyle.linkColor : "#337ab7";
     return (
       <div className="rna">
         <div className="row">
           <div className="col-sm-9">
-            <small className="text-muted" style={{display: hideRnacentral}}><img src={'https://rnacentral.org/static/img/logo/rnacentral-logo.png'} alt="RNAcentral logo" style={{width: "1%", verticalAlign: "text-top"}}/> Powered by <a className="custom-link mr-2" target='_blank' href='https://rnacentral.org/'>RNAcentral</a>|</small>
-            <small className="text-muted ml-2">Local alignment using <a target='_blank' className="custom-link" href='https://www.ncbi.nlm.nih.gov/pubmed/23842809'>nhmmer</a></small>
+            <small className="text-muted" style={{display: hideRnacentral}}><img src={'https://rnacentral.org/static/img/logo/rnacentral-logo.png'} alt="RNAcentral logo" style={{width: "1%", verticalAlign: "text-top"}}/> Powered by <a className="custom-link mr-2" style={{color: linkColor}} target='_blank' href='https://rnacentral.org/'>RNAcentral</a>|</small>
+            <small className="text-muted ml-2">Local alignment using <a target='_blank' className="custom-link" style={{color: linkColor}} href='https://www.ncbi.nlm.nih.gov/pubmed/23842809'>nhmmer</a></small>
             { this.props.jobId ? <small className="text-muted float-right">Job id: {this.props.jobId}</small> : ''}
           </div>
         </div>
@@ -110,7 +111,7 @@ class SearchForm extends React.Component {
           </div>
           <div className="row">
             <div className="col-sm-9">
-              {this.props.examples ? <div id="examples"><ul className="text-muted">Examples: {this.showExamples()}</ul></div> : ""}
+              {this.props.examples ? <div id="examples"><ul className="text-muted">Examples: {this.showExamples(linkColor)}</ul></div> : ""}
             </div>
           </div>
           {
@@ -136,7 +137,7 @@ class SearchForm extends React.Component {
             )
           }
           {
-            this.showExactMatch()
+            this.showExactMatch(linkColor)
           }
         </form>
       </div>
