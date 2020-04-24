@@ -1,21 +1,30 @@
 import React from 'react';
 import {connect} from 'react-redux';
 
-import * as actions from "../../../../actions/actions";
+import * as actionCreators from 'actions/actions';
 import {store} from "app.jsx";
+
+import { FaSearch, FaCheckCircle } from 'react-icons/fa';
+import { FiTrash2 } from 'react-icons/fi';
+import { MdFileUpload } from 'react-icons/md';
 
 
 class SearchForm extends React.Component {
-  showExamples(){
+  showExamples(linkColor){
     const examples = this.props.examples;
     return examples.map(example =>
       <li key={example.description}>
-        <a onClick={() => this.props.onExampleSequence(example.sequence)}>{example.description}</a>
+        <a className="custom-link" style={{color: linkColor}} onClick={() => this.exampleSequence(example.sequence)}>{example.description}</a>
         <small>{!!(example.urs) ? ` (${example.urs})` : " "}</small>
       </li>)
   }
 
-  showExactMatch(){
+  exampleSequence(sequence) {
+    store.dispatch(actionCreators.onExampleSequence(sequence));
+    store.dispatch(actionCreators.onSubmit(sequence, this.props.databases));
+  }
+
+  showExactMatch(linkColor){
     const exactMatch = this.props.exactMatch;
     const database = this.props.databases;
 
@@ -29,15 +38,15 @@ class SearchForm extends React.Component {
       const exactMatchOther = remainingExactMatch && remainingExactMatch > 1 ? remainingExactMatch + ' other sequences' : remainingExactMatch && remainingExactMatch === 1 ? remainingExactMatch + ' other sequence' : '';
 
       return <div className="row">
-        <div className="small-9 columns">
-          <div className="callout success" style={{backgroundColor: exactMatchBackgroundColor}}>
+        <div className="col-sm-9">
+          <div className="alert alert-success" style={{backgroundColor: exactMatchBackgroundColor, borderColor: exactMatchBackgroundColor}}>
             {
               database.length === 0 ? <div>
-                <i className="icon icon-functional" data-icon="/" style={{fontSize: "80%", color: "#3c763d"}}> </i> Identical match: <a href={`https://rnacentral.org/rna/${exactMatchId}`} target='_blank'>{exactMatchDescription}</a>
+                <FaCheckCircle style={{verticalAlign: "-10%", marginLeft: "-5px"}} /> Identical match: <a className="custom-link" style={{color: linkColor}} href={`https://rnacentral.org/rna/${exactMatchId}`} target='_blank'>{exactMatchDescription}</a>
                 {exactMatchOther && ' and '}
-                {exactMatchOther ? <a href={`https://rnacentral.org/search?q=${exactMatchUrsId}*`} target='_blank'>{exactMatchOther}</a> : ''}
+                {exactMatchOther ? <a className="custom-link" style={{color: linkColor}} href={`https://rnacentral.org/search?q=${exactMatchUrsId}*`} target='_blank'>{exactMatchOther}</a> : ''}
               </div> : <div>
-                <i className="icon icon-functional" data-icon="/" style={{fontSize: "80%", color: "#3c763d"}}> </i> Identical match: <a href={exactMatchUrl} target='_blank'>{exactMatchDescription}</a>
+                <FaCheckCircle style={{verticalAlign: "-10%", marginLeft: "-5px"}} /> Identical match: <a className="custom-link" style={{color: linkColor}} href={exactMatchUrl} target='_blank'>{exactMatchDescription}</a>
               </div>
             }
           </div>
@@ -53,13 +62,15 @@ class SearchForm extends React.Component {
     // split the sequence for batch queries and set a limit on the number of queries
     if (state.fileUpload && state.sequence) {
       let getSequence = state.sequence.split(/(?=>)/g).slice(0, 50);
-      store.dispatch(actions.onMultipleSubmit(getSequence, this.props.databases));
+      store.dispatch(actionCreators.onMultipleSubmit(getSequence, this.props.databases));
     } else if (state.sequence && state.sequence.match("^([0-9a-fA-F]{8})-(([0-9a-fA-F]{4}\\-){3})([0-9a-fA-F]{12})$")) {
-      store.dispatch(actions.updateJobId(state.sequence));
+      store.dispatch(actionCreators.updateJobId(state.sequence));
+    } else if (state.sequence && state.sequence.match("^URS[A-Fa-f0-9]{10}$")) {
+      store.dispatch(actionCreators.onSubmitUrs(state.sequence, this.props.databases));
     } else if (state.sequence && (state.sequence.length < 10 || state.sequence.length > 7000)) {
-      store.dispatch(actions.invalidSequence());
+      store.dispatch(actionCreators.invalidSequence());
     } else if (state.sequence) {
-      store.dispatch(actions.onSubmit(state.sequence, this.props.databases));
+      store.dispatch(actionCreators.onSubmit(state.sequence, this.props.databases));
     }
 
     state.sequence = "";
@@ -70,69 +81,65 @@ class SearchForm extends React.Component {
     const clearButtonColor = this.props.customStyle && this.props.customStyle.clearButtonColor ? this.props.customStyle.clearButtonColor : "#6c757d";
     const uploadButtonColor = this.props.customStyle && this.props.customStyle.uploadButtonColor ? this.props.customStyle.uploadButtonColor : "";
     const hideUploadButton = this.props.customStyle && this.props.customStyle.hideUploadButton && this.props.customStyle.hideUploadButton === "true" ? "none" : "initial";
+    const fixCss = this.props.customStyle && this.props.customStyle.fixCss && this.props.customStyle.fixCss === "true" ? "1.5rem" : "";
+    const fixCssBtn = this.props.customStyle && this.props.customStyle.fixCss && this.props.customStyle.fixCss === "true" ? "38px" : "";
+    const hideRnacentral = this.props.customStyle && this.props.customStyle.hideRnacentral && this.props.customStyle.hideRnacentral === "true" ? "none" : "initial";
+    const linkColor = this.props.customStyle && this.props.customStyle.linkColor ? this.props.customStyle.linkColor : "#337ab7";
     return (
-      <div>
+      <div className="rna">
         <div className="row">
-          <div className="small-12 columns">
-            <small><img src={'https://rnacentral.org/static/img/logo/rnacentral-logo.png'} alt="RNAcentral logo" style={{width: "1%", verticalAlign: "text-top"}}/> Powered by <a style={{marginRight: "7px"}} target='_blank' href='https://rnacentral.org/'>RNAcentral</a>|</small>
-            <small style={{marginLeft: "7px"}}>Local alignment using <a target='_blank' href='https://www.ncbi.nlm.nih.gov/pubmed/23842809'>nhmmer</a></small>
+          <div className="col-sm-9">
+            <small className="text-muted" style={{display: hideRnacentral}}><img src={'https://rnacentral.org/static/img/logo/rnacentral-logo.png'} alt="RNAcentral logo" style={{width: "1%", verticalAlign: "text-top"}}/> Powered by <a className="custom-link mr-2" style={{color: linkColor}} target='_blank' href='https://rnacentral.org/'>RNAcentral</a>|</small>
+            <small className="text-muted ml-2">Local alignment using <a target='_blank' className="custom-link" style={{color: linkColor}} href='https://www.ncbi.nlm.nih.gov/pubmed/23842809'>nhmmer</a></small>
+            { this.props.jobId ? <small className="text-muted float-right">Job id: {this.props.jobId}</small> : ''}
           </div>
         </div>
-        <div>
-          <form onSubmit={(e) => this.onSubmit(e)}>
-            <div className="row">
-              <div className="small-9 columns">
-                <textarea id="sequence" name="sequence" rows="7" value={this.props.sequence} onChange={(e) => this.props.onSequenceTextareaChange(e)} placeholder="Enter RNA/DNA sequence (with an optional description in FASTA format) or job id" />
-              </div>
-              <div className="small-3 columns">
-                <div className="row">
-                  <input id="submit-button" style={{background: searchButtonColor}} name="submit" type="submit" value="Search" className="button" disabled={!this.props.sequence ? "disabled" : ""}/>
-                </div>
-                <div className="row">
-                  <input id="clear-button" style={{background: clearButtonColor}} name="clear" type="submit" value="Clear" className="button" onClick={ this.props.onClearSequence } disabled={!this.props.sequence ? "disabled" : ""}/>
-                </div>
-                <div style={{display: hideUploadButton}}>
-                  <div className="row">
-                    <label htmlFor="file-upload" className="custom-file-upload" style={{background: uploadButtonColor}}>Upload file</label>
-                    <input id="file-upload" type="file" accept=".fasta" onClick={ this.props.onClearSequence } onChange={this.props.onFileUpload} />
-                  </div>
-                  <div className="row"><small>Up to 50 queries</small></div>
-                </div>
+        <form onSubmit={(e) => this.onSubmit(e)}>
+          <div className="row mt-1">
+            <div className="col-sm-9">
+              <textarea style={{fontSize: fixCss}} className="form-control" id="sequence" name="sequence" rows="7" value={this.props.sequence} onChange={(e) => this.props.onSequenceTextareaChange(e)} placeholder="Enter RNA/DNA sequence (with an optional description in FASTA format) or job id" />
+            </div>
+            <div className="col-sm-3">
+              <button className="btn btn-primary mb-2" style={{background: searchButtonColor, borderColor: searchButtonColor, fontSize: fixCss, height: fixCssBtn}} type="submit" disabled={!this.props.sequence ? "disabled" : ""}><span className="btn-icon"><FaSearch /></span> Search</button><br />
+              <button className="btn btn-secondary mb-2" style={{background: clearButtonColor, borderColor: clearButtonColor, fontSize: fixCss, height: fixCssBtn}} type="submit" onClick={ this.props.onClearSequence } disabled={!this.props.sequence ? "disabled" : ""}><span className="btn-icon"><FiTrash2 /></span> Clear</button><br />
+              <div style={{display: hideUploadButton}}>
+                <label htmlFor="file-upload" className="custom-file-upload" style={{background: uploadButtonColor}}><MdFileUpload /> Upload file</label>
+                <input id="file-upload" type="file" accept=".fasta" onClick={ this.props.onClearSequence } onChange={this.props.onFileUpload} />
+                <div className="row"><small>Up to 50 queries</small></div>
               </div>
             </div>
-            <div className="row">
-              <div className="small-9 columns" style={{marginTop: "-10px", marginBottom: "10px"}}>
-                {this.props.examples ? <div id="examples"><ul>Examples: {this.showExamples()}</ul></div> : ""}
-              </div>
+          </div>
+          <div className="row">
+            <div className="col-sm-9">
+              {this.props.examples ? <div id="examples"><ul className="text-muted">Examples: {this.showExamples(linkColor)}</ul></div> : ""}
             </div>
-            {
-              this.props.submissionError && (
-                <div className="row">
-                  <div className="small-9 columns">
-                    <div className="callout alert">
-                      <h3>Form submission failed</h3>
-                      { this.props.submissionError }
-                    </div>
+          </div>
+          {
+            this.props.submissionError && (
+              <div className="row">
+                <div className="col-sm-9">
+                  <div className="alert alert-danger">
+                    { this.props.submissionError }
                   </div>
                 </div>
-              )
-            }
-            {
-              this.props.status === "invalidSequence" && (
-                <div className="row">
-                  <div className="small-9 columns">
-                    <div className="callout warning">
-                      {this.props.sequence.length < 10 ? <p>The sequence cannot be shorter than 10 nucleotides</p> : <p>The sequence cannot be longer than 7000 nucleotides</p>}
-                    </div>
+              </div>
+            )
+          }
+          {
+            this.props.status === "invalidSequence" && (
+              <div className="row">
+                <div className="col-sm-9">
+                  <div className="alert alert-warning">
+                    {this.props.sequence.length < 10 ? "The sequence cannot be shorter than 10 nucleotides" : "The sequence cannot be longer than 7000 nucleotides"}
                   </div>
                 </div>
-              )
-            }
-            {
-              this.showExactMatch()
-            }
-          </form>
-        </div>
+              </div>
+            )
+          }
+          {
+            this.showExactMatch(linkColor)
+          }
+        </form>
       </div>
     )
   }
@@ -141,6 +148,7 @@ class SearchForm extends React.Component {
 const mapStateToProps = (state) => ({
   status: state.status,
   infernalStatus: state.infernalStatus,
+  submissionError: state.submissionError,
   sequence: state.sequence,
   hits: state.hits,
   entries: state.entries,
@@ -151,13 +159,13 @@ const mapStateToProps = (state) => ({
   infernalEntries: state.infernalEntries,
   fileUpload: state.fileUpload,
   exactMatch: state.exactMatch,
+  jobId: state.jobId,
 });
 
 const mapDispatchToProps = (dispatch) => ({
-  onSequenceTextareaChange: (event) => dispatch(actions.onSequenceTextAreaChange(event)),
-  onExampleSequence: (sequence) => dispatch(actions.onExampleSequence(sequence)),
-  onClearSequence: () => dispatch(actions.onClearSequence()),
-  onFileUpload: (event) => dispatch(actions.onFileUpload(event))
+  onSequenceTextareaChange: (event) => dispatch(actionCreators.onSequenceTextAreaChange(event)),
+  onClearSequence: () => dispatch(actionCreators.onClearSequence()),
+  onFileUpload: (event) => dispatch(actionCreators.onFileUpload(event))
 });
 
 

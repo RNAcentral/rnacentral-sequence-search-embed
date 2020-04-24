@@ -22,7 +22,8 @@ const rootReducer = function (state = initialState, action) {
           size: 20,
           ordering: 'e_value',
           selectedFacets: {},
-          textSearchError: action.data.textSearchError
+          textSearchError: action.data.textSearchError,
+          searchInProgress: ""
         });
 
       } else if (action.status === 'error') {
@@ -158,6 +159,16 @@ const rootReducer = function (state = initialState, action) {
           return newState;
       }
 
+    case actions.SUBMIT_URS:
+      switch (action.status) {
+        case 'invalid':
+          return Object.assign({}, state, {sequence: action.data, submissionError: ""});
+        case 'error':
+          return Object.assign({}, state, {submissionError: action.response.statusText});
+        default:
+          return newState;
+      }
+
     case actions.UPDATE_JOB_ID:
       return Object.assign({}, state, {jobId: action.data, rnacentral: false});
 
@@ -197,6 +208,9 @@ const rootReducer = function (state = initialState, action) {
         return Object.assign({}, state, {status: action.status})
       }
 
+    case actions.SEARCH_PROGRESS:
+      return Object.assign({}, state, {searchInProgress: action.data});
+
     case actions.SET_STATUS_TIMEOUT:
       return Object.assign({}, state, {statusTimeout: action.statusTimeout});
 
@@ -232,6 +246,7 @@ const rootReducer = function (state = initialState, action) {
         infernalAlignmentsCollapsed: true,
         fileUpload: false,
         rnacentral: false,
+        submissionError: null,
       });
 
     case actions.EXAMPLE_SEQUENCE:
@@ -256,6 +271,7 @@ const rootReducer = function (state = initialState, action) {
         infernalAlignmentsCollapsed: true,
         fileUpload: false,
         rnacentral: false,
+        submissionError: null,
       });
 
     case actions.CLEAR_SEQUENCE:
@@ -282,6 +298,7 @@ const rootReducer = function (state = initialState, action) {
         fileUpload: false,
         exactMatch: null,
         rnacentral: false,
+        submissionError: null,
       });
 
     case actions.FILE_UPLOAD:

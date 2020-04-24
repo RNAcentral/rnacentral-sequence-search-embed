@@ -105,6 +105,28 @@ export function onMultipleSubmit(sequence, databases) {
   }
 }
 
+export function onSubmitUrs(urs, database) {
+  return function(dispatch) {
+    fetch(routes.rnacentralUrs(urs))
+    .then(function(response) {
+      if (response.ok) {
+        return response.json()
+      } else {
+        throw response;
+      }
+    })
+    .then(data => {
+      if(data.sequence.length < 10 || data.sequence.length > 7000) {
+        dispatch({type: types.SUBMIT_URS, status: 'invalid', data: data.sequence});
+        dispatch(invalidSequence())
+      } else {
+        dispatch(onSubmit(data.sequence, database))
+      }
+    })
+    .catch(error => {dispatch({type: types.SUBMIT_URS, status: 'error', response: error})});
+  }
+}
+
 export function updateJobId(jobId) {
   return function(dispatch) {
     dispatch({type: types.UPDATE_JOB_ID, data: jobId});
@@ -145,6 +167,26 @@ export function fetchStatus(jobId) {
     })
     .then((data) => {
       if (data.status === 'started' || data.status === 'pending' || data.status === 'running') {
+        // Given jobChunks from jobStatus route, estimates the search progress.
+        let finishedChunk = 0;
+        data.chunks.map(item => {
+          if (item.status === 'success' || item.status === 'timeout' || item.status === 'error'){
+            finishedChunk = finishedChunk + 1
+          }
+        });
+
+        // Update the search progress
+        let state = store.getState();
+        let newSearchInProgress = [...state.searchInProgress];
+        let foundJobId = newSearchInProgress.find(el => el.jobId === data.job_id);
+        if (foundJobId){
+          foundJobId['finishedChunk'] = finishedChunk * 100 / data.chunks.length;
+        } else {
+          newSearchInProgress.push({jobId: data.job_id, finishedChunk: finishedChunk * 100 / data.chunks.length});
+        }
+        dispatch({type: types.SEARCH_PROGRESS, data: newSearchInProgress });
+
+        // Wait a little bit and check it again
         let statusTimeout = setTimeout(() => store.dispatch(fetchStatus(jobId)), 2000);
         dispatch({type: types.SET_STATUS_TIMEOUT, timeout: statusTimeout});
       } else if (data.status === 'success' || data.status === 'partial_success') {

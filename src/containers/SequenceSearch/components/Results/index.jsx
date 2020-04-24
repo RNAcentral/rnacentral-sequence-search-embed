@@ -6,9 +6,10 @@ import Facets from 'containers/SequenceSearch/components/Results/components/Face
 import Hit from 'containers/SequenceSearch/components/Results/components/Hit.jsx';
 import Filter from 'containers/SequenceSearch/components/Results/components/Filter.jsx';
 
-import 'containers/SequenceSearch/components/Results/index.scss';
 import * as actionCreators from 'actions/actions';
 import {store} from "app.jsx";
+
+import { MdHelpOutline } from 'react-icons/md'
 
 
 class Results extends React.Component {
@@ -35,15 +36,32 @@ class Results extends React.Component {
     }
   }
 
+  showSearchInProgress(){
+    const state = store.getState();
+
+    for (const item of state.searchInProgress) {
+      if (item.jobId === state.jobId){
+        return <div className="col-sm-12 mt-3">
+          <div className="progress" style={{height: "20px"}}>
+            <div className="progress-bar" role="progressbar" style={{width: `${item.finishedChunk}%`}} aria-valuenow={item.finishedChunk} aria-valuemin="0" aria-valuemax="100">
+              <span style={{fontSize: "12px"}}>Searching...</span>
+            </div>
+          </div>
+        </div>
+      }
+    }
+  }
+
   render() {
     let h3Style = {
-      color: this.props.customStyle && this.props.customStyle.h3Color ? this.props.customStyle.h3Color : "#666",
-      fontSize: this.props.customStyle && this.props.customStyle.h3Size ? this.props.customStyle.h3Size : "",
-      fontWeight: "300",
+      color: this.props.customStyle && this.props.customStyle.h3Color ? this.props.customStyle.h3Color : "#007c82",
+      fontSize: this.props.customStyle && this.props.customStyle.h3Size ? this.props.customStyle.h3Size : "28px",
     };
     const loadMoreButtonColor = this.props.customStyle && this.props.customStyle.loadMoreButtonColor ? this.props.customStyle.loadMoreButtonColor : "";
     const similarSeqText = this.props.customStyle && this.props.customStyle.similarSeqText ? this.props.customStyle.similarSeqText : "Similar sequences";
-    const jobIdBackgroundColor = this.props.customStyle && this.props.customStyle.jobIdBackgroundColor ? this.props.customStyle.jobIdBackgroundColor : "";
+    const fixCss = this.props.customStyle && this.props.customStyle.fixCss && this.props.customStyle.fixCss === "true" ? "1.5rem" : "";
+    const fixCssBtn = this.props.customStyle && this.props.customStyle.fixCss && this.props.customStyle.fixCss === "true" ? "38px" : "";
+    const linkColor = this.props.customStyle && this.props.customStyle.linkColor ? this.props.customStyle.linkColor : "#337ab7";
 
     // exact match URS ids
     const exactMatch = this.props.exactMatch;
@@ -55,22 +73,20 @@ class Results extends React.Component {
     }
 
     return (
-      <div>
+      <div className="rna">
         {
           this.props.jobList && this.props.jobList.length > 0 && (
-            <div key={`select-id-div`}>
-              <div className="row">
-                <div className="small-9 columns">
-                  <small>{this.props.jobList.length} sequences were submitted. </small>
-                  <CSVLink data={Object.entries(this.props.jobList)} filename={"job-ids.csv"}>
-                    <small>Download the Ids</small>
-                  </CSVLink>
-                  <small> for future reference.</small>
-                </div>
-              </div>
-              <div className="row">
-                <div className="small-9 columns">
-                  <select onChange={this.onSeeResults}>
+            <div className="row" key={`select-id-div`}>
+              <div className="col-sm-9">
+                <div className="form-group">
+                  <label htmlFor="selectJobId">
+                    <span>{this.props.jobList.length} sequences were submitted. </span>
+                    <CSVLink data={Object.entries(this.props.jobList)} filename={"job-ids.csv"}>
+                      <span>Download the Ids</span>
+                    </CSVLink>
+                    <span> for future reference.</span>
+                  </label>
+                  <select className="form-select mb-3" style={{fontSize: fixCss}} id="selectJobId" onChange={this.onSeeResults}>
                     <option key={'no-job-selected'}>Select an Id to check the results</option>
                     {this.props.jobList.map((job) => <option key={job}>{job}</option>)}
                   </select>
@@ -80,21 +96,10 @@ class Results extends React.Component {
           )
         }
         {
-          (this.props.jobId && this.props.jobList && !this.props.jobList.length > 0 || this.props.jobId && this.props.jobList && this.props.jobList.length > 0 && !this.props.jobList.includes(this.props.jobId) ) && (
-            <div className="row" key={`job-id`}>
-              <div className="small-9 columns">
-                <div className="callout secondary" style={{backgroundColor: jobIdBackgroundColor}}>
-                  <p>Job id: <span className="job-id">{ this.props.jobId }</span></p>
-                </div>
-              </div>
-            </div>
-          )
-        }
-        {
           this.props.jobId && this.props.status === "partial_success" && (
             <div className="row" key={`partial-success-div`}>
-              <div className="small-9 columns">
-                <div className="callout warning">
+              <div className="col-sm-9">
+                <div className="alert alert-warning">
                   <h4>Search against some databases failed.</h4>
                   <p>This usually happens when the nhmmer is unable to complete the search within a 5 minute time limit.</p>
                 </div>
@@ -105,8 +110,8 @@ class Results extends React.Component {
         {
           this.props.jobId && this.props.status === "does_not_exist" && (
             <div className="row" key={`does-not-exist-div`}>
-              <div className="small-9 columns">
-                <div className="callout alert">
+              <div className="col-sm-9">
+                <div className="alert alert-danger">
                   <h4>Job with id='{ this.props.jobId }' does not exist.</h4>
                 </div>
               </div>
@@ -116,8 +121,8 @@ class Results extends React.Component {
         {
           this.props.jobId && this.props.status === "error" && (
             <div className="row" key={`error-div`}>
-              <div className="small-9 columns">
-                <div className="callout alert">
+              <div className="col-sm-9">
+                <div className="alert alert-danger">
                   <h4>There was an error.</h4>
                   <a href="mailto:rnacentral@gmail.com">Contact us</a> if the problem persists.
                 </div>
@@ -127,51 +132,58 @@ class Results extends React.Component {
         }
         {
           this.props.jobId && this.props.rfam && (
-            <div className="row" key={`infernal-div`}>
-              <div className="small-12 columns">
-                <h3 style={h3Style}>Rfam classification: { this.props.infernalStatus === "loading" ? <i className="animated infinite flash">...</i> : this.props.infernalEntries && this.props.infernalEntries.length ? <small>{this.props.infernalEntries.length}</small> : <small>0</small> }</h3>
-                { this.props.infernalStatus === "loading" ? <i className="animated infinite flash">...</i> : this.props.infernalStatus === "success" && this.props.infernalEntries.length ? [
-                  <table className="table-scroll" key={`infernal-table`}>
-                    <thead>
-                      <tr>
-                        <th>Family</th>
-                        <th>Accession</th>
-                        <th>Start</th>
-                        <th>End</th>
-                        <th>Bit score</th>
-                        <th>E-value</th>
-                        <th>Strand</th>
-                        <th>Alignment</th>
-                      </tr>
-                    </thead>
-                    {this.props.infernalEntries.map((entry, index) => (
-                    <tbody key={`${index}`}>
-                      <tr>
-                        <td><a href={`https://rfam.org/family/${entry.target_name}`} target="_blank">{entry.description}</a></td>
-                        <td><a href={`https://rfam.org/family/${entry.accession_rfam}`} target="_blank">{entry.accession_rfam}</a></td>
-                        <td>{entry.seq_from}</td>
-                        <td>{entry.seq_to}</td>
-                        <td>{entry.score}</td>
-                        <td>{entry.e_value}</td>
-                        <td>{entry.strand}</td>
-                        <td>
+            <div className="row">
+              <div className="col-sm-12">
+                <span style={h3Style}>Rfam classification </span>{ this.props.infernalStatus === "loading" ? <div className={`spinner-border ${fixCss ? '' : 'spinner-border-sm'} mb-1`} role="status" /> : <span style={h3Style}><a className="text-muted" style={{fontSize: "65%", verticalAlign: "10%"}} href="https://rnacentral.org/help/sequence-search#rfam" target="_blank"><MdHelpOutline /></a></span> }
+                { this.props.infernalStatus === "loading" ? '' : this.props.infernalStatus === "success" && this.props.infernalEntries.length ? [
+                  <div className="table-responsive mt-3" key={`infernal-div`}>
+                    <table className="table">
+                      <thead>
+                        <tr>
+                          <th>Family</th>
+                          <th>Accession</th>
+                          <th>Start</th>
+                          <th>End</th>
+                          <th>Bit score</th>
+                          <th>E-value</th>
+                          <th>Strand</th>
+                          <th>Alignment</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                      {this.props.infernalEntries.map((entry, index) => (
+                        <React.Fragment key={`react-fragment-${index}`}>
+                          <tr className="noBorder">
+                            <td><a className="custom-link" style={{color: linkColor}} href={`https://rfam.org/family/${entry.target_name}`} target="_blank">{entry.description}</a></td>
+                            <td><a className="custom-link" style={{color: linkColor}} href={`https://rfam.org/family/${entry.accession_rfam}`} target="_blank">{entry.accession_rfam}</a></td>
+                            <td>{entry.seq_from}</td>
+                            <td>{entry.seq_to}</td>
+                            <td>{entry.score}</td>
+                            <td>{entry.e_value}</td>
+                            <td>{entry.strand}</td>
+                            <td>
+                              {
+                                entry.alignment ?
+                                <a className="custom-link" onClick={ this.props.onToggleInfernalAlignmentsCollapsed }>
+                                  { this.props.infernalAlignmentsCollapsed ? <span style={{color: linkColor}}>&#x25B6; Show</span> : <span style={{color: linkColor}}>&#x25BC; Hide</span> }
+                                </a> : "Not available"
+                              }
+                            </td>
+                          </tr>
                           {
-                            entry.alignment ?
-                            <a onClick={ this.props.onToggleInfernalAlignmentsCollapsed }>
-                              { this.props.infernalAlignmentsCollapsed ? <span>&#x25B6; Show</span> : <span>&#x25BC; Hide</span> }
-                            </a> : "Not available"
+                            this.props.infernalAlignmentsCollapsed ? null :
+                              <tr>
+                                <td className="alignment-rfam-td" colSpan={8}>
+                                  <div className="alignment-rfam">{ entry.alignment + '\n' }</div>
+                                </td>
+                              </tr>
                           }
-                        </td>
-                      </tr>
-                      <tr>
-                        <td colSpan={8} className="callout alignment-rfam">
-                          {this.props.infernalAlignmentsCollapsed ? '' : entry.alignment + '\n' }
-                        </td>
-                      </tr>
-                    </tbody>
-                    ))}
-                  </table>
-                ] : <p>The query sequence did not match any <img src={'https://rnacentral.org/static/img/expert-db-logos/rfam.png'} alt="Rfam logo" style={{width: "6%", verticalAlign: "sub"}}/> families.</p>}
+                        </React.Fragment>
+                      ))}
+                      </tbody>
+                    </table>
+                  </div>
+                ] : <p className="mt-3">The query sequence did not match any <img src={'https://rnacentral.org/static/img/expert-db-logos/rfam.png'} alt="Rfam logo" style={{width: "4%", verticalAlign: "sub"}}/> families.</p>}
               </div>
             </div>
           )
@@ -179,15 +191,18 @@ class Results extends React.Component {
         {
           this.props.jobId && (this.props.status === "loading" || this.props.status === "success" || this.props.status === "partial_success") && [
             <div className="row" key={`results-div`}>
-              <div className="small-12 columns">
-                <h3 style={h3Style}>{similarSeqText}: { this.props.status === "loading" ? <i className="animated infinite flash">...</i> : <small>{ this.props.hitCount }</small> } { this.props.hits > 1000 ? <small>of { this.props.hits } <a href="https://rnacentral.org/help/sequence-search" style={{borderBottomStyle: "none"}} target="_blank"><i className="icon icon-generic icon-help" style={{fontSize: "70%"}}></i></a></small> : "" }</h3>
+              <div className="col-sm-12 mt-3 mb-3">
+                <span style={h3Style}>{similarSeqText} </span>{ this.props.status === "loading" ? <div className={`spinner-border ${fixCss ? '' : 'spinner-border-sm'} mb-1`} role="status" /> : <span style={h3Style}><small className="text-muted" style={{fontSize: "65%"}}>{ this.props.hitCount }</small>{ this.props.hits > 1000 ? <small className="text-muted" style={{fontSize: "65%"}}> of { this.props.hits } <a className="text-muted" style={{verticalAlign: "10%"}} href="https://rnacentral.org/help/sequence-search#number" target="_blank"> <MdHelpOutline /></a></small> : ''}</span> }
+              </div>
+              { this.props.databases.length === 0 ? this.showSearchInProgress() : '' }
+              <div>
                 {
-                  this.props.entries && this.props.entries.length || this.props.filter ? <Filter databases={this.props.databases}/> : ""
+                  this.props.entries && this.props.entries.length || this.props.filter ? <Filter databases={this.props.databases} customStyle={ this.props.customStyle }/> : ""
                 }
                 {
-                  this.props.entries && this.props.entries.length ? <div>
-                     <div className="small-3 columns">
-                       <Facets
+                  this.props.entries && this.props.entries.length ? <div className="row mt-3">
+                    <div className="col-sm-3">
+                      <Facets
                          facets={ this.props.facets }
                          selectedFacets={ this.props.selectedFacets }
                          toggleFacet={ this.toggleFacet }
@@ -195,19 +210,18 @@ class Results extends React.Component {
                          textSearchError={ this.props.textSearchError }
                          hideFacet={ this.props.hideFacet}
                          customStyle={ this.props.customStyle }
-                       />
+                         databases={this.props.databases}
+                      />
                     </div>
-                    <div className="small-9 columns">
+                    <div className="col-sm-9">
                       <section>
                         { this.props.entries.map((entry, index) => (
-                        <ul key={`${entry}_${index}`}><Hit entry={entry} customStyle={this.props.customStyle} databases={this.props.databases} exactMatchUrsId={exactMatchUrsId}/></ul>
+                        <ul className="list-unstyled" key={`${entry}_${index}`}><Hit entry={entry} customStyle={this.props.customStyle} databases={this.props.databases} exactMatchUrsId={exactMatchUrsId}/></ul>
                         )) }
-                        <div className="small-12 columns">
-                          {this.props.status === "loading" ? <i className="animated infinite flash">...</i> : (this.props.status === "success" || this.props.status === "partial_success") && (this.props.entries.length < this.props.hitCount) && (<a className="button small" onClick={this.props.onLoadMore} target="_blank" style={{background: loadMoreButtonColor}}>Load more</a>)}
-                        </div>
+                        {this.props.status === "loading" ? <div className="spinner-border" role="status" /> : (this.props.status === "success" || this.props.status === "partial_success") && (this.props.entries.length < this.props.hitCount) && (<button className="btn btn-secondary" onClick={this.props.onLoadMore} style={{background: loadMoreButtonColor, borderColor: loadMoreButtonColor, fontSize: fixCss, height: fixCssBtn}}>Load more</button>)}
                       </section>
                     </div>
-                  </div> : this.props.status === "loading" ? <i className="animated infinite flash">...</i> : this.props.filter ? <div>No results. Try a different search or press the Clear button to view all results.</div> : this.props.rnacentral ? <div>No results at <img src={'https://rnacentral.org/static/img/logo/rnacentral-logo.png'} alt="RNAcentral logo" style={{width: "2%", verticalAlign: "sub"}}/> RNAcentral.</div> : <div>The query sequence did not match any {this.props.databases} sequences. You can <a href="#" onClick={this.submitToRnacentral}>try to search against RNAcentral</a>.</div>
+                  </div> : this.props.status === "loading" ? '' : this.props.filter ? <div className="mt-3">No results. Try a different search or press the Clear button to view all results.</div> : this.props.rnacentral || this.props.databases.length === 0 ? <div className="mt-1">No results at <img src={'https://rnacentral.org/static/img/logo/rnacentral-logo.png'} alt="RNAcentral logo" style={{width: "1%", verticalAlign: "sub"}}/> RNAcentral.</div> : <div className="mt-1">The query sequence did not match any {this.props.databases} sequences. You can <a className="custom-link" style={{color: linkColor}} href="#" onClick={this.submitToRnacentral}>try to search against RNAcentral</a>.</div>
                 }
               </div>
             </div>
@@ -239,6 +253,7 @@ function mapStateToProps(state) {
     infernalAlignmentsCollapsed: state.infernalAlignmentsCollapsed,
     exactMatch: state.exactMatch,
     rnacentral: state.rnacentral,
+    searchInProgress: state.searchInProgress,
   };
 }
 

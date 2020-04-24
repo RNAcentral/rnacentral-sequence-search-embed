@@ -6,12 +6,8 @@ import {Provider} from 'react-redux';
 import SequenceSearch from 'containers/SequenceSearch/index.jsx';
 import configureStore from 'store/configureStore.js';
 
-import ebiGlobal from 'ebi-framework/css/ebi-global.css';
-import themeLight from 'ebi-framework/css/theme-light.css';
-import fonts from 'EBI-Icon-fonts/fonts.css';
-import animate from 'animate.css/animate.min.css';
-import sequenceSearchStyles from 'containers/SequenceSearch/index.scss';
-import resultsStyles from 'containers/SequenceSearch/components/Results/index.scss';
+import bootstrap from 'styles/bootstrap.css';
+import sequenceSearchStyles from 'styles/sequence-search.scss';
 
 // Prepare data
 export const store = configureStore();
@@ -35,12 +31,8 @@ class RNAcentralSequenceSearch extends HTMLElement {
 
     // render React
     ReactDOM.render([
-      <style key={ebiGlobal} dangerouslySetInnerHTML={{__html: ebiGlobal}}/>,
-      <style key={themeLight} dangerouslySetInnerHTML={{__html: themeLight}}/>,
-      <style key={fonts} dangerouslySetInnerHTML={{__html: fonts}}/>,
-      <style key={animate} dangerouslySetInnerHTML={{__html: animate}}/>,
+      <style key={bootstrap} dangerouslySetInnerHTML={{__html: bootstrap}}/>,
       <style key={sequenceSearchStyles} dangerouslySetInnerHTML={{__html: sequenceSearchStyles}}/>,
-      <style key={resultsStyles} dangerouslySetInnerHTML={{__html: resultsStyles}}/>,
       <body key='body'>
         <Provider key='provider' store={store}>
           <SequenceSearch

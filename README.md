@@ -118,21 +118,21 @@ Parameters that you can use to customise some elements of this embeddable compon
 
 parameter                   | description                                                                       |
 ----------------------------|-----------------------------------------------------------------------------------|
+fixCss                      | fix the CSS. Use *"fixCss": "true"* if the button sizes are different             |
+linkColor                   | change the color of the links                                                     |
 h3Color                     | change the color of the `Similar sequences` and `Rfam classification` text        |
 h3Size                      | change the size of the `Similar sequences` and `Rfam classification` text         |
 exactMatchBackgroundColor   | change the background color of the "Exact match" area                             |
-jobIdBackgroundColor        | change the background color of the "Job id" area                                  | 
 similarSeqText              | change the `Similar sequences` text                                               | 
 facetColor                  | change the color of the facet title                                               |
 facetSize                   | change the size of the facet title                                                |
-seqTitleColor               | used in results, it changes the color of the title                                |
 seqTitleSize                | used in results, it changes the size of the title                                 |
 seqInfoColor                | used in results, it changes the color of the text `number of nucleotides`         |
 seqInfoSize                 | used in results, it changes the size of the text `number of nucleotides`          |
 searchButtonColor           | change the color of the `Search` button                                           |
 clearButtonColor            | change the color of the `Clear` button                                            |
 uploadButtonColor           | change the color of the `Upload file` button                                      |
-hideUploadButton            | hide the `Upload file` button. Use "hideUploadButton": "true" to hide the button  |
+hideUploadButton            | hide the `Upload file` button. Use *"hideUploadButton": "true"* to hide the button|
 loadMoreButtonColor         | change the color of the `Load more` button                                        |
 
 ## Developer details
