@@ -45,7 +45,7 @@
   "homepage": "https://github.com/RNAcentral/rnacentral-sequence-search-embed#readme",
   "dependencies": {
     "dotenv": "^8.2.0",
-    "jquery": "^3.3.1",
+    "jquery": "^3.5.0",
     "md5": "^2.2.1",
     "react": "^16.13.1",
     "react-csv": "^1.1.2",
