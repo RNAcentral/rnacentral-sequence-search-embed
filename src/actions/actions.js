@@ -37,6 +37,8 @@ export function toggleAlignmentsCollapsed() {
 }
 
 export function onSubmit(sequence, databases) {
+  let url = window.location.href;
+
   return function(dispatch) {
     fetch(routes.submitJob(), {
       method: 'POST',
@@ -48,7 +50,8 @@ export function onSubmit(sequence, databases) {
       },
       body: JSON.stringify({
         query: sequence,
-        databases: databases
+        databases: databases,
+        url: url
       })
     })
     .then(function (response) {
@@ -69,6 +72,7 @@ export function onSubmit(sequence, databases) {
 
 export function onMultipleSubmit(sequence, databases) {
   let jobIds = [];
+  let url = window.location.href;
 
   return async function(dispatch) {
     for (var i = 0; i < sequence.length; i++) {
@@ -83,7 +87,8 @@ export function onMultipleSubmit(sequence, databases) {
         },
         body: JSON.stringify({
           query: newQuery,
-          databases: databases
+          databases: databases,
+          url: url
         })
       })
       .then(function (response) {
