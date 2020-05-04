@@ -38,7 +38,7 @@ class Facets extends React.Component {
   facetClickTrack(facet){
     const trackingID = this.props.customStyle && this.props.customStyle.trackingID ? this.props.customStyle.trackingID : "";
     trackingID ? ReactGA.initialize(trackingID) : '';
-    trackingID ? ReactGA.event({ category: 'facet', action: 'checkbox', label: facet }) : '';
+    trackingID ? ReactGA.event({ category: 'facet', action: 'click', label: facet }) : '';
   }
 
   renameFacetValue(facet, facetValue){
