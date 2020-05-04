@@ -28,7 +28,6 @@ class RNAcentralSequenceSearch extends HTMLElement {
     const rfam = JSON.parse(this.attributes.rfam ? this.attributes.rfam.nodeValue : null);
     const hideFacet = JSON.parse(this.attributes.hideFacet ? this.attributes.hideFacet.nodeValue : null);
     const customStyle = JSON.parse(this.attributes.customStyle ? this.attributes.customStyle.nodeValue : null);
-    const trackingID = JSON.parse(this.attributes.trackingID ? this.attributes.trackingID.nodeValue : null);
 
     // render React
     ReactDOM.render([
