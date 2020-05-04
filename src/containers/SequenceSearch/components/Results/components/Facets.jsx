@@ -48,7 +48,7 @@ class Facets extends React.Component {
       if (facetValue.label === 'True') { facetValue.label = 'Found'; }
       else if (facetValue.label === 'False') { facetValue.label = 'Not found'; }
     }
-    return <a className="custom-link" style={{color: linkColor}}>{facetValue.label}&nbsp;<small>({facetValue.count})</small></a>
+    return <a className="custom-link" onClick={`ga('send', 'event', 'Facet', 'Checkbox', ${facet});`} style={{color: linkColor}}>{facetValue.label}&nbsp;<small>({facetValue.count})</small></a>
   }
 
   renderFacet(facet) {

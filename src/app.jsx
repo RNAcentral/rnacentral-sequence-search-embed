@@ -2,7 +2,6 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import retargetEvents from 'react-shadow-dom-retarget-events';
 import {Provider} from 'react-redux';
-import ReactGA from 'react-ga';
 
 import SequenceSearch from 'containers/SequenceSearch/index.jsx';
 import configureStore from 'store/configureStore.js';
@@ -30,9 +29,6 @@ class RNAcentralSequenceSearch extends HTMLElement {
     const hideFacet = JSON.parse(this.attributes.hideFacet ? this.attributes.hideFacet.nodeValue : null);
     const customStyle = JSON.parse(this.attributes.customStyle ? this.attributes.customStyle.nodeValue : null);
     const trackingID = JSON.parse(this.attributes.trackingID ? this.attributes.trackingID.nodeValue : null);
-
-    // Google Analytics tracking code
-    ReactGA.initialize(trackingID);
 
     // render React
     ReactDOM.render([
