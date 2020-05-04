@@ -3,6 +3,7 @@ import {connect} from "react-redux";
 
 import * as actionCreators from 'actions/actions';
 import {store} from "app.jsx";
+import ReactGA from 'react-ga';
 
 import { AiOutlineReload } from 'react-icons/ai';
 
@@ -34,6 +35,12 @@ class Facets extends React.Component {
     }
   }
 
+  facetClickTrack(facet){
+    const trackingID = this.props.customStyle && this.props.customStyle.trackingID ? this.props.customStyle.trackingID : "";
+    trackingID ? ReactGA.initialize(trackingID) : '';
+    trackingID ? ReactGA.event({ category: 'facet', action: 'checkbox', label: facet }) : '';
+  }
+
   renameFacetValue(facet, facetValue){
     const linkColor = this.props.customStyle && this.props.customStyle.linkColor ? this.props.customStyle.linkColor : "#337ab7";
     if (facet==='qc_warning_found'){
@@ -48,7 +55,7 @@ class Facets extends React.Component {
       if (facetValue.label === 'True') { facetValue.label = 'Found'; }
       else if (facetValue.label === 'False') { facetValue.label = 'Not found'; }
     }
-    return <a className="custom-link" onClick={`ga('send', 'event', 'Facet', 'Checkbox', ${facet});`} style={{color: linkColor}}>{facetValue.label}&nbsp;<small>({facetValue.count})</small></a>
+    return <a className="custom-link" onClick={() => this.facetClickTrack(facet)} style={{color: linkColor}}>{facetValue.label}&nbsp;<small>({facetValue.count})</small></a>
   }
 
   renderFacet(facet) {
