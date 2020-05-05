@@ -2,6 +2,7 @@ import React, {Component} from 'react';
 import {store} from "app.jsx";
 import * as actionCreators from 'actions/actions';
 import {connect} from "react-redux";
+import ReactGA from 'react-ga';
 
 class Filter extends Component {
   onFilterSubmit(event) {
@@ -21,6 +22,12 @@ class Filter extends Component {
     }
   }
 
+  filterClickTrack(value){
+    const trackingID = this.props.customStyle && this.props.customStyle.trackingID ? this.props.customStyle.trackingID : "";
+    trackingID ? ReactGA.initialize(trackingID) : '';
+    trackingID ? ReactGA.event({ category: 'filter', action: 'click', label: value }) : '';
+  }
+
   render() {
     const fixCss = this.props.customStyle && this.props.customStyle.fixCss && this.props.customStyle.fixCss === "true" ? "1.5rem" : "";
 
@@ -30,8 +37,8 @@ class Filter extends Component {
           <form onSubmit={(e) => this.onFilterSubmit(e)} onReset={(e) => this.onFilterReset(e)}>
             <div className="input-group">
               <input className="form-control" style={{fontSize: fixCss}} type="text" value={this.props.filter} onChange={(e) => this.props.onFilterChange(e)} placeholder="Text search within results"/>
-              <button type="submit" className={`btn btn-outline-secondary ${!this.props.filter && "disabled"}`} style={{fontSize: fixCss}}>Filter</button>
-              <button type="reset" className={`btn btn-outline-secondary ${!this.props.filter && "disabled"}`} style={{fontSize: fixCss}}>Clear</button>
+              <button type="submit" onClick={() => this.filterClickTrack('filter')} className={`btn btn-outline-secondary ${!this.props.filter && "disabled"}`} style={{fontSize: fixCss}}>Filter</button>
+              <button type="reset" onClick={() => this.filterClickTrack('clear')} className={`btn btn-outline-secondary ${!this.props.filter && "disabled"}`} style={{fontSize: fixCss}}>Clear</button>
             </div>
           </form>
         </div>

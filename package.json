@@ -1,6 +1,6 @@
 {
   "name": "@rnacentral/rnacentral-sequence-search-embed",
-  "version": "2.2.2",
+  "version": "2.2.3",
   "description": "Embeddable react component for RNA sequence search.",
   "scripts": {
     "clean": "rm -rf dist/*",
@@ -50,6 +50,7 @@
     "react": "^16.13.1",
     "react-csv": "^1.1.2",
     "react-dom": "^16.13.1",
+    "react-ga": "^2.7.0",
     "react-helmet": "^5.2.0",
     "react-icons": "^3.9.0",
     "react-redux": "^5.1.2",
