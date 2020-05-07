@@ -115,6 +115,17 @@ class SearchForm extends React.Component {
             </div>
           </div>
           {
+            !this.props.databases && (
+              <div className="row">
+                <div className="col-sm-9">
+                  <div className="alert alert-danger">
+                    You must specify the database that will be used to search sequences
+                  </div>
+                </div>
+              </div>
+            )
+          }
+          {
             this.props.submissionError && (
               <div className="row">
                 <div className="col-sm-9">
