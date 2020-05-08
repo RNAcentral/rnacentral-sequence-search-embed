@@ -5,6 +5,9 @@ import * as actionCreators from 'actions/actions';
 class Admin extends Component {
     render() {
         const linkColor = this.props.customStyle && this.props.customStyle.linkColor ? this.props.customStyle.linkColor : "#337ab7";
+        const consumers = this.props.consumers;
+        const available_consumers = consumers.filter(consumer => consumer.status === 'available');
+        const busy_consumers = consumers.filter(consumer => consumer.status === 'busy');
         return (
             <div className="mb-3">
                 <div className="card">
@@ -16,10 +19,12 @@ class Admin extends Component {
                     { this.props.showAdmin ?
                     <div className="card-body">
                         <h5 className="card-title">
-                            Number of consumers {this.props.consumers.length}
+                            Number of consumers {consumers.length}
                             <a className="custom-link ml-3" style={{color: linkColor, fontSize: "65%"}} onClick={() => this.props.numberOfConsumers()}>update</a>
                         </h5>
-                        <p className="card-text">...</p>
+                        <p className="card-text">
+                            Available: {available_consumers.length} | Busy: {busy_consumers.length}
+                        </p>
                     </div> : '' }
                 </div>
             </div>
