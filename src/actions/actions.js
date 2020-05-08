@@ -466,3 +466,29 @@ export function onFileUpload (event) {
     return fileReader;
   };
 }
+
+export function onShowAdmin() {
+  return function(dispatch) {
+    dispatch({type: types.SHOW_ADMIN});
+    dispatch(numberOfConsumers());
+  }
+}
+
+export function numberOfConsumers() {
+  return function(dispatch) {
+    fetch(routes.consumersStatuses(), {
+      method: 'GET',
+      mode: 'cors',
+      credentials: 'include',
+      headers: {
+        'Accept': 'application/json, text/plain, */*',
+        'Content-Type': 'application/json'
+      }
+    })
+    .then(function(response) {
+      if (response.ok) { return response.json(); }
+      else { throw response; }
+    })
+    .then(data => dispatch({type: types.CONSUMERS, data: data}))
+  }
+}

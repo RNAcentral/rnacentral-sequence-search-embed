@@ -34,6 +34,10 @@ let initialState = {
   infernalStatus: statusChoices.notSubmitted,
   infernalEntries: [],
   infernalAlignmentsCollapsed: true,
+
+  // admin
+  showAdmin: false,
+  consumers: [],
 };
 
 export default initialState;
