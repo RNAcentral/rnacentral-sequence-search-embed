@@ -23,11 +23,12 @@ class RNAcentralSequenceSearch extends HTMLElement {
     shadowRoot.appendChild(mountPoint);
 
     // parse arguments
-    const databases = JSON.parse(this.attributes.databases.nodeValue);
-    const examples = JSON.parse(this.attributes.examples ? this.attributes.examples.nodeValue : null);
-    const rfam = JSON.parse(this.attributes.rfam ? this.attributes.rfam.nodeValue : null);
-    const hideFacet = JSON.parse(this.attributes.hideFacet ? this.attributes.hideFacet.nodeValue : null);
+    const admin = JSON.parse(this.attributes.admin ? this.attributes.admin.nodeValue : null);
     const customStyle = JSON.parse(this.attributes.customStyle ? this.attributes.customStyle.nodeValue : null);
+    const databases = JSON.parse(this.attributes.databases ? this.attributes.databases.nodeValue : null);
+    const examples = JSON.parse(this.attributes.examples ? this.attributes.examples.nodeValue : null);
+    const hideFacet = JSON.parse(this.attributes.hideFacet ? this.attributes.hideFacet.nodeValue : null);
+    const rfam = JSON.parse(this.attributes.rfam ? this.attributes.rfam.nodeValue : null);
 
     // render React
     ReactDOM.render([
@@ -36,11 +37,12 @@ class RNAcentralSequenceSearch extends HTMLElement {
       <body key='body'>
         <Provider key='provider' store={store}>
           <SequenceSearch
+              admin={admin}
+              customStyle={customStyle}
               databases={databases}
               examples={examples}
-              rfam={rfam}
               hideFacet={hideFacet}
-              customStyle={customStyle}
+              rfam={rfam}
           />
         </Provider>
       </body>

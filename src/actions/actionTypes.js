@@ -33,4 +33,7 @@ export const FILE_UPLOAD = 'FILE_UPLOAD';
 // check exact match
 export const EXACT_MATCH = 'EXACT_MATCH';
 
-export const FETCH_RNACENTRAL_DATABASES = 'FETCH_RNACENTRAL_DATABASES';
+// admin
+export const SHOW_ADMIN = 'SHOW_ADMIN';
+export const CONSUMERS = 'CONSUMERS';
+export const JOBS_STATUSES = 'JOBS_STATUSES';

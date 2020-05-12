@@ -3,6 +3,7 @@ import {connect} from 'react-redux';
 
 import * as actionCreators from 'actions/actions';
 import {store} from "app.jsx";
+import Admin from "containers/SequenceSearch/components/SearchForm/components/Admin.jsx";
 
 import { FaSearch, FaCheckCircle } from 'react-icons/fa';
 import { FiTrash2 } from 'react-icons/fi';
@@ -87,6 +88,7 @@ class SearchForm extends React.Component {
     const linkColor = this.props.customStyle && this.props.customStyle.linkColor ? this.props.customStyle.linkColor : "#337ab7";
     return (
       <div className="rna">
+        { this.props.admin ? <Admin customStyle={this.props.customStyle} /> : '' }
         <div className="row">
           <div className="col-sm-9">
             <small className="text-muted" style={{display: hideRnacentral}}><img src={'https://rnacentral.org/static/img/logo/rnacentral-logo.png'} alt="RNAcentral logo" style={{width: "1%", verticalAlign: "text-top"}}/> Powered by <a className="custom-link mr-2" style={{color: linkColor}} target='_blank' href='https://rnacentral.org/'>RNAcentral</a>|</small>
@@ -114,6 +116,17 @@ class SearchForm extends React.Component {
               {this.props.examples ? <div id="examples"><ul className="text-muted">Examples: {this.showExamples(linkColor)}</ul></div> : ""}
             </div>
           </div>
+          {
+            !this.props.databases && (
+              <div className="row">
+                <div className="col-sm-9">
+                  <div className="alert alert-danger">
+                    You must specify the database that will be used to search sequences
+                  </div>
+                </div>
+              </div>
+            )
+          }
           {
             this.props.submissionError && (
               <div className="row">
