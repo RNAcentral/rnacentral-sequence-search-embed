@@ -32,7 +32,7 @@ class Hit extends React.Component {
         {database.length === 0 && <div className="text-muted mt-2" style={seqInfoStyle}>{ this.props.entry.rnacentral_id } {showExpertDb.map((db, index) => <img key={index} className="ml-2 desaturate" src={db.src} style={{height: "16px"}} />)}</div>}
         {database.length === 0 ? '' : <div className="text-muted mt-2" style={seqInfoStyle}>{this.props.entry.target_length} nucleotides</div>}
         <div className={this.props.detailsCollapsed ? 'detail-collapsed' : 'mt-1'}>
-          <span className="detail">E-value: { this.props.entry.e_value }</span>
+          <span className="detail">E-value: { this.props.entry.e_value.toExponential() }</span>
           <span className="detail">Identity: { `${parseFloat(this.props.entry.identity).toFixed(2)}%`}</span>
           <span className="detail">Query coverage: { `${parseFloat(this.props.entry.query_coverage).toFixed(2)}%` }</span>
           <span className="detail">Target coverage: { `${parseFloat(this.props.entry.target_coverage).toFixed(2)}%`}</span>
