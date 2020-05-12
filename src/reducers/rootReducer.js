@@ -314,6 +314,9 @@ const rootReducer = function (state = initialState, action) {
     case actions.CONSUMERS:
       return Object.assign({}, state, {consumers: action.data});
 
+    case actions.JOBS_STATUSES:
+      return Object.assign({}, state, {jobsStatuses: action.data});
+
     default:
       return state;
   }

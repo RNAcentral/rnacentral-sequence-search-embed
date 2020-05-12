@@ -38,6 +38,7 @@ let initialState = {
   // admin
   showAdmin: false,
   consumers: [],
+  jobsStatuses: [],
 };
 
 export default initialState;

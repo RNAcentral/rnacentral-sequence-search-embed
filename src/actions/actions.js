@@ -471,6 +471,7 @@ export function onShowAdmin() {
   return function(dispatch) {
     dispatch({type: types.SHOW_ADMIN});
     dispatch(numberOfConsumers());
+    dispatch(checkAllJobs());
   }
 }
 
@@ -490,5 +491,24 @@ export function numberOfConsumers() {
       else { throw response; }
     })
     .then(data => dispatch({type: types.CONSUMERS, data: data}))
+  }
+}
+
+export function checkAllJobs() {
+  return function(dispatch) {
+    fetch(routes.jobsStatuses(), {
+      method: 'GET',
+      mode: 'cors',
+      credentials: 'include',
+      headers: {
+        'Accept': 'application/json, text/plain, */*',
+        'Content-Type': 'application/json'
+      }
+    })
+    .then(function(response) {
+      if (response.ok) { return response.json(); }
+      else { throw response; }
+    })
+    .then(data => dispatch({type: types.JOBS_STATUSES, data: data}))
   }
 }
