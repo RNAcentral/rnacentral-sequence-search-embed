@@ -1,5 +1,4 @@
 import React from 'react';
-import 'jquery/dist/jquery.js';
 
 import Results from 'containers/SequenceSearch/components/Results/index.jsx';
 import SearchForm from 'containers/SequenceSearch/components/SearchForm/index.jsx';
