@@ -317,6 +317,9 @@ const rootReducer = function (state = initialState, action) {
     case actions.JOBS_STATUSES:
       return Object.assign({}, state, {jobsStatuses: action.data});
 
+    case actions.SET_JOBS_STATUSES_TIMEOUT:
+      return Object.assign({}, state, {jobsStatusesTimeout: action.jobsStatusesTimeout});
+
     default:
       return state;
   }
