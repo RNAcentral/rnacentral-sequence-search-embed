@@ -18,7 +18,7 @@ class Results extends React.Component {
   }
 
   onSeeResults(e) {
-    if (e.target.value === 'Select an Id to check the results' || e.target.value === 'Invalid sequence. Check your fasta file.'){
+    if (e.target.value === 'Select an Id to check the results' || e.target.value === 'Error submitting sequence. Check your fasta file and try again later.'){
       store.dispatch(actionCreators.onClearJobId());
     } else {
       store.dispatch(actionCreators.onClearResult());

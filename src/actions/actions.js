@@ -75,9 +75,9 @@ export function onMultipleSubmit(sequence, databases) {
   let url = window.location.href;
 
   return async function(dispatch) {
-    for (var i = 0; i < sequence.length; i++) {
+    for (let i = 0; i < sequence.length; i++) {
       let newQuery = sequence[i];
-      newQuery && fetch(routes.submitJob(), {
+      newQuery && await fetch(routes.submitJob(), {
         method: 'POST',
         mode: 'cors',
         credentials: 'include',
@@ -95,8 +95,7 @@ export function onMultipleSubmit(sequence, databases) {
         if (response.ok) {
           return response.json();
         } else {
-          jobIds.push("Invalid sequence. Check your fasta file.");
-          throw response;
+          jobIds.push("Error submitting sequence. Check your fasta file and try again later.");
         }
       })
       .then(data => {
