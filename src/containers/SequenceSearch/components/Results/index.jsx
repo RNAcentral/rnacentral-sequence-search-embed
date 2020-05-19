@@ -72,6 +72,10 @@ class Results extends React.Component {
         })
     }
 
+    // batch queries info
+    const sequences = this.props.jobList;
+    const sequenceError = sequences.filter(sequence => sequence === 'Error submitting sequence. Check your fasta file and try again later.')
+
     return (
       <div className="rna">
         {
@@ -79,13 +83,18 @@ class Results extends React.Component {
             <div className="row" key={`select-id-div`}>
               <div className="col-sm-9">
                 <div className="form-group">
-                  <label htmlFor="selectJobId">
-                    <span>{this.props.jobList.length} sequences were submitted. </span>
-                    <CSVLink data={Object.entries(this.props.jobList)} filename={"job-ids.csv"}>
-                      <span>Download the Ids</span>
-                    </CSVLink>
-                    <span> for future reference.</span>
-                  </label>
+                  <div className={`alert ${sequenceError.length > 0 ? 'alert-warning' : 'alert-success'}`}>
+                    <label htmlFor="selectJobId">
+                      { sequenceError.length > 0 ?
+                          <span>{sequences.length} sequences were submitted, but {sequenceError.length} failed. </span>
+                        : <span>{sequences.length} sequences were submitted. </span>
+                      }
+                      <CSVLink data={Object.entries(this.props.jobList)} filename={"job-ids.csv"}>
+                        <span>Download the Ids</span>
+                      </CSVLink>
+                      <span> for future reference.</span>
+                    </label>
+                  </div>
                   <select className="form-select mb-3" style={{fontSize: fixCss}} id="selectJobId" onChange={this.onSeeResults}>
                     <option key={'no-job-selected'}>Select an Id to check the results</option>
                     {this.props.jobList.map((job) => <option key={job}>{job}</option>)}
