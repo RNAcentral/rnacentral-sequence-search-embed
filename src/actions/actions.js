@@ -75,9 +75,9 @@ export function onMultipleSubmit(sequence, databases) {
   let url = window.location.href;
 
   return async function(dispatch) {
-    for (var i = 0; i < sequence.length; i++) {
+    for (let i = 0; i < sequence.length; i++) {
       let newQuery = sequence[i];
-      newQuery && fetch(routes.submitJob(), {
+      newQuery && await fetch(routes.submitJob(), {
         method: 'POST',
         mode: 'cors',
         credentials: 'include',
@@ -95,8 +95,7 @@ export function onMultipleSubmit(sequence, databases) {
         if (response.ok) {
           return response.json();
         } else {
-          jobIds.push("Invalid sequence. Check your fasta file.");
-          throw response;
+          jobIds.push("Error submitting sequence. Check your fasta file and try again later.");
         }
       })
       .then(data => {
@@ -495,6 +494,7 @@ export function numberOfConsumers() {
 }
 
 export function checkAllJobs() {
+  let state = store.getState();
   return function(dispatch) {
     fetch(routes.jobsStatuses(), {
       method: 'GET',
@@ -509,6 +509,19 @@ export function checkAllJobs() {
       if (response.ok) { return response.json(); }
       else { throw response; }
     })
-    .then(data => dispatch({type: types.JOBS_STATUSES, data: data}))
+    .then(data => {
+        if (state.showAdmin) {
+          dispatch({type: types.JOBS_STATUSES, data: data});
+          let jobsStatusesTimeout = setTimeout(() => dispatch(checkAllJobs()), 2000);
+          dispatch({type: types.SET_JOBS_STATUSES_TIMEOUT, timeout: jobsStatusesTimeout});
+        } else if (store.getState().hasOwnProperty('jobsStatusesTimeout')) {
+          clearTimeout(store.getState().jobsStatusesTimeout); // clear timeout
+        }
+    })
+    .catch(error => {
+      if (store.getState().hasOwnProperty('jobsStatusesTimeout')) {
+        clearTimeout(store.getState().jobsStatusesTimeout); // clear timeout
+      }
+    });
   }
 }

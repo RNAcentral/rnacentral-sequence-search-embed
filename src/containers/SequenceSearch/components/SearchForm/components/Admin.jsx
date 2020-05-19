@@ -5,6 +5,7 @@ import * as actionCreators from 'actions/actions';
 class Admin extends Component {
     render() {
         const linkColor = this.props.customStyle && this.props.customStyle.linkColor ? this.props.customStyle.linkColor : "#337ab7";
+        const last_job = this.props.jobsStatuses ? this.props.jobsStatuses[0] : '';
         const consumers = this.props.consumers;
         const unfinished_jobs = this.props.jobsStatuses.filter(job => job.status !== 'success' && job.status !== 'partial_success');
         return (
@@ -18,6 +19,31 @@ class Admin extends Component {
                     { this.props.showAdmin ?
                     <div className="card-body">
                         <div className="row">
+                            { last_job ? <div className="col-sm-12 mb-3">
+                                <div className="card">
+                                    <div className="card-body">
+                                        <h5 className="card-title">Last job</h5>
+                                        <table key="last-job" className="table table-striped">
+                                            <thead>
+                                                <tr>
+                                                    <th>Job: {last_job.id}</th>
+                                                    <th>Status: { last_job.status }</th>
+                                                    <th>Submitted: { last_job.submitted }</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {last_job.chunks.map((chunk, chunkIndex) => (
+                                                    <tr key={`jobChunk-${chunkIndex}`}>
+                                                        <td>Database: {chunk.database}</td>
+                                                        <td>Status: {chunk.status}</td>
+                                                        <td>Consumer: {chunk.consumer}</td>
+                                                    </tr>
+                                                ))}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div> : '' }
                             <div className="col-sm-4">
                                 <div className="card">
                                     <div className="card-body">
