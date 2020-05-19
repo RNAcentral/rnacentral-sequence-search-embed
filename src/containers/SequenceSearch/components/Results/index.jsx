@@ -97,7 +97,7 @@ class Results extends React.Component {
                   </div>
                   <select className="form-select mb-3" style={{fontSize: fixCss}} id="selectJobId" onChange={this.onSeeResults}>
                     <option key={'no-job-selected'}>Select an Id to check the results</option>
-                    {this.props.jobList.map((job) => <option key={job}>{job}</option>)}
+                    {this.props.jobList.map((job, index) => <option key={`${index}_${job}`}>{job}</option>)}
                   </select>
                 </div>
               </div>
