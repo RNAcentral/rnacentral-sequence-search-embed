@@ -107,7 +107,7 @@ class SearchForm extends React.Component {
               <div style={{display: hideUploadButton}}>
                 <label htmlFor="file-upload" className="custom-file-upload" style={{background: uploadButtonColor}}><MdFileUpload /> Upload file</label>
                 <input id="file-upload" type="file" accept=".fasta" onClick={ this.props.onClearSequence } onChange={this.props.onFileUpload} />
-                <div className="row"><small>Up to 50 queries</small></div>
+                <div className="row"><small>Up to 50 queries (beta)</small></div>
               </div>
             </div>
           </div>
