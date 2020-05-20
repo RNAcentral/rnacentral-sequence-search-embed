@@ -103,7 +103,7 @@ class SearchForm extends React.Component {
             </div>
             <div className="col-sm-3">
               <button className="btn btn-primary mb-2" style={{background: searchButtonColor, borderColor: searchButtonColor, fontSize: fixCss, height: fixCssBtn}} type="submit" disabled={!this.props.sequence ? "disabled" : ""}>
-                { this.props.submitBatchSearch ? <span><span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Loading</span> : <span><span className="btn-icon"><FaSearch /></span> Search</span>}
+                { this.props.submitBatchSearch ? <span><span className={`spinner-border ${fixCss ? '' : 'spinner-border-sm'}`} role="status" aria-hidden="true"></span> Loading</span> : <span><span className="btn-icon"><FaSearch /></span> Search</span>}
               </button><br />
               <button className="btn btn-secondary mb-2" style={{background: clearButtonColor, borderColor: clearButtonColor, fontSize: fixCss, height: fixCssBtn}} type="submit" onClick={ this.props.onClearSequence } disabled={!this.props.sequence ? "disabled" : ""}><span className="btn-icon"><FiTrash2 /></span> Clear</button><br />
               <div style={{display: hideUploadButton}}>
