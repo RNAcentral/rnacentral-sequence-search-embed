@@ -14,6 +14,7 @@ export const SORT_RESULTS = 'SORT_RESULTS';
 export const FETCH_STATUS = 'FETCH_STATUS';
 export const SET_STATUS_TIMEOUT = 'SET_STATUS_TIMEOUT';
 export const SEARCH_PROGRESS = 'SEARCH_PROGRESS';
+export const BATCH_SEARCH = 'BATCH_SEARCH';
 
 
 // submission form

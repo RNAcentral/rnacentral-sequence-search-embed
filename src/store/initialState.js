@@ -8,6 +8,7 @@ let statusChoices = {
 let initialState = {
   jobId: null,
   jobList: [],
+  submitBatchSearch: false,
   submissionError: null,
   sequence: "",
   hits: null,

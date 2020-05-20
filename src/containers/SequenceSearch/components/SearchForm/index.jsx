@@ -102,7 +102,9 @@ class SearchForm extends React.Component {
               <textarea style={{fontSize: fixCss}} className="form-control" id="sequence" name="sequence" rows="7" value={this.props.sequence} onChange={(e) => this.props.onSequenceTextareaChange(e)} placeholder="Enter RNA/DNA sequence (with an optional description in FASTA format) or job id" />
             </div>
             <div className="col-sm-3">
-              <button className="btn btn-primary mb-2" style={{background: searchButtonColor, borderColor: searchButtonColor, fontSize: fixCss, height: fixCssBtn}} type="submit" disabled={!this.props.sequence ? "disabled" : ""}><span className="btn-icon"><FaSearch /></span> Search</button><br />
+              <button className="btn btn-primary mb-2" style={{background: searchButtonColor, borderColor: searchButtonColor, fontSize: fixCss, height: fixCssBtn}} type="submit" disabled={!this.props.sequence ? "disabled" : ""}>
+                { this.props.submitBatchSearch ? <span><span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Loading</span> : <span><span className="btn-icon"><FaSearch /></span> Search</span>}
+              </button><br />
               <button className="btn btn-secondary mb-2" style={{background: clearButtonColor, borderColor: clearButtonColor, fontSize: fixCss, height: fixCssBtn}} type="submit" onClick={ this.props.onClearSequence } disabled={!this.props.sequence ? "disabled" : ""}><span className="btn-icon"><FiTrash2 /></span> Clear</button><br />
               <div style={{display: hideUploadButton}}>
                 <label htmlFor="file-upload" className="custom-file-upload" style={{background: uploadButtonColor}}><MdFileUpload /> Upload file</label>
@@ -161,6 +163,7 @@ class SearchForm extends React.Component {
 const mapStateToProps = (state) => ({
   status: state.status,
   infernalStatus: state.infernalStatus,
+  submitBatchSearch: state.submitBatchSearch,
   submissionError: state.submissionError,
   sequence: state.sequence,
   hits: state.hits,

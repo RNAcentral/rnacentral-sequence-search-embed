@@ -75,6 +75,7 @@ export function onMultipleSubmit(sequence, databases) {
   let url = window.location.href;
 
   return async function(dispatch) {
+    dispatch({type: types.BATCH_SEARCH, data: true});
     for (let i = 0; i < sequence.length; i++) {
       let newQuery = sequence[i];
       newQuery && await fetch(routes.submitJob(), {
@@ -101,6 +102,7 @@ export function onMultipleSubmit(sequence, databases) {
       .then(data => {
         jobIds.push(data.job_id);
         if (jobIds.length === sequence.length) {
+          dispatch({type: types.BATCH_SEARCH, data: false});
           dispatch({type: types.SUBMIT_MULTIPLE_JOB, status: 'success', data: jobIds});
         }
       })
@@ -411,6 +413,10 @@ export function onToggleAlignmentsCollapsed() {
 
 export function onToggleDetailsCollapsed() {
   return {type: types.TOGGLE_DETAILS_COLLAPSED}
+}
+
+export function updateBatchSearch() {
+  return {type: types.BATCH_SEARCH}
 }
 
 export function onSequenceTextAreaChange(event) {

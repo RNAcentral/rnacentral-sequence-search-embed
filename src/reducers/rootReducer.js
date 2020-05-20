@@ -116,19 +116,16 @@ const rootReducer = function (state = initialState, action) {
       }
 
     case actions.TOGGLE_ALIGNMENTS_COLLAPSED:
-      return Object.assign({}, state, {
-        alignmentsCollapsed: !state.alignmentsCollapsed
-      });
+      return Object.assign({}, state, { alignmentsCollapsed: !state.alignmentsCollapsed });
 
     case actions.TOGGLE_INFERNAL_ALIGNMENTS_COLLAPSED:
-      return Object.assign({}, state, {
-        infernalAlignmentsCollapsed: !state.infernalAlignmentsCollapsed
-      });
+      return Object.assign({}, state, { infernalAlignmentsCollapsed: !state.infernalAlignmentsCollapsed });
 
     case actions.TOGGLE_DETAILS_COLLAPSED:
-      return Object.assign({}, state, {
-        detailsCollapsed: !state.detailsCollapsed
-      });
+      return Object.assign({}, state, { detailsCollapsed: !state.detailsCollapsed });
+
+    case actions.BATCH_SEARCH:
+      return Object.assign({}, state, { submitBatchSearch: action.data });
 
     // submission form
     case actions.SUBMIT_JOB:
@@ -227,6 +224,7 @@ const rootReducer = function (state = initialState, action) {
     case actions.TEXTAREA_CHANGE:
       return Object.assign({}, state, {
         jobId: null,
+        submitBatchSearch: false,
         sequence: action.sequence,
         hits: null,
         status: "notSubmitted",
@@ -252,6 +250,7 @@ const rootReducer = function (state = initialState, action) {
     case actions.EXAMPLE_SEQUENCE:
       return Object.assign({}, state, {
         jobId: null,
+        submitBatchSearch: false,
         sequence: action.sequence,
         hits: null,
         status: "notSubmitted",
@@ -278,6 +277,7 @@ const rootReducer = function (state = initialState, action) {
       return Object.assign({}, state, {
         jobId: null,
         jobList: [],
+        submitBatchSearch: false,
         sequence: "",
         hits: null,
         status: "notSubmitted",
