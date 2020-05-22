@@ -475,13 +475,19 @@ export function onFileUpload (event) {
 export function onShowAdmin() {
   return function(dispatch) {
     dispatch({type: types.SHOW_ADMIN});
-    dispatch(numberOfConsumers());
-    dispatch(checkAllJobs());
+    dispatch(updateAdmin());
   }
 }
 
 export function onShowLastJob() {
   return {type: types.SHOW_LAST_JOB}
+}
+
+export function updateAdmin() {
+  return function(dispatch) {
+    dispatch(numberOfConsumers());
+    dispatch(checkAllJobs());
+  }
 }
 
 export function numberOfConsumers() {
@@ -522,7 +528,7 @@ export function checkAllJobs() {
     .then(data => {
         if (state.showAdmin) {
           dispatch({type: types.JOBS_STATUSES, data: data});
-          let jobsStatusesTimeout = setTimeout(() => dispatch(checkAllJobs()), 2000);
+          let jobsStatusesTimeout = setTimeout(() => dispatch(updateAdmin()), 2000);
           dispatch({type: types.SET_JOBS_STATUSES_TIMEOUT, timeout: jobsStatusesTimeout});
         } else if (store.getState().hasOwnProperty('jobsStatusesTimeout')) {
           clearTimeout(store.getState().jobsStatusesTimeout); // clear timeout

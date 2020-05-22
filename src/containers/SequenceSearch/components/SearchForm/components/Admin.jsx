@@ -25,7 +25,6 @@ class Admin extends Component {
                             { this.props.showLastJob && last_job ? <div className="col-sm-12 mb-3">
                                 <div className="card">
                                     <div className="card-body">
-                                        <h5 className="card-title">Last job</h5>
                                         <table key="last-job" className="table table-striped">
                                             <thead>
                                                 <tr>
@@ -50,7 +49,7 @@ class Admin extends Component {
                             <div className="col-sm-4">
                                 <div className="card">
                                     <div className="card-body">
-                                        <h5 className="card-title">Number of consumers {consumers.length} <a className="custom-link ml-3" style={{color: linkColor, fontSize: "65%"}} onClick={() => this.props.numberOfConsumers()}>update</a></h5>
+                                        <h5 className="card-title">Number of consumers {consumers.length}</h5>
                                         <table className="table table-striped">
                                             <thead>
                                                 <tr>
@@ -115,7 +114,6 @@ const mapStateToProps = (state) => ({
 const mapDispatchToProps = (dispatch) => ({
   onShowAdmin: () => dispatch(actionCreators.onShowAdmin()),
   onShowLastJob: () => dispatch(actionCreators.onShowLastJob()),
-  numberOfConsumers: () => dispatch(actionCreators.numberOfConsumers()),
 });
 
 export default connect(
