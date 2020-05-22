@@ -36,6 +36,7 @@ export const EXACT_MATCH = 'EXACT_MATCH';
 
 // admin
 export const SHOW_ADMIN = 'SHOW_ADMIN';
+export const SHOW_LAST_JOB = 'SHOW_LAST_JOB';
 export const CONSUMERS = 'CONSUMERS';
 export const JOBS_STATUSES = 'JOBS_STATUSES';
 export const SET_JOBS_STATUSES_TIMEOUT = 'SET_JOBS_STATUSES_TIMEOUT';

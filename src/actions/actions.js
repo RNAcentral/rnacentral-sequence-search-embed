@@ -480,6 +480,10 @@ export function onShowAdmin() {
   }
 }
 
+export function onShowLastJob() {
+  return {type: types.SHOW_LAST_JOB}
+}
+
 export function numberOfConsumers() {
   return function(dispatch) {
     fetch(routes.consumersStatuses(), {

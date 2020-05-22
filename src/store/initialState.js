@@ -38,6 +38,7 @@ let initialState = {
 
   // admin
   showAdmin: false,
+  showLastJob: false,
   consumers: [],
   jobsStatuses: [],
 };

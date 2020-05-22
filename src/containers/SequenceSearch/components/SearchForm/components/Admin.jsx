@@ -18,8 +18,11 @@ class Admin extends Component {
                     </div>
                     { this.props.showAdmin ?
                     <div className="card-body">
+                        <a className="custom-link" onClick={ this.props.onShowLastJob }>
+                            { this.props.showLastJob ? <p style={{color: linkColor}}>&#x25BC; Hide last job</p> : <p style={{color: linkColor}}>&#x25B6; Show last job</p> }
+                        </a>
                         <div className="row">
-                            { last_job ? <div className="col-sm-12 mb-3">
+                            { this.props.showLastJob && last_job ? <div className="col-sm-12 mb-3">
                                 <div className="card">
                                     <div className="card-body">
                                         <h5 className="card-title">Last job</h5>
@@ -104,12 +107,14 @@ class Admin extends Component {
 
 const mapStateToProps = (state) => ({
   showAdmin: state.showAdmin,
+  showLastJob: state.showLastJob,
   consumers: state.consumers,
   jobsStatuses: state.jobsStatuses,
 });
 
 const mapDispatchToProps = (dispatch) => ({
   onShowAdmin: () => dispatch(actionCreators.onShowAdmin()),
+  onShowLastJob: () => dispatch(actionCreators.onShowLastJob()),
   numberOfConsumers: () => dispatch(actionCreators.numberOfConsumers()),
 });
 

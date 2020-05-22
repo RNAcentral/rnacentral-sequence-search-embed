@@ -311,6 +311,9 @@ const rootReducer = function (state = initialState, action) {
     case actions.SHOW_ADMIN:
       return Object.assign({}, state, {showAdmin: !state.showAdmin});
 
+    case actions.SHOW_LAST_JOB:
+      return Object.assign({}, state, {showLastJob: !state.showLastJob});
+
     case actions.CONSUMERS:
       return Object.assign({}, state, {consumers: action.data});
 
