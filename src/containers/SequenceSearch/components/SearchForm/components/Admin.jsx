@@ -90,6 +90,9 @@ class Admin extends Component {
                                                             <td>Consumer: {chunk.consumer}</td>
                                                         </tr>
                                                     ))}
+                                                    <tr>
+                                                        <td colSpan={3}><div className="query">{ job.query.replace(/[\n\r]/g, "") }</div></td>
+                                                    </tr>
                                                 </tbody>
                                             </table>
                                         ))}
