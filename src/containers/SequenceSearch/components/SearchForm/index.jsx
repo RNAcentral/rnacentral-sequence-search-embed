@@ -63,6 +63,7 @@ class SearchForm extends React.Component {
     // split the sequence for batch queries and set a limit on the number of queries
     if (state.fileUpload && state.sequence) {
       let getSequence = state.sequence.split(/(?=>)/g).slice(0, 50);
+      state.sequence = "";
       store.dispatch(actionCreators.onMultipleSubmit(getSequence, this.props.databases));
     } else if (state.sequence && state.sequence.match("^([0-9a-fA-F]{8})-(([0-9a-fA-F]{4}\\-){3})([0-9a-fA-F]{12})$")) {
       store.dispatch(actionCreators.updateJobId(state.sequence));
