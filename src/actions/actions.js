@@ -51,7 +51,8 @@ export function onSubmit(sequence, databases) {
       body: JSON.stringify({
         query: sequence,
         databases: databases,
-        url: url
+        url: url,
+        priority: 'high'
       })
     })
     .then(function (response) {
@@ -89,7 +90,8 @@ export function onMultipleSubmit(sequence, databases) {
         body: JSON.stringify({
           query: newQuery,
           databases: databases,
-          url: url
+          url: url,
+          priority: 'low'
         })
       })
       .then(function (response) {
