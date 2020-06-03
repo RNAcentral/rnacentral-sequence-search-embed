@@ -62,6 +62,7 @@ class Results extends React.Component {
     const fixCss = this.props.customStyle && this.props.customStyle.fixCss && this.props.customStyle.fixCss === "true" ? "1.5rem" : "";
     const fixCssBtn = this.props.customStyle && this.props.customStyle.fixCss && this.props.customStyle.fixCss === "true" ? "38px" : "";
     const linkColor = this.props.customStyle && this.props.customStyle.linkColor ? this.props.customStyle.linkColor : "#337ab7";
+    const showRfamAlignment = !!(this.props.customStyle && this.props.customStyle.showRfamAlignment);
 
     // exact match URS ids
     const exactMatch = this.props.exactMatch;
@@ -156,7 +157,7 @@ class Results extends React.Component {
                           <th>Bit score</th>
                           <th>E-value</th>
                           <th>Strand</th>
-                          <th>Alignment</th>
+                          {showRfamAlignment ? null : <th>Alignment</th>}
                         </tr>
                       </thead>
                       <tbody>
@@ -170,17 +171,24 @@ class Results extends React.Component {
                             <td>{entry.score}</td>
                             <td>{entry.e_value}</td>
                             <td>{entry.strand}</td>
-                            <td>
-                              {
-                                entry.alignment ?
-                                <a className="custom-link" onClick={ this.props.onToggleInfernalAlignmentsCollapsed }>
-                                  { this.props.infernalAlignmentsCollapsed ? <span style={{color: linkColor}}>&#x25B6; Show</span> : <span style={{color: linkColor}}>&#x25BC; Hide</span> }
-                                </a> : "Not available"
-                              }
-                            </td>
+                            {showRfamAlignment ? null :
+                              <td>
+                                {
+                                  entry.alignment ?
+                                  <a className="custom-link" onClick={ this.props.onToggleInfernalAlignmentsCollapsed }>
+                                    { this.props.infernalAlignmentsCollapsed ? <span style={{color: linkColor}}>&#x25B6; Show</span> : <span style={{color: linkColor}}>&#x25BC; Hide</span> }
+                                  </a> : "Not available"
+                                }
+                              </td>
+                            }
                           </tr>
                           {
-                            this.props.infernalAlignmentsCollapsed ? null :
+                            showRfamAlignment ?
+                              <tr>
+                                <td className="alignment-rfam-td" colSpan={7}>
+                                  <div className="alignment-rfam">{ entry.alignment + '\n' }</div>
+                                </td>
+                              </tr> : this.props.infernalAlignmentsCollapsed ? null :
                               <tr>
                                 <td className="alignment-rfam-td" colSpan={8}>
                                   <div className="alignment-rfam">{ entry.alignment + '\n' }</div>
