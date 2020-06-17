@@ -28,6 +28,28 @@ class Filter extends Component {
     trackingID ? ReactGA.event({ category: 'filter', action: 'click', label: value }) : '';
   }
 
+  onDownload() {
+    let data = "Query: " + this.props.sequence + "\n" + "\n" +
+      "Total of hits: " + this.props.downloadEntries.length + "\n" + "\n" +
+      "Annotation for each hit  (and alignments):" + "\n" + "\n" +
+      this.props.downloadEntries.map((entry, index) => (
+        ">> " + entry.rnacentral_id + " " + entry.description + "\n" +
+        "E-value: " + entry.e_value.toExponential() + "\t" +
+        "Identity: " +  `${parseFloat(entry.identity).toFixed(2)}%` + "\t" +
+        "Query coverage: " + `${parseFloat(entry.query_coverage).toFixed(2)}%` + "\t" +
+        "Gaps: " + `${parseFloat(entry.gaps).toFixed(2)}%` + "\n" + "\n" +
+        "Alignment: " + "\n" + entry.alignment + "\n" + "\n" + "\n"
+      ))
+    data = data.replace(/,>>/g, '>>')
+    let file = new Blob([data], {type: 'text/plain'});
+    let link = document.createElement('a');
+    link.href = URL.createObjectURL(file);
+    link.download = this.props.jobId + '.txt';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  }
+
   render() {
     const fixCss = this.props.customStyle && this.props.customStyle.fixCss && this.props.customStyle.fixCss === "true" ? "1.5rem" : "";
 
@@ -55,10 +77,9 @@ class Filter extends Component {
           </select>
         </div>
         <div className="col-sm-4">
-          <div className="input-group">
-            <button className="btn btn-outline-secondary" style={{fontSize: fixCss}} onClick={this.props.onToggleAlignmentsCollapsed}>{this.props.alignmentsCollapsed ? 'Show alignments' : 'Hide alignments'}</button>
-            <button className="btn btn-outline-secondary" style={{fontSize: fixCss}} onClick={this.props.onToggleDetailsCollapsed}>{this.props.detailsCollapsed ? 'Show details' : 'Hide details'}</button>
-          </div>
+          <button className="btn btn-outline-secondary mr-1" style={{fontSize: fixCss}} onClick={this.props.onToggleAlignmentsCollapsed}>{this.props.alignmentsCollapsed ? 'See alignments' : 'Hide alignments'}</button>
+          <button className="btn btn-outline-secondary mr-1" style={{fontSize: fixCss}} onClick={this.props.onToggleDetailsCollapsed}>{this.props.detailsCollapsed ? 'See details' : 'Hide details'}</button>
+          <button className="btn btn-outline-secondary" style={{fontSize: fixCss}} onClick={() => this.onDownload()} disabled={this.props.downloadStatus === "error" ? "disabled" : ""}>Download</button>
         </div>
       </div>
     );
@@ -69,7 +90,11 @@ function mapStateToProps(state) {
   return {
     alignmentsCollapsed: state.alignmentsCollapsed,
     detailsCollapsed: state.detailsCollapsed,
-    filter: state.filter
+    filter: state.filter,
+    jobId: state.jobId,
+    sequence: state.sequence,
+    downloadStatus: state.downloadStatus,
+    downloadEntries: state.downloadEntries,
   };
 }
 

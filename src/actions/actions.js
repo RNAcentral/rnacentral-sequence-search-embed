@@ -56,11 +56,8 @@ export function onSubmit(sequence, databases) {
       })
     })
     .then(function (response) {
-      if (response.ok) {
-        return response.json();
-      } else {
-        throw response;
-      }
+      if (response.ok) { return response.json() }
+      else { throw response }
     })
     .then(data => {
         dispatch({type: types.SUBMIT_JOB, status: 'success', data: data});
@@ -117,11 +114,8 @@ export function onSubmitUrs(urs, database) {
   return function(dispatch) {
     fetch(routes.rnacentralUrs(urs))
     .then(function(response) {
-      if (response.ok) {
-        return response.json()
-      } else {
-        throw response;
-      }
+      if (response.ok) { return response.json() }
+      else { throw response }
     })
     .then(data => {
       if(data.sequence.length < 10 || data.sequence.length > 7000) {
@@ -167,11 +161,8 @@ export function fetchStatus(jobId) {
       }
     })
     .then(function(response) {
-      if (response.ok) {
-        return response.json()
-      } else {
-        throw response;
-      }
+      if (response.ok) { return response.json() }
+      else { throw response }
     })
     .then((data) => {
       if (data.status === 'started' || data.status === 'pending' || data.status === 'running') {
@@ -222,11 +213,8 @@ export function fetchInfernalStatus(jobId) {
       }
     })
     .then(function(response) {
-      if (response.ok) {
-        return response.json()
-      } else {
-        throw response;
-      }
+      if (response.ok) { return response.json() }
+      else { throw response }
     })
     .then((data) => {
       if (data.status === 'started' || data.status === 'pending') {
@@ -259,16 +247,14 @@ export function fetchResults(jobId) {
       }
     })
     .then(function(response) {
-      if (response.ok) {
-        return response.json()
-      } else {
-        throw response;
-      }
+      if (response.ok) { return response.json() }
+      else { throw response }
     })
-    .then(data => dispatch({type: types.FETCH_RESULTS, status: 'success', data: data}))
-    .catch(error => {
-      dispatch({type: types.FETCH_RESULTS, status: 'error'})
-    });
+    .then(data => {
+      dispatch({type: types.FETCH_RESULTS, status: 'success', data: data});
+      dispatch(dataForDownload());
+    })
+    .catch(error => dispatch({type: types.FETCH_RESULTS, status: 'error'}));
   }
 }
 
@@ -284,16 +270,11 @@ export function fetchInfernalResults(jobId) {
       }
     })
     .then(function(response) {
-      if (response.ok) {
-        return response.json()
-      } else {
-        throw response;
-      }
+      if (response.ok) { return response.json() }
+      else { throw response }
     })
     .then(data => dispatch({type: types.FETCH_INFERNAL_RESULTS, infernalStatus: 'success', data: data}))
-    .catch(error => {
-      dispatch({type: types.FETCH_INFERNAL_RESULTS, infernalStatus: 'error'})
-    });
+    .catch(error => dispatch({type: types.FETCH_INFERNAL_RESULTS, infernalStatus: 'error'}));
   }
 }
 
@@ -320,13 +301,13 @@ export function onFilterResult() {
       }
     })
     .then(function(response) {
-      if (response.ok) {
-        return response.json()
-      } else {
-        throw response;
-      }
+      if (response.ok) { return response.json() }
+      else { throw response }
     })
-    .then(data => dispatch({type: types.FETCH_RESULTS, status: 'success', data: data}))
+    .then(data => {
+      dispatch({type: types.FETCH_RESULTS, status: 'success', data: data})
+      dispatch(dataForDownload());
+    })
     .catch(error => {dispatch({type: types.FETCH_RESULTS, status: 'error'})});
   }
 }
@@ -404,7 +385,10 @@ export function onSort(event) {
         if (response.ok) { return response.json(); }
         else { throw response; }
       })
-      .then(data => dispatch({type: types.SORT_RESULTS, data: data}))
+      .then(data => {
+        dispatch({type: types.SORT_RESULTS, data: data, ordering: ordering});
+        dispatch(dataForDownload());
+      })
       .catch(response => dispatch({ type: types.FAILED_FETCH_RESULTS, status: "error", start: 0 }));
   };
 }
@@ -472,6 +456,29 @@ export function onFileUpload (event) {
     fileReader.readAsText(event.target.files[0]);
     return fileReader;
   };
+}
+
+export function dataForDownload() {
+  let state = store.getState();
+  let selectedFacets = state.filter ? {...state.selectedFacets} : {};
+
+  return function(dispatch) {
+    fetch(routes.facetsSearch(state.jobId, buildQuery(selectedFacets), 0, 200, state.ordering), {
+      method: 'GET',
+      mode: 'cors',
+      credentials: 'include',
+      headers: {
+        'Accept': 'application/json, text/plain, */*',
+        'Content-Type': 'application/json'
+      }
+    })
+    .then(function(response) {
+      if (response.ok) { return response.json() }
+      else { throw response }
+    })
+    .then((data) => dispatch({type: types.DOWNLOAD, status: "success", data: data.entries}))
+    .catch(response => dispatch({ type: types.DOWNLOAD, status: "error" }));
+  }
 }
 
 export function onShowAdmin() {
