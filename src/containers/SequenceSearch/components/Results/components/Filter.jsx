@@ -30,8 +30,7 @@ class Filter extends Component {
 
   onDownload() {
     let data = "Query: " + this.props.sequence + "\n" + "\n" +
-      "Total of hits: " + this.props.downloadEntries.length + "\n" + "\n" +
-      "Annotation for each hit  (and alignments):" + "\n" + "\n" +
+      "Number of hits: " + this.props.downloadEntries.length + "\n" + "\n" +
       this.props.downloadEntries.map((entry, index) => (
         ">> " + entry.rnacentral_id + " " + entry.description + "\n" +
         "E-value: " + entry.e_value.toExponential() + "\t" +
