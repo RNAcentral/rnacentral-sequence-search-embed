@@ -3,6 +3,7 @@ import {store} from "app.jsx";
 import * as actionCreators from 'actions/actions';
 import {connect} from "react-redux";
 import ReactGA from 'react-ga';
+import JSZip from 'jszip';
 
 class Filter extends Component {
   onFilterSubmit(event) {
@@ -29,7 +30,11 @@ class Filter extends Component {
   }
 
   onDownload() {
-    let data = "Query: " + this.props.sequence + "\n" + "\n" +
+    let zip = new JSZip();
+    let FileSaver = require('file-saver');
+    let folder = zip.folder("sequences");
+
+    let textData = "Query: " + this.props.sequence + "\n" + "\n" +
       "Number of hits: " + this.props.downloadEntries.length + "\n" + "\n" +
       this.props.downloadEntries.map((entry, index) => (
         ">> " + entry.rnacentral_id + " " + entry.description + "\n" +
@@ -39,14 +44,32 @@ class Filter extends Component {
         "Gaps: " + `${parseFloat(entry.gaps).toFixed(2)}%` + "\n" + "\n" +
         "Alignment: " + "\n" + entry.alignment + "\n" + "\n" + "\n"
       ))
-    data = data.replace(/,>>/g, '>>')
-    let file = new Blob([data], {type: 'text/plain'});
-    let link = document.createElement('a');
-    link.href = URL.createObjectURL(file);
-    link.download = this.props.jobId + '.txt';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    textData = textData.replace(/,>>/g, '>>')
+    let textfile = new Blob([textData], {type: 'text/plain'})
+    folder.file(this.props.jobId + '.txt', textfile)
+
+    let csvData = {
+      "query": this.props.sequence,
+      "hits": this.props.downloadEntries.length,
+      "values": [
+        this.props.downloadEntries.map((entry, index) => (
+          {
+            "description": entry.description,
+            "e-value": entry.e_value.toExponential(),
+            "identity": `${parseFloat(entry.identity).toFixed(2)}%`,
+            "query_coverage": `${parseFloat(entry.query_coverage).toFixed(2)}%`,
+            "gaps": `${parseFloat(entry.gaps).toFixed(2)}%`,
+            "alignment": entry.alignment
+          }
+        ))
+      ]
+    }
+    let csvFile = new Blob([JSON.stringify(csvData)], {type: 'application/json'});
+    folder.file(this.props.jobId + '.json', csvFile)
+
+    zip.generateAsync({type:"blob"}).then(function(content) {
+      FileSaver.saveAs(content, "data.zip");
+    });
   }
 
   render() {
