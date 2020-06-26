@@ -339,14 +339,17 @@ export function onToggleFacet(event, facet, facetValue) {
         if (response.ok) { return response.json(); }
         else { throw response; }
       })
-      .then(data => dispatch({
-        type: types.TOGGLE_FACET,
-        id: facet.id,
-        value: facetValue.value,
-        data: data,
-        status: 'success',
-        selectedFacets: selectedFacets
-      }))
+      .then(data => {
+        dispatch({
+          type: types.TOGGLE_FACET,
+          id: facet.id,
+          value: facetValue.value,
+          data: data,
+          status: 'success',
+          selectedFacets: selectedFacets
+        })
+        dispatch(dataForDownload());
+      })
       .catch((response) => dispatch({ type: types.FAILED_FETCH_RESULTS, status: "error", start: 0 }));
   }
 }
@@ -460,7 +463,7 @@ export function onFileUpload (event) {
 
 export function dataForDownload() {
   let state = store.getState();
-  let selectedFacets = state.filter ? {...state.selectedFacets} : {};
+  let selectedFacets = {...state.selectedFacets}
 
   return function(dispatch) {
     fetch(routes.facetsSearch(state.jobId, buildQuery(selectedFacets), 0, 200, state.ordering), {
