@@ -320,8 +320,10 @@ const rootReducer = function (state = initialState, action) {
       } else if (action.status === 'success') {
         return Object.assign({}, state, {
           downloadStatus: "success",
-          downloadEntries: [...action.data],
+          downloadEntries: [...state.downloadEntries, ...action.data],
         });
+      } else if (action.status === 'clear') {
+        return Object.assign({}, state, { downloadEntries: [] });
       } else if (action.status === 'error') {
         return Object.assign({}, state, { downloadStatus: 'error' });
       } else {

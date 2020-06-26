@@ -463,24 +463,40 @@ export function onFileUpload (event) {
 
 export function dataForDownload() {
   let state = store.getState();
-  let selectedFacets = {...state.selectedFacets}
+  let selectedFacets = {...state.selectedFacets};
+  let iterations = 1;
 
-  return function(dispatch) {
-    fetch(routes.facetsSearch(state.jobId, buildQuery(selectedFacets), 0, 200, state.ordering), {
-      method: 'GET',
-      mode: 'cors',
-      credentials: 'include',
-      headers: {
-        'Accept': 'application/json, text/plain, */*',
-        'Content-Type': 'application/json'
-      }
-    })
-    .then(function(response) {
-      if (response.ok) { return response.json() }
-      else { throw response }
-    })
-    .then((data) => dispatch({type: types.DOWNLOAD, status: "success", data: data.entries}))
-    .catch(response => dispatch({ type: types.DOWNLOAD, status: "error" }));
+  if (state.hitCount>200 && state.hitCount<=400) {
+    iterations = 2
+  } else if (state.hitCount>400 && state.hitCount<=600) {
+    iterations = 3
+  } else if (state.hitCount>600 && state.hitCount<=800) {
+    iterations = 4
+  } else if (state.hitCount>800) {
+    iterations = 5
+  }
+
+  return async function(dispatch) {
+    dispatch({type: types.DOWNLOAD, status: "clear"})
+    let start = 0;
+    for (let i=0; i<iterations; i++) {
+      fetch(routes.facetsSearch(state.jobId, buildQuery(selectedFacets), start, 200, state.ordering), {
+        method: 'GET',
+        mode: 'cors',
+        credentials: 'include',
+        headers: {
+          'Accept': 'application/json, text/plain, */*',
+          'Content-Type': 'application/json'
+        }
+      })
+      .then(function(response) {
+        if (response.ok) { return response.json() }
+        else { throw response }
+      })
+      .then((data) => dispatch({type: types.DOWNLOAD, status: "success", data: data.entries}))
+      .catch(response => dispatch({ type: types.DOWNLOAD, status: "error" }));
+      start+=200;
+    }
   }
 }
 
