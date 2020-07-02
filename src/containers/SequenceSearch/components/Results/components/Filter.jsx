@@ -4,6 +4,7 @@ import * as actionCreators from 'actions/actions';
 import {connect} from "react-redux";
 import ReactGA from 'react-ga';
 import JSZip from 'jszip';
+import images from 'images/expert-db-logos/index';
 
 class Filter extends Component {
   onFilterSubmit(event) {
@@ -32,7 +33,7 @@ class Filter extends Component {
   onDownload() {
     let zip = new JSZip();
     let FileSaver = require('file-saver');
-    let folder = zip.folder("sequences");
+    let sequenceFolder = zip.folder("sequences");
 
     let textData = "Query: " + this.props.sequence + "\n" + "\n" +
       "Number of hits: " + this.props.downloadEntries.length + "\n" + "\n" +
@@ -46,7 +47,7 @@ class Filter extends Component {
       ))
     textData = textData.replace(/,>>/g, '>>')
     let textfile = new Blob([textData], {type: 'text/plain'})
-    folder.file(this.props.jobId + '.txt', textfile)
+    sequenceFolder.file(this.props.jobId + '.txt', textfile)
 
     let jsonData = {
       "query": this.props.sequence,
@@ -65,7 +66,41 @@ class Filter extends Component {
       ]
     }
     let jsonFile = new Blob([JSON.stringify(jsonData)], {type: 'application/json'});
-    folder.file(this.props.jobId + '.json', jsonFile)
+    sequenceFolder.file(this.props.jobId + '.json', jsonFile)
+
+    let expertDbs = []
+    this.props.downloadEntries.map(entry => {
+      if (entry.fields && entry.fields.expert_db) {
+        expertDbs.push(...entry.fields.expert_db.filter(item => !expertDbs.includes(item)));
+      }
+    })
+    const newExpertDb = expertDbs.map((item) => {
+      return item.toLowerCase();
+    });
+    const showExpertDb = images.filter(({title}) => newExpertDb.includes(title));
+
+    let dataPackage = {
+      "jobId": this.props.jobId,
+      "datapackage_version": "1.0",
+      "title": "RNAcentral sequence similarity search",
+      "description": "The RNAcentral sequence similarity search enables searches against a comprehensive collection of non-coding RNA sequences from a consortium of RNA databases. The search is powered by the nhmmer software which is more sensitive than blastn but is comparable in speed.",
+      "rnacentral_version": "v15",
+      "keywords": ["RNA", "sequence", "search", "RNAcentral", "ncRNA", "non-coding", "bioinformatics"],
+      "sources": [
+        showExpertDb.map(entry => (
+          {
+            "name": entry.title,
+            "web": entry.url
+          }
+        ))
+      ],
+      "maintainers": [{
+        "name": "RNAcentral",
+        "web": "https://rnacentral.org"
+      }],
+    }
+    let dataPackageFile = new Blob([JSON.stringify(dataPackage)], {type: 'application/json'});
+    zip.file('datapackage.json', dataPackageFile)
 
     zip.generateAsync({type:"blob"}).then(function(content) {
       FileSaver.saveAs(content, "data.zip");
