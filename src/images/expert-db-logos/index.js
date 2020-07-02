@@ -1,6 +1,5 @@
-import srnadb from './5srnadb.png'
 import srrnadb from './5srrnadb.png'
-import crs_logo from './crs_logo.svg'
+import crs from './crs_logo.svg'
 import dictybase from './dictybase.png'
 import ena from './ena.png'
 import ensembl from './ensembl.png'
@@ -38,55 +37,52 @@ import srpdb from './srpdb.png'
 import tair from './tair.png'
 import tarbase from './tarbase.png'
 import tmrna_website from './tmrna-website.png'
-import vega from './vega.png'
 import wormbase from './wormbase.png'
 import zwd from './zwd.png'
 
 
 const images = [
-  { src: srnadb, title: '5srnadb' },
-  { src: srrnadb, title: '5srrnadb' },
-  { src: crs_logo, title: 'crs_logo' },
-  { src: dictybase, title: 'dictybase' },
-  { src: ena, title: 'ena', },
-  { src: ensembl, title: 'ensembl' },
-  { src: ensembl_fungi, title: 'ensembl_fungi' },
-  { src: ensembl_metazoa, title: 'ensembl_metazoa' },
-  { src: ensembl_plants, title: 'ensembl_plants' },
-  { src: ensembl_protists, title: 'ensembl_protists' },
-  { src: flybase, title: 'flybase' },
-  { src: gencode, title: 'gencode' },
-  { src: genecards, title: 'genecards' },
-  { src: greengenes, title: 'greengenes' },
-  { src: gtrnadb, title: 'gtrnadb' },
-  { src: hgnc, title: 'hgnc' },
-  { src: lncbase, title: 'lncbase' },
-  { src: lncbook, title: 'lncbook' },
-  { src: lncrnadb, title: 'lncrnadb' },
-  { src: lncipedia, title: 'lncipedia' },
-  { src: malacards, title: 'malacards' },
-  { src: mgi, title: 'mgi' },
-  { src: mirbase, title: 'mirbase' },
-  { src: mirgenedb, title: 'mirgenedb' },
-  { src: modomics, title: 'modomics' },
-  { src: noncode, title: 'noncode' },
-  { src: pdbe, title: 'pdbe' },
-  { src: pombase, title: 'pombase' },
-  { src: rdp, title: 'rdp' },
-  { src: refseq, title: 'refseq' },
-  { src: rfam, title: 'rfam' },
-  { src: rgd, title: 'rgd' },
-  { src: sgd, title: 'sgd' },
-  { src: silva, title: 'silva' },
-  { src: snodb, title: 'snodb' },
-  { src: snopy, title: 'snopy' },
-  { src: srpdb, title: 'srpdb' },
-  { src: tair, title: 'tair' },
-  { src: tarbase, title: 'tarbase' },
-  { src: tmrna_website, title: 'tmrna_website' },
-  { src: vega, title: 'vega' },
-  { src: wormbase, title: 'wormbase' },
-  { src: zwd, title: 'zwd' },
+  { src: srrnadb, title: '5srrnadb', url: 'http://combio.pl/rrna/' },
+  { src: crs, title: 'crs', url: 'https://rth.dk/resources/rnannotator/crs/vert/' },
+  { src: dictybase, title: 'dictybase', url: 'http://dictybase.org/' },
+  { src: ena, title: 'ena', url: 'http://www.ebi.ac.uk/ena/' },
+  { src: ensembl, title: 'ensembl', url: 'http://ensembl.org/' },
+  { src: ensembl_fungi, title: 'ensembl_fungi', url: 'https://fungi.ensembl.org/' },
+  { src: ensembl_metazoa, title: 'ensembl_metazoa', url: 'https://metazoa.ensembl.org/' },
+  { src: ensembl_plants, title: 'ensembl_plants', url: 'https://plants.ensembl.org/' },
+  { src: ensembl_protists, title: 'ensembl_protists', url: 'https://protists.ensembl.org/' },
+  { src: flybase, title: 'flybase', url: 'http://flybase.org/' },
+  { src: gencode, title: 'gencode', url: 'http://gencodegenes.org/' },
+  { src: genecards, title: 'genecards', url: 'https://www.genecards.org/' },
+  { src: greengenes, title: 'greengenes', url: 'http://greengenes.secondgenome.com/' },
+  { src: gtrnadb, title: 'gtrnadb', url: 'http://gtrnadb.ucsc.edu/' },
+  { src: hgnc, title: 'hgnc', url: 'http://www.genenames.org/' },
+  { src: lncbase, title: 'lncbase', url: 'http://www.microrna.gr/LncBase' },
+  { src: lncbook, title: 'lncbook', url: 'http://bigd.big.ac.cn/lncbook' },
+  { src: lncrnadb, title: 'lncrnadb', url: 'http://lncrnadb.org/' },
+  { src: lncipedia, title: 'lncipedia', url: 'http://www.lncipedia.org/' },
+  { src: malacards, title: 'malacards', url: 'https://www.malacards.org/' },
+  { src: mgi, title: 'mgi', url: 'http://www.informatics.jax.org/' },
+  { src: mirbase, title: 'mirbase', url: 'http://www.mirbase.org/' },
+  { src: mirgenedb, title: 'mirgenedb', url: 'https://mirgenedb.org/' },
+  { src: modomics, title: 'modomics', url: 'http://modomics.genesilico.pl/' },
+  { src: noncode, title: 'noncode', url: 'http://www.noncode.org/' },
+  { src: pdbe, title: 'pdbe', url: 'http://www.ebi.ac.uk/pdbe/' },
+  { src: pombase, title: 'pombase', url: 'http://www.pombase.org/' },
+  { src: rdp, title: 'rdp', url: 'http://rdp.cme.msu.edu/' },
+  { src: refseq, title: 'refseq', url: 'http://www.ncbi.nlm.nih.gov/refseq/' },
+  { src: rfam, title: 'rfam', url: 'http://rfam.org/' },
+  { src: rgd, title: 'rgd', url: 'http://rgd.mcw.edu/' },
+  { src: sgd, title: 'sgd', url: 'http://yeastgenome.org/' },
+  { src: silva, title: 'silva', url: 'https://www.arb-silva.de/' },
+  { src: snodb, title: 'snodb', url: 'http://scottgroup.med.usherbrooke.ca/snoDB/' },
+  { src: snopy, title: 'snopy', url: 'http://snoopy.med.miyazaki-u.ac.jp/' },
+  { src: srpdb, title: 'srpdb', url: 'https://rth.dk/resources/rnp/SRPDB' },
+  { src: tair, title: 'tair', url: 'http://www.arabidopsis.org/' },
+  { src: tarbase, title: 'tarbase', url: 'http://www.microrna.gr/tarbase' },
+  { src: tmrna_website, title: 'tmrna_website', url: 'http://bioinformatics.sandia.gov/tmrna/' },
+  { src: wormbase, title: 'wormbase', url: 'http://www.wormbase.org/' },
+  { src: zwd, title: 'zwd', url: 'https://bitbucket.org/zashaw/zashaweinbergdata' },
 ];
 
 export default images;
