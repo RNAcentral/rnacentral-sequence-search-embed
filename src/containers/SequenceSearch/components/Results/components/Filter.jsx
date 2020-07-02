@@ -48,7 +48,7 @@ class Filter extends Component {
     let textfile = new Blob([textData], {type: 'text/plain'})
     folder.file(this.props.jobId + '.txt', textfile)
 
-    let csvData = {
+    let jsonData = {
       "query": this.props.sequence,
       "hits": this.props.downloadEntries.length,
       "values": [
@@ -64,8 +64,8 @@ class Filter extends Component {
         ))
       ]
     }
-    let csvFile = new Blob([JSON.stringify(csvData)], {type: 'application/json'});
-    folder.file(this.props.jobId + '.json', csvFile)
+    let jsonFile = new Blob([JSON.stringify(jsonData)], {type: 'application/json'});
+    folder.file(this.props.jobId + '.json', jsonFile)
 
     zip.generateAsync({type:"blob"}).then(function(content) {
       FileSaver.saveAs(content, "data.zip");
