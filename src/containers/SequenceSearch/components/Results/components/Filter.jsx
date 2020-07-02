@@ -52,7 +52,7 @@ class Filter extends Component {
     let jsonData = {
       "query": this.props.sequence,
       "hits": this.props.downloadEntries.length,
-      "values": [
+      "results": [
         this.props.downloadEntries.map((entry, index) => (
           {
             "description": entry.description,
