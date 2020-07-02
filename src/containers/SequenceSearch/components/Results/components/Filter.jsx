@@ -47,7 +47,7 @@ class Filter extends Component {
       ))
     textData = textData.replace(/,>>/g, '>>')
     let textfile = new Blob([textData], {type: 'text/plain'})
-    sequenceFolder.file(this.props.jobId + '.txt', textfile)
+    sequenceFolder.file('similar-sequences.txt', textfile)
 
     let jsonData = {
       "query": this.props.sequence,
@@ -66,7 +66,7 @@ class Filter extends Component {
       ]
     }
     let jsonFile = new Blob([JSON.stringify(jsonData)], {type: 'application/json'});
-    sequenceFolder.file(this.props.jobId + '.json', jsonFile)
+    sequenceFolder.file('similar-sequences.json', jsonFile)
 
     let expertDbs = []
     this.props.downloadEntries.map(entry => {
