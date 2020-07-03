@@ -160,7 +160,7 @@ class Filter extends Component {
         <div className="col-sm-4">
           <button className="btn btn-outline-secondary mr-1" style={{fontSize: fixCss}} onClick={this.props.onToggleAlignmentsCollapsed}>{this.props.alignmentsCollapsed ? 'See alignments' : 'Hide alignments'}</button>
           <button className="btn btn-outline-secondary mr-1" style={{fontSize: fixCss}} onClick={this.props.onToggleDetailsCollapsed}>{this.props.detailsCollapsed ? 'See details' : 'Hide details'}</button>
-          <button className="btn btn-outline-secondary" style={{fontSize: fixCss}} onClick={() => this.onDownload()} disabled={this.props.downloadStatus === "error" ? "disabled" : ""}>Download</button>
+          <button className="btn btn-outline-secondary" style={{fontSize: fixCss}} onClick={() => this.onDownload()} disabled={this.props.downloadStatus === "success" ? "" : "disabled"}>Download</button>
         </div>
       </div>
     );

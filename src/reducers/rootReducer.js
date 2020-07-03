@@ -322,6 +322,11 @@ const rootReducer = function (state = initialState, action) {
           downloadStatus: "success",
           downloadEntries: [...state.downloadEntries, ...action.data],
         });
+      } else if (action.status === 'loading') {
+        return Object.assign({}, state, {
+          downloadStatus: "loading",
+          downloadEntries: [...state.downloadEntries, ...action.data],
+        });
       } else if (action.status === 'clear') {
         return Object.assign({}, state, { downloadEntries: [] });
       } else if (action.status === 'error') {

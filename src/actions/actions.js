@@ -493,7 +493,13 @@ export function dataForDownload() {
         if (response.ok) { return response.json() }
         else { throw response }
       })
-      .then((data) => dispatch({type: types.DOWNLOAD, status: "success", data: data.entries}))
+      .then((data) => {
+        if (i===iterations-1) {
+          dispatch({type: types.DOWNLOAD, status: "success", data: data.entries})
+        } else {
+          dispatch({type: types.DOWNLOAD, status: "loading", data: data.entries})
+        }
+      })
       .catch(response => dispatch({ type: types.DOWNLOAD, status: "error" }));
       start+=200;
     }
