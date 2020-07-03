@@ -79,13 +79,18 @@ class Filter extends Component {
     });
     const showExpertDb = images.filter(({title}) => newExpertDb.includes(title));
 
+    const today = new Date();
+    const date = today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate();
+    const time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
+    const dateTime = date+' '+time;
+
     let dataPackage = {
+      "homepage": "https://rnacentral.org/sequence-search/",
       "jobId": this.props.jobId,
-      "datapackage_version": "1.0",
-      "title": "RNAcentral sequence similarity search",
-      "description": "The RNAcentral sequence similarity search enables searches against a comprehensive collection of non-coding RNA sequences from a consortium of RNA databases. The search is powered by the nhmmer software which is more sensitive than blastn but is comparable in speed.",
+      "title": "RNAcentral sequence similarity search results",
+      "description": "The search found " + this.props.downloadEntries.length + " sequences from " + showExpertDb.length + " Expert Databases. The RNAcentral sequence similarity search enables searches against a comprehensive collection of non-coding RNA sequences from a consortium of RNA databases. The search is powered by the nhmmer software which is more sensitive than blastn but is comparable in speed.",
       "rnacentral_version": "v15",
-      "keywords": ["RNA", "sequence", "search", "RNAcentral", "ncRNA", "non-coding", "bioinformatics"],
+      "download_date": dateTime,
       "sources": [
         showExpertDb.map(entry => (
           {
@@ -94,10 +99,29 @@ class Filter extends Component {
           }
         ))
       ],
+      "resources": [
+        {
+          "name": "similar-sequences",
+          "path": "sequences/similar-sequences.txt",
+          "description": "Results file in text format",
+          "format": "txt",
+          "mediatype": "text/txt",
+          "encoding": "ASCII",
+        },
+        {
+          "name": "similar-sequences",
+          "path": "sequences/similar-sequences.json",
+          "description": "Results file in JSON format",
+          "format": "json",
+          "mediatype": "application/json",
+          "encoding": "ASCII",
+        }
+      ],
       "maintainers": [{
         "name": "RNAcentral",
         "web": "https://rnacentral.org"
       }],
+      "datapackage_version": "1.0",
     }
     let dataPackageFile = new Blob([JSON.stringify(dataPackage)], {type: 'application/json'});
     zip.file('datapackage.json', dataPackageFile)
