@@ -480,7 +480,7 @@ export function dataForDownload() {
     dispatch({type: types.DOWNLOAD, status: "clear"})
     let start = 0;
     for (let i=0; i<iterations; i++) {
-      fetch(routes.facetsSearch(state.jobId, buildQuery(selectedFacets), start, 200, state.ordering), {
+      await fetch(routes.facetsSearch(state.jobId, buildQuery(selectedFacets), start, 200, state.ordering), {
         method: 'GET',
         mode: 'cors',
         credentials: 'include',
