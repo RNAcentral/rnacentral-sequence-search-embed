@@ -28,14 +28,6 @@ let buildQuery = function (selectedFacets) {
   return outputText;
 };
 
-export function toggleInfernalAlignmentsCollapsed() {
-  return {type: types.TOGGLE_INFERNAL_ALIGNMENTS_COLLAPSED };
-}
-
-export function toggleAlignmentsCollapsed() {
-  return {type: types.TOGGLE_ALIGNMENTS_COLLAPSED };
-}
-
 export function onSubmit(sequence, databases) {
   let url = window.location.href;
 
@@ -404,8 +396,8 @@ export function onToggleDetailsCollapsed() {
   return {type: types.TOGGLE_DETAILS_COLLAPSED}
 }
 
-export function updateBatchSearch() {
-  return {type: types.BATCH_SEARCH}
+export function toggleInfernalAlignmentsCollapsed() {
+  return {type: types.TOGGLE_INFERNAL_ALIGNMENTS_COLLAPSED };
 }
 
 export function onSequenceTextAreaChange(event) {
