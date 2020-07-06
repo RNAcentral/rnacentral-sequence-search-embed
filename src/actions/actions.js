@@ -454,7 +454,6 @@ export function onFileUpload (event) {
 
 export function dataForDownload() {
   let state = store.getState();
-  let selectedFacets = {...state.selectedFacets};
   let iterations = 1;
 
   if (state.hitCount>200 && state.hitCount<=400) {
@@ -471,7 +470,7 @@ export function dataForDownload() {
     dispatch({type: types.DOWNLOAD, status: "clear"})
     let start = 0;
     for (let i=0; i<iterations; i++) {
-      await fetch(routes.facetsSearch(state.jobId, buildQuery(selectedFacets), start, 200, state.ordering), {
+      await fetch(routes.facetsSearch(state.jobId, buildQuery(state.selectedFacets), start, 200, state.ordering), {
         method: 'GET',
         mode: 'cors',
         credentials: 'include',
