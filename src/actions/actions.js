@@ -280,10 +280,9 @@ export function failedFetchResults(response) {
 
 export function onFilterResult() {
   let state = store.getState();
-  let selectedFacets = state.filter ? {...state.selectedFacets} : {};
 
   return function(dispatch) {
-    fetch(routes.facetsSearch(state.jobId, buildQuery(selectedFacets), 0, state.size, state.ordering), {
+    fetch(routes.facetsSearch(state.jobId, buildQuery(state.selectedFacets), 0, state.size, state.ordering), {
       method: 'GET',
       mode: 'cors',
       credentials: 'include',
