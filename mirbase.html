@@ -1,0 +1,18 @@
+<!doctype html>
+<html>
+  <head>
+    <title>miRBase Sequence Search</title>
+  </head>
+  <body>
+    <rnacentral-sequence-search
+            databases='["miRBase"]'
+            examples='[
+              {"description": "miRNA mmu-let-7g", "urs": "", "sequence": "UGAGGUAGUAGUUUGUACAGU"},
+              {"description": "miRNA hsa-mir-1302", "urs": "", "sequence": "GGAUGCCCAGCUAGUUUGAAUUUUAGAUAAACAACGAAUAAUUUCGUAGCAUAAAUAUGUCCCAAGCUUAGUUUGGGACAUACUUAUGCUAAAAAACAUUAUUGGUUGUUUAUCUGAGAUUCAGAAUUAAGCAUUUUA"},
+              {"description": "miRNA hsa-let-7a-1", "urs": "", "sequence": "CUAUACAAUCUACUGUCUUUC"}
+            ]'
+            rfam="true"
+            hideFacet='["has_conserved_structure", "has_genomic_coordinates", "has_go_annotations", "expert_db", "qc_warning_found"]'
+    />
+  <script type="text/javascript" src="/rnacentral-sequence-search-embed/dist/RNAcentral-sequence-search.js"></script></body>
+</html>
