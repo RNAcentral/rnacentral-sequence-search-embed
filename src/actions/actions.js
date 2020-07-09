@@ -28,14 +28,6 @@ let buildQuery = function (selectedFacets) {
   return outputText;
 };
 
-export function toggleInfernalAlignmentsCollapsed() {
-  return {type: types.TOGGLE_INFERNAL_ALIGNMENTS_COLLAPSED };
-}
-
-export function toggleAlignmentsCollapsed() {
-  return {type: types.TOGGLE_ALIGNMENTS_COLLAPSED };
-}
-
 export function onSubmit(sequence, databases) {
   let url = window.location.href;
 
@@ -56,11 +48,8 @@ export function onSubmit(sequence, databases) {
       })
     })
     .then(function (response) {
-      if (response.ok) {
-        return response.json();
-      } else {
-        throw response;
-      }
+      if (response.ok) { return response.json() }
+      else { throw response }
     })
     .then(data => {
         dispatch({type: types.SUBMIT_JOB, status: 'success', data: data});
@@ -117,11 +106,8 @@ export function onSubmitUrs(urs, database) {
   return function(dispatch) {
     fetch(routes.rnacentralUrs(urs))
     .then(function(response) {
-      if (response.ok) {
-        return response.json()
-      } else {
-        throw response;
-      }
+      if (response.ok) { return response.json() }
+      else { throw response }
     })
     .then(data => {
       if(data.sequence.length < 10 || data.sequence.length > 7000) {
@@ -167,11 +153,8 @@ export function fetchStatus(jobId) {
       }
     })
     .then(function(response) {
-      if (response.ok) {
-        return response.json()
-      } else {
-        throw response;
-      }
+      if (response.ok) { return response.json() }
+      else { throw response }
     })
     .then((data) => {
       if (data.status === 'started' || data.status === 'pending' || data.status === 'running') {
@@ -222,11 +205,8 @@ export function fetchInfernalStatus(jobId) {
       }
     })
     .then(function(response) {
-      if (response.ok) {
-        return response.json()
-      } else {
-        throw response;
-      }
+      if (response.ok) { return response.json() }
+      else { throw response }
     })
     .then((data) => {
       if (data.status === 'started' || data.status === 'pending') {
@@ -259,16 +239,14 @@ export function fetchResults(jobId) {
       }
     })
     .then(function(response) {
-      if (response.ok) {
-        return response.json()
-      } else {
-        throw response;
-      }
+      if (response.ok) { return response.json() }
+      else { throw response }
     })
-    .then(data => dispatch({type: types.FETCH_RESULTS, status: 'success', data: data}))
-    .catch(error => {
-      dispatch({type: types.FETCH_RESULTS, status: 'error'})
-    });
+    .then(data => {
+      dispatch({type: types.FETCH_RESULTS, status: 'success', data: data});
+      dispatch(dataForDownload());
+    })
+    .catch(error => dispatch({type: types.FETCH_RESULTS, status: 'error'}));
   }
 }
 
@@ -284,16 +262,11 @@ export function fetchInfernalResults(jobId) {
       }
     })
     .then(function(response) {
-      if (response.ok) {
-        return response.json()
-      } else {
-        throw response;
-      }
+      if (response.ok) { return response.json() }
+      else { throw response }
     })
     .then(data => dispatch({type: types.FETCH_INFERNAL_RESULTS, infernalStatus: 'success', data: data}))
-    .catch(error => {
-      dispatch({type: types.FETCH_INFERNAL_RESULTS, infernalStatus: 'error'})
-    });
+    .catch(error => dispatch({type: types.FETCH_INFERNAL_RESULTS, infernalStatus: 'error'}));
   }
 }
 
@@ -307,10 +280,9 @@ export function failedFetchResults(response) {
 
 export function onFilterResult() {
   let state = store.getState();
-  let selectedFacets = state.filter ? {...state.selectedFacets} : {};
 
   return function(dispatch) {
-    fetch(routes.facetsSearch(state.jobId, buildQuery(selectedFacets), 0, state.size, state.ordering), {
+    fetch(routes.facetsSearch(state.jobId, buildQuery(state.selectedFacets), 0, state.size, state.ordering), {
       method: 'GET',
       mode: 'cors',
       credentials: 'include',
@@ -320,13 +292,13 @@ export function onFilterResult() {
       }
     })
     .then(function(response) {
-      if (response.ok) {
-        return response.json()
-      } else {
-        throw response;
-      }
+      if (response.ok) { return response.json() }
+      else { throw response }
     })
-    .then(data => dispatch({type: types.FETCH_RESULTS, status: 'success', data: data}))
+    .then(data => {
+      dispatch({type: types.FETCH_RESULTS, status: 'success', data: data})
+      dispatch(dataForDownload());
+    })
     .catch(error => {dispatch({type: types.FETCH_RESULTS, status: 'error'})});
   }
 }
@@ -358,14 +330,17 @@ export function onToggleFacet(event, facet, facetValue) {
         if (response.ok) { return response.json(); }
         else { throw response; }
       })
-      .then(data => dispatch({
-        type: types.TOGGLE_FACET,
-        id: facet.id,
-        value: facetValue.value,
-        data: data,
-        status: 'success',
-        selectedFacets: selectedFacets
-      }))
+      .then(data => {
+        dispatch({
+          type: types.TOGGLE_FACET,
+          id: facet.id,
+          value: facetValue.value,
+          data: data,
+          status: 'success',
+          selectedFacets: selectedFacets
+        })
+        dispatch(dataForDownload());
+      })
       .catch((response) => dispatch({ type: types.FAILED_FETCH_RESULTS, status: "error", start: 0 }));
   }
 }
@@ -404,7 +379,10 @@ export function onSort(event) {
         if (response.ok) { return response.json(); }
         else { throw response; }
       })
-      .then(data => dispatch({type: types.SORT_RESULTS, data: data}))
+      .then(data => {
+        dispatch({type: types.SORT_RESULTS, data: data, ordering: ordering});
+        dispatch(dataForDownload());
+      })
       .catch(response => dispatch({ type: types.FAILED_FETCH_RESULTS, status: "error", start: 0 }));
   };
 }
@@ -417,8 +395,8 @@ export function onToggleDetailsCollapsed() {
   return {type: types.TOGGLE_DETAILS_COLLAPSED}
 }
 
-export function updateBatchSearch() {
-  return {type: types.BATCH_SEARCH}
+export function toggleInfernalAlignmentsCollapsed() {
+  return {type: types.TOGGLE_INFERNAL_ALIGNMENTS_COLLAPSED };
 }
 
 export function onSequenceTextAreaChange(event) {
@@ -472,6 +450,50 @@ export function onFileUpload (event) {
     fileReader.readAsText(event.target.files[0]);
     return fileReader;
   };
+}
+
+export function dataForDownload() {
+  let state = store.getState();
+  let iterations = 1;
+
+  if (state.hitCount>200 && state.hitCount<=400) {
+    iterations = 2
+  } else if (state.hitCount>400 && state.hitCount<=600) {
+    iterations = 3
+  } else if (state.hitCount>600 && state.hitCount<=800) {
+    iterations = 4
+  } else if (state.hitCount>800) {
+    iterations = 5
+  }
+
+  return async function(dispatch) {
+    dispatch({type: types.DOWNLOAD, status: "clear"})
+    let start = 0;
+    for (let i=0; i<iterations; i++) {
+      await fetch(routes.facetsSearch(state.jobId, buildQuery(state.selectedFacets), start, 200, state.ordering), {
+        method: 'GET',
+        mode: 'cors',
+        credentials: 'include',
+        headers: {
+          'Accept': 'application/json, text/plain, */*',
+          'Content-Type': 'application/json'
+        }
+      })
+      .then(function(response) {
+        if (response.ok) { return response.json() }
+        else { throw response }
+      })
+      .then((data) => {
+        if (i===iterations-1) {
+          dispatch({type: types.DOWNLOAD, status: "success", data: data.entries})
+        } else {
+          dispatch({type: types.DOWNLOAD, status: "loading", data: data.entries})
+        }
+      })
+      .catch(response => dispatch({ type: types.DOWNLOAD, status: "error" }));
+      start+=200;
+    }
+  }
 }
 
 export function onShowAdmin() {

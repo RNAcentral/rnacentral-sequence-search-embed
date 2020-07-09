@@ -91,7 +91,7 @@ const rootReducer = function (state = initialState, action) {
           hitCount: action.data.hitCount,
           start: action.data.entries.length,
           size: 20,
-          ordering: action.data.ordering,
+          ordering: action.ordering,
           selectedFacets: state.selectedFacets,
           textSearchError: action.data.textSearchError
         });
@@ -245,6 +245,8 @@ const rootReducer = function (state = initialState, action) {
         fileUpload: false,
         rnacentral: false,
         submissionError: null,
+        downloadStatus: "notSubmitted",
+        downloadEntries: []
       });
 
     case actions.EXAMPLE_SEQUENCE:
@@ -271,6 +273,8 @@ const rootReducer = function (state = initialState, action) {
         fileUpload: false,
         rnacentral: false,
         submissionError: null,
+        downloadStatus: "notSubmitted",
+        downloadEntries: []
       });
 
     case actions.CLEAR_SEQUENCE:
@@ -299,6 +303,8 @@ const rootReducer = function (state = initialState, action) {
         exactMatch: null,
         rnacentral: false,
         submissionError: null,
+        downloadStatus: "notSubmitted",
+        downloadEntries: []
       });
 
     case actions.FILE_UPLOAD:
@@ -306,6 +312,27 @@ const rootReducer = function (state = initialState, action) {
         return Object.assign({}, state, {});
       } else {
         return Object.assign({}, state, {sequence: action.sequence, fileUpload: true});
+      }
+
+    case actions.DOWNLOAD:
+      if (!action.status) {
+        return Object.assign({}, state, {}); // do nothing, all the logic is in action creator
+      } else if (action.status === 'success') {
+        return Object.assign({}, state, {
+          downloadStatus: "success",
+          downloadEntries: [...state.downloadEntries, ...action.data],
+        });
+      } else if (action.status === 'loading') {
+        return Object.assign({}, state, {
+          downloadStatus: "loading",
+          downloadEntries: [...state.downloadEntries, ...action.data],
+        });
+      } else if (action.status === 'clear') {
+        return Object.assign({}, state, { downloadEntries: [] });
+      } else if (action.status === 'error') {
+        return Object.assign({}, state, { downloadStatus: 'error' });
+      } else {
+        return Object.assign({}, state, {});
       }
 
     case actions.SHOW_ADMIN:
