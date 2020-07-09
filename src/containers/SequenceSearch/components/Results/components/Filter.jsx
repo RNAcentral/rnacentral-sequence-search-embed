@@ -31,10 +31,12 @@ class Filter extends Component {
   }
 
   onDownload() {
+    // create sequence folder
     let zip = new JSZip();
     let FileSaver = require('file-saver');
     let sequenceFolder = zip.folder("sequences");
 
+    // create text file with the results
     let textData = "Query: " + this.props.sequence + "\n" + "\n" +
       "Number of hits: " + this.props.downloadEntries.length + "\n" + "\n" +
       this.props.downloadEntries.map((entry, index) => (
@@ -49,6 +51,7 @@ class Filter extends Component {
     let textfile = new Blob([textData], {type: 'text/plain'})
     sequenceFolder.file('similar-sequences.txt', textfile)
 
+    // create json file with the results
     let jsonData = {
       "query": this.props.sequence,
       "hits": this.props.downloadEntries.length,
@@ -68,6 +71,9 @@ class Filter extends Component {
     let jsonFile = new Blob([JSON.stringify(jsonData)], {type: 'application/json'});
     sequenceFolder.file('similar-sequences.json', jsonFile)
 
+    // info for the metadata below
+
+    // check where the sequences come from
     let expertDbs = []
     this.props.downloadEntries.map(entry => {
       if (entry.fields && entry.fields.expert_db) {
@@ -79,25 +85,45 @@ class Filter extends Component {
     });
     const showExpertDb = images.filter(({title}) => newExpertDb.includes(title));
 
+    // get current date/time
     const today = new Date();
-    const date = today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate();
+    const date = today.getFullYear() + '-' + (today.getMonth()+1) + '-' + today.getDate();
     const time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
-    const dateTime = date+' '+time;
+    const dateTime = date + ' ' + time;
 
+    // create the title
+    const title = this.props.databases === [] ?
+        "RNAcentral sequence similarity search results" :
+        this.props.databases + " sequence similarity search results"
+
+    // create the description
+    const description = this.props.databases === [] ?
+        "The search found " + this.props.downloadEntries.length + " sequences from " + showExpertDb.length +
+        " Expert Databases. The RNAcentral sequence similarity search enables searches against a comprehensive " +
+        "collection of non-coding RNA sequences from a consortium of RNA databases. The search is powered by the " +
+        "nhmmer software."
+        : "The search found " + this.props.downloadEntries.length + " similar sequences. " +
+        this.props.databases + " is part of RNAcentral, which integrates more than 40 different specialized ncRNA " +
+        "databases. The search is powered by the nhmmer software."
+
+    // create json file with metadata
     let dataPackage = {
       "homepage": "https://rnacentral.org/sequence-search/",
       "jobId": this.props.jobId,
-      "title": "RNAcentral sequence similarity search results",
-      "description": "The search found " + this.props.downloadEntries.length + " sequences from " + showExpertDb.length + " Expert Databases. The RNAcentral sequence similarity search enables searches against a comprehensive collection of non-coding RNA sequences from a consortium of RNA databases. The search is powered by the nhmmer software which is more sensitive than blastn but is comparable in speed.",
+      "title": title,
+      "description": description,
       "rnacentral_version": "v15",
       "download_date": dateTime,
-      "sources": [
+      "sources": [ this.props.databases === [] ?
         showExpertDb.map(entry => (
           {
             "name": entry.title,
             "web": entry.url
           }
-        ))
+        )) : {
+            "name": this.props.databases[0],
+            "web": showExpertDb.find(db => db.title===this.props.databases[0].toLowerCase()).url
+          }
       ],
       "resources": [
         {
@@ -126,6 +152,7 @@ class Filter extends Component {
     let dataPackageFile = new Blob([JSON.stringify(dataPackage)], {type: 'application/json'});
     zip.file('datapackage.json', dataPackageFile)
 
+    // download zip file
     zip.generateAsync({type:"blob"}).then(function(content) {
       FileSaver.saveAs(content, "data.zip");
     });
