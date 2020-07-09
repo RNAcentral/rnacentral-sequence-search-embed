@@ -92,12 +92,12 @@ class Filter extends Component {
     const dateTime = date + ' ' + time;
 
     // create the title
-    const title = this.props.databases === [] ?
+    const title = this.props.databases.length === 0 ?
         "RNAcentral sequence similarity search results" :
         this.props.databases + " sequence similarity search results"
 
     // create the description
-    const description = this.props.databases === [] ?
+    const description = this.props.databases.length === 0 ?
         "The search found " + this.props.downloadEntries.length + " sequences from " + showExpertDb.length +
         " Expert Databases. The RNAcentral sequence similarity search enables searches against a comprehensive " +
         "collection of non-coding RNA sequences from a consortium of RNA databases. The search is powered by the " +
@@ -114,7 +114,7 @@ class Filter extends Component {
       "description": description,
       "rnacentral_version": "v15",
       "download_date": dateTime,
-      "sources": [ this.props.databases === [] ?
+      "sources": [ this.props.databases.length === 0 ?
         showExpertDb.map(entry => (
           {
             "name": entry.title,
