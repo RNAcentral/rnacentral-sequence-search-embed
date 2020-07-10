@@ -456,21 +456,31 @@ export function dataForDownload() {
   let state = store.getState();
   let iterations = 1;
 
-  if (state.hitCount>200 && state.hitCount<=400) {
+  if (state.hitCount>100 && state.hitCount<=200) {
     iterations = 2
-  } else if (state.hitCount>400 && state.hitCount<=600) {
+  } else if (state.hitCount>200 && state.hitCount<=300) {
     iterations = 3
-  } else if (state.hitCount>600 && state.hitCount<=800) {
+  } else if (state.hitCount>300 && state.hitCount<=400) {
     iterations = 4
-  } else if (state.hitCount>800) {
+  } else if (state.hitCount>400 && state.hitCount<=500) {
     iterations = 5
+  } else if (state.hitCount>500 && state.hitCount<=600) {
+    iterations = 6
+  } else if (state.hitCount>600 && state.hitCount<=700) {
+    iterations = 7
+  } else if (state.hitCount>700 && state.hitCount<=800) {
+    iterations = 8
+  } else if (state.hitCount>800 && state.hitCount<=900) {
+    iterations = 9
+  } else if (state.hitCount>900) {
+    iterations = 10
   }
 
   return async function(dispatch) {
     dispatch({type: types.DOWNLOAD, status: "clear"})
     let start = 0;
     for (let i=0; i<iterations; i++) {
-      await fetch(routes.facetsSearch(state.jobId, buildQuery(state.selectedFacets), start, 200, state.ordering), {
+      await fetch(routes.facetsSearch(state.jobId, buildQuery(state.selectedFacets), start, 100, state.ordering), {
         method: 'GET',
         mode: 'cors',
         credentials: 'include',
@@ -491,7 +501,7 @@ export function dataForDownload() {
         }
       })
       .catch(response => dispatch({ type: types.DOWNLOAD, status: "error" }));
-      start+=200;
+      start+=100;
     }
   }
 }
