@@ -153,8 +153,9 @@ class Filter extends Component {
     zip.file('datapackage.json', dataPackageFile)
 
     // download zip file
+    let rootDirectory = this.props.jobId + ".zip"
     zip.generateAsync({type:"blob"}).then(function(content) {
-      FileSaver.saveAs(content, "data.zip");
+      FileSaver.saveAs(content, rootDirectory);
     });
   }
 
