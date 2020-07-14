@@ -153,8 +153,9 @@ class Filter extends Component {
     zip.file('datapackage.json', dataPackageFile)
 
     // download zip file
+    let rootDirectory = this.props.jobId + ".zip"
     zip.generateAsync({type:"blob"}).then(function(content) {
-      FileSaver.saveAs(content, "data.zip");
+      FileSaver.saveAs(content, rootDirectory);
     });
   }
 
@@ -176,12 +177,12 @@ class Filter extends Component {
           <select className="form-select" style={{fontSize: fixCss}} value={this.props.sortingOrder} onChange={this.props.onSort}>
             <option value="e_value">Sort by E-value (min to max) - default</option>
             <option value="-e_value">Sort by E-value (max to min)</option>
-            <option value="identity">Sort by Identity (max to min)</option>
-            <option value="-identity">Sort by Identity: (min to max)</option>
-            <option value="query_coverage">Sort by Query coverage: (max to min)</option>
-            <option value="-query_coverage">Sort by Query coverage: (min to max)</option>
-            <option value="target_coverage">Sort by Target coverage: (max to min)</option>
-            <option value="-target_coverage">Sort by Target coverage: (min to max)</option>
+            <option value="-identity">Sort by Identity (max to min)</option>
+            <option value="identity">Sort by Identity: (min to max)</option>
+            <option value="-query_coverage">Sort by Query coverage: (max to min)</option>
+            <option value="query_coverage">Sort by Query coverage: (min to max)</option>
+            <option value="-target_coverage">Sort by Target coverage: (max to min)</option>
+            <option value="target_coverage">Sort by Target coverage: (min to max)</option>
           </select>
         </div>
         <div className="col-sm-4">
