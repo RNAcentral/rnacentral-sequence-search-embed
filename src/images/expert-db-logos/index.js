@@ -45,7 +45,7 @@ const images = [
   { src: srrnadb, title: '5srrnadb', url: 'http://combio.pl/rrna/' },
   { src: crs, title: 'crs', url: 'https://rth.dk/resources/rnannotator/crs/vert/' },
   { src: dictybase, title: 'dictybase', url: 'http://dictybase.org/' },
-  { src: ena, title: 'ena', url: 'http://www.ebi.ac.uk/ena/' },
+  { src: ena, title: 'ena', url: 'https://www.ebi.ac.uk/ena/browser/' },
   { src: ensembl, title: 'ensembl', url: 'http://ensembl.org/' },
   { src: ensembl_fungi, title: 'ensembl_fungi', url: 'https://fungi.ensembl.org/' },
   { src: ensembl_metazoa, title: 'ensembl_metazoa', url: 'https://metazoa.ensembl.org/' },
