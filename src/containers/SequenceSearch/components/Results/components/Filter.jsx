@@ -174,7 +174,7 @@ class Filter extends Component {
           </form>
         </div>
         <div className="col-sm-4">
-          <select className="form-select" style={{fontSize: fixCss}} value={this.props.sortingOrder} onChange={this.props.onSort}>
+          <select className="form-select" style={{fontSize: fixCss}} onChange={this.props.onSort}>
             <option value="e_value">Sort by E-value (min to max) - default</option>
             <option value="-e_value">Sort by E-value (max to min)</option>
             <option value="-identity">Sort by Identity (max to min)</option>
