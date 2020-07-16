@@ -1,6 +1,5 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import retargetEvents from 'react-shadow-dom-retarget-events';
 import {Provider} from 'react-redux';
 
 import SequenceSearch from 'containers/SequenceSearch/index.jsx';
@@ -18,9 +17,14 @@ class RNAcentralSequenceSearch extends HTMLElement {
     super();
 
     // prepare DOM and shadow DOM
+    // workaround found at https://github.com/facebook/react/issues/9242 to avoid re-renders
     const shadowRoot = this.attachShadow({mode: 'open'});
     const mountPoint = document.createElement('html');
     shadowRoot.appendChild(mountPoint);
+    Object.defineProperty(mountPoint, "ownerDocument", { value: shadowRoot });
+    shadowRoot.createElement = (...args) => document.createElement(...args);
+    shadowRoot.createElementNS = (...args) => document.createElementNS(...args);
+    shadowRoot.createTextNode = (...args) => document.createTextNode(...args);
 
     // parse arguments
     const admin = JSON.parse(this.attributes.admin ? this.attributes.admin.nodeValue : null);
@@ -49,9 +53,6 @@ class RNAcentralSequenceSearch extends HTMLElement {
       ],
       mountPoint
     );
-
-    // retarget React events to work with shadow DOM
-    retargetEvents(shadowRoot);
   }
 
   connectedCallback() {
