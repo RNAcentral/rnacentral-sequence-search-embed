@@ -7,19 +7,16 @@ The component sends search requests to EBI-backed API, run on EBI cloud infrastr
 It searches against RNAcentral databases (or their arbitrary subset) with NHMMER, CMSCAN and also adds text search 
 functionality, backed by EBI Lucene text search plugin.
 
-This plugin is written in React/Redux and makes use of Zurb Foundation-based EBI theme. It is bundled as a Web 
-Component, so it should not clash with your website's javascript or CSS.
+This plugin is written in React/Redux. It is bundled as a Web Component, so it should not clash with your website's 
+javascript or CSS.
 
-## Installation
+## How to use
 
-Download this package directly from Github.
+To use the latest stable version without worrying about updates, use the component's javascript package available at Github:
 
-`git clone https://github.com/RNAcentral/rnacentral-sequence-search-embed.git`
+`<script type="text/javascript" src="https://rnacentral.github.io/rnacentral-sequence-search-embed/dist/RNAcentral-sequence-search.js"></script>`
 
-Now you can add the component's javascript bundle (it contains all the styles and fonts) to your web page either 
-directly or through an import with Webpack:
-
-`<script type="text/javascript" src="/rnacentral-sequence-search-embed/dist/RNAcentral-sequence-search.js"></script>`
+If you prefer to install this package and perform the updates manually, see the [Installation](#Installation) section.
 
 To use it just insert an html tag somewhere in your html:
 
@@ -33,7 +30,7 @@ To show some examples and/or enable the Rfam search, use:
 <rnacentral-sequence-search 
     databases='["miRBase"]'
     examples='[
-        {"description": "miRNA hsa-let-7a-1", "urs": "URS000004F5D8", "sequence": "CUAUACAAUCUACUGUCUUUC"},
+        {"description": "miRNA hsa-let-7a-1", "urs": "URS000004F5D8", "sequence": "CUAUACAAUCUACUGUCUUUC"}
     ]
     rfam="true"
 />
@@ -65,6 +62,19 @@ The example below changes the color of the buttons:
 
 For a minimal example, see [index.html](./index.html). For an Rfam example, see [rfam.html](./rfam.html).
 
+## Installation
+
+Download this package directly from Github.
+
+`git clone https://github.com/RNAcentral/rnacentral-sequence-search-embed.git`
+
+Now you can add the component's javascript bundle (it contains all the styles and fonts) to your web page either 
+directly or through an import with Webpack:
+
+`<script type="text/javascript" src="/rnacentral-sequence-search-embed/dist/RNAcentral-sequence-search.js"></script>`
+
+You will need to run the `git pull` command whenever there are updates.
+
 ## Attributes/parameters
 
 Sequence search component accepts a number of attributes. You pass them as html attributes
@@ -76,6 +86,7 @@ Array of databases to search query sequence against. Currently you can choose fr
 
 database          |
 ------------------|
+5srrnadb          |
 dictybase         |
 ena               |
 ensembl           |
@@ -85,6 +96,7 @@ ensembl_plants    |
 ensembl_protists  |
 flybase           |
 gencode           |
+genecards         |
 greengenes        |
 gtrnadb           |
 hgnc              |
@@ -92,8 +104,10 @@ lncbase           |
 lncbook           |
 lncipedia         |
 lncrnadb          |
+malacards         |
 mgi               |
 mirbase           |
+mirgenedb         |
 modomics          |
 noncode           |
 pdbe              |
@@ -104,6 +118,7 @@ rfam              |
 rgd               |
 sgd               |
 silva             |
+snodb             |
 snopy             |
 srpdb             |
 tair              |
@@ -156,14 +171,7 @@ The CSS styles and fonts are bundled into the javascript inline via Webpack 3 bu
 see webpack.config.js file. Upon load of RNAcentral-sequence-search.js, the component registers
 itself in the custom elements registry.
 
-There are some peculiarities about interaction of Web Components with React.
-
-First, there is a known issue with React events breaking, when React component is mounted under a shadow root in
-shadow DOM. We solve this by retargeting React events for shadow dom with this package:
-
-* https://www.npmjs.com/package/react-shadow-dom-retarget-events.
-
-Second, Web Components accept input parameters as strings. That means that we have to parse
+Web Components accept input parameters as strings. That means that we have to parse
 parameters in Web Component initialization code and pass the resulting objects as props to React.
 Here are some examples of passing the parameters to the Web Component or from Web Component
 to React:
