@@ -55,8 +55,7 @@ class Filter extends Component {
     let jsonData = {
       "query": this.props.sequence,
       "hits": this.props.downloadEntries.length,
-      "results": [
-        this.props.downloadEntries.map((entry, index) => (
+      "results": this.props.downloadEntries.map((entry, index) => (
           {
             "description": entry.description,
             "e-value": entry.e_value.toExponential(),
@@ -66,7 +65,6 @@ class Filter extends Component {
             "alignment": entry.alignment
           }
         ))
-      ]
     }
     let jsonFile = new Blob([JSON.stringify(jsonData)], {type: 'application/json'});
     sequenceFolder.file('similar-sequences.json', jsonFile)
