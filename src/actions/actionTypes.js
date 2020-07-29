@@ -16,7 +16,6 @@ export const SET_STATUS_TIMEOUT = 'SET_STATUS_TIMEOUT';
 export const SEARCH_PROGRESS = 'SEARCH_PROGRESS';
 export const BATCH_SEARCH = 'BATCH_SEARCH';
 export const DOWNLOAD = 'DOWNLOAD';
-export const URL = 'URL';
 
 // submission form
 export const SUBMIT_JOB = 'SUBMIT_JOB';

@@ -15,7 +15,7 @@ class SequenceSearch extends React.Component {
   componentDidMount() {
     // check if a jobId was passed as a parameter to search for results
     let url = window.location.href;
-    url = url.split("/");
+    url = url.split("?jobid=");
     let jobId = url[url.length - 1]
     if (jobId.match("^([0-9a-fA-F]{8})-(([0-9a-fA-F]{4}\\-){3})([0-9a-fA-F]{12})$")) {
       store.dispatch(actionCreators.updateJobId(jobId))
@@ -24,10 +24,13 @@ class SequenceSearch extends React.Component {
 
   componentDidUpdate() {
     // show the jobId in the URL
-    if (this.props.jobId && this.props.url){
-      window.history.replaceState("", "", this.props.url + this.props.jobId);
-    } else if (!this.props.jobId && this.props.url){
-      window.history.replaceState("", "", this.props.url);
+    let url = window.location.href;
+    let splitUrl = url.split("?jobid=");
+    let domain = splitUrl[0]
+    if (this.props.jobId){
+      window.history.replaceState("", "", domain + "?jobid=" + this.props.jobId);
+    } else {
+      window.history.replaceState("", "", domain);
     }
   }
 
@@ -54,7 +57,6 @@ class SequenceSearch extends React.Component {
 function mapStateToProps(state) {
   return {
     jobId: state.jobId,
-    url: state.url,
   };
 }
 
