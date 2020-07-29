@@ -52,6 +52,7 @@ export function onSubmit(sequence, databases) {
       else { throw response }
     })
     .then(data => {
+        dispatch(fetchUrl());
         dispatch({type: types.SUBMIT_JOB, status: 'success', data: data});
         dispatch(fetchStatus(data.job_id));
         dispatch(fetchInfernalStatus(data.job_id));
@@ -139,6 +140,11 @@ export function onClearResult() {
 
 export function invalidSequence() {
   return {type: types.INVALID_SEQUENCE}
+}
+
+export function fetchUrl() {
+  let url = window.location.href;
+  return { type: types.URL, url: url };
 }
 
 export function fetchStatus(jobId) {

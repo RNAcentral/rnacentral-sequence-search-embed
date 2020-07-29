@@ -198,6 +198,9 @@ const rootReducer = function (state = initialState, action) {
     case actions.INVALID_SEQUENCE:
       return Object.assign({}, state, {status: "invalidSequence"});
 
+    case actions.URL:
+      return Object.assign({}, state, {url: action.url});
+
     case actions.FETCH_STATUS:
       if (action.status === 'error') {
         return Object.assign({}, state, {status: "error"});

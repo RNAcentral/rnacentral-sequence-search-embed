@@ -3,11 +3,32 @@ import React from 'react';
 import Results from 'containers/SequenceSearch/components/Results/index.jsx';
 import SearchForm from 'containers/SequenceSearch/components/SearchForm/index.jsx';
 import {connect} from "react-redux";
+import * as actionCreators from 'actions/actions';
+import {store} from "app.jsx";
 
 
 class SequenceSearch extends React.Component {
   constructor(props) {
     super(props);
+  }
+
+  componentDidMount() {
+    // check if a jobId was passed as a parameter to search for results
+    let url = window.location.href;
+    url = url.split("/");
+    let jobId = url[url.length - 1]
+    if (jobId.match("^([0-9a-fA-F]{8})-(([0-9a-fA-F]{4}\\-){3})([0-9a-fA-F]{12})$")) {
+      store.dispatch(actionCreators.updateJobId(jobId))
+    }
+  }
+
+  componentDidUpdate() {
+    // show the jobId in the URL
+    if (this.props.jobId && this.props.url){
+      window.history.replaceState("", "", this.props.url + this.props.jobId);
+    } else if (!this.props.jobId && this.props.url){
+      window.history.replaceState("", "", this.props.url);
+    }
   }
 
   render() {
@@ -32,11 +53,8 @@ class SequenceSearch extends React.Component {
 
 function mapStateToProps(state) {
   return {
-    status: state.status,
-    infernalStatus: state.infernalStatus,
     jobId: state.jobId,
-    jobList: state.jobList,
-    submissionError: state.submissionError
+    url: state.url,
   };
 }
 
@@ -48,4 +66,3 @@ export default connect(
   mapStateToProps,
   mapDispatchToProps
 )(SequenceSearch);
-

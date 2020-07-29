@@ -15,6 +15,7 @@ let initialState = {
   fileUpload: false,
   exactMatch: null,
   rnacentral: false,
+  url: null,
 
   // nhmmer search
   status: statusChoices.notSubmitted,
