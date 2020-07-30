@@ -70,6 +70,8 @@ class Filter extends Component {
     sequenceFolder.file('similar-sequences.json', jsonFile)
 
     // info for the metadata below
+    // get url
+    const url = window.location.href;
 
     // check where the sequences come from
     let expertDbs = []
@@ -106,23 +108,22 @@ class Filter extends Component {
 
     // create json file with metadata
     let dataPackage = {
-      "homepage": "https://rnacentral.org/sequence-search/",
-      "jobId": this.props.jobId,
+      "homepage": url,
       "title": title,
       "description": description,
       "rnacentral_version": "v15",
       "download_date": dateTime,
-      "sources": [ this.props.databases.length === 0 ?
+      "sources": this.props.databases.length === 0 ?
         showExpertDb.map(entry => (
           {
             "name": entry.title,
             "web": entry.url
           }
-        )) : {
+          )) :
+          {
             "name": this.props.databases[0],
             "web": showExpertDb.find(db => db.title===this.props.databases[0].toLowerCase()).url
-          }
-      ],
+          },
       "resources": [
         {
           "name": "similar-sequences",
@@ -145,7 +146,7 @@ class Filter extends Component {
         "name": "RNAcentral",
         "web": "https://rnacentral.org"
       }],
-      "datapackage_version": "1.0",
+      "datapackage_version": "1.1",
     }
     let dataPackageFile = new Blob([JSON.stringify(dataPackage)], {type: 'application/json'});
     zip.file('datapackage.json', dataPackageFile)
