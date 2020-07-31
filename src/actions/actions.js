@@ -53,10 +53,34 @@ export function onSubmit(sequence, databases) {
     })
     .then(data => {
         dispatch({type: types.SUBMIT_JOB, status: 'success', data: data});
+        dispatch(r2dtSubmit(sequence));
         dispatch(fetchStatus(data.job_id));
         dispatch(fetchInfernalStatus(data.job_id));
     })
     .catch(error => dispatch({type: types.SUBMIT_JOB, status: 'error', response: error}));
+  }
+}
+
+export function r2dtSubmit(sequence) {
+  let description = ">description\n";
+  return function(dispatch) {
+    fetch(routes.submitR2DTJob(), {
+      method: 'POST',
+      headers: {
+        'Accept': 'text/plain',
+        'Content-Type': 'application/x-www-form-urlencoded'
+      },
+      body: `email=rnacentral%40gmail.com&sequence=${description + sequence}`
+    })
+    .then(function (response) {
+      if (response.ok) { return response.text() }
+      else { throw response }
+    })
+    .then(data => {
+        dispatch({type: types.SUBMIT_R2DT_JOB, status: 'success', data: data});
+        dispatch(fetchR2DTStatus(data));
+    })
+    .catch(error => dispatch({type: types.SUBMIT_R2DT_JOB, status: 'error', response: error}));
   }
 }
 
@@ -193,6 +217,42 @@ export function fetchStatus(jobId) {
   }
 }
 
+export function fetchR2DTStatus(jobId) {
+  return function(dispatch) {
+    fetch(routes.r2dtJobStatus(jobId), {
+      method: 'GET',
+      headers: { 'Accept': 'text/plain' }
+    })
+    .then(function(response) {
+      if (response.ok) { return response.text() }
+      else { throw response }
+    })
+    .then((data) => {
+      if (data === 'RUNNING') {
+        let statusTimeout = setTimeout(() => store.dispatch(fetchR2DTStatus(jobId)), 2000);
+        dispatch({type: types.SET_STATUS_TIMEOUT, timeout: statusTimeout});
+      } else if (data === 'FINISHED') {
+        // Wait another second to change the status. This will allow the SVG resultType to work correctly.
+        let statusTimeout = setTimeout(() => dispatch({type: types.FETCH_R2DT_STATUS, status: 'FINISHED'}), 1000);
+        dispatch({type: types.SET_STATUS_TIMEOUT, timeout: statusTimeout});
+        dispatch(fetchR2DTThumbnail(jobId));
+      } else if (data === 'NOT_FOUND') {
+        dispatch({type: types.FETCH_R2DT_STATUS, status: 'NOT_FOUND'})
+      } else if (data === 'FAILURE') {
+        dispatch({type: types.FETCH_R2DT_STATUS, status: 'FAILURE'})
+      } else if (data === 'ERROR') {
+        dispatch({type: types.FETCH_R2DT_STATUS, status: 'ERROR'})
+      }
+    })
+    .catch(error => {
+      if (store.getState().hasOwnProperty('statusTimeout')) {
+        clearTimeout(store.getState().statusTimeout); // clear status timeout
+      }
+      dispatch({type: types.FETCH_R2DT_STATUS, status: 'error'})
+    });
+  }
+}
+
 export function fetchInfernalStatus(jobId) {
   return function(dispatch) {
     fetch(routes.infernalJobStatus(jobId), {
@@ -247,6 +307,27 @@ export function fetchResults(jobId) {
       dispatch(dataForDownload());
     })
     .catch(error => dispatch({type: types.FETCH_RESULTS, status: 'error'}));
+  }
+}
+
+export function fetchR2DTThumbnail(jobId) {
+  return function(dispatch) {
+    fetch(routes.r2dtThumbnail(jobId), {
+      method: 'GET',
+      headers: { 'Accept': 'text/plain' },
+    })
+    .then(function (response) {
+      if (response.ok) { return response.text() }
+      else { throw response }
+    })
+    .then(data => {
+      if (data){
+        dispatch({type: types.FETCH_R2DT_THUMBNAIL, status: 'success', thumbnail: routes.r2dtThumbnail(jobId)})
+      } else {
+        dispatch({type: types.FETCH_R2DT_THUMBNAIL, status: 'success', thumbnail: null})
+      }
+    })
+    .catch(error => dispatch({type: types.FETCH_R2DT_THUMBNAIL, status: 'error'}));
   }
 }
 

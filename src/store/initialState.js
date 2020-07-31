@@ -38,6 +38,12 @@ let initialState = {
   infernalEntries: [],
   infernalAlignmentsCollapsed: true,
 
+  // R2DT
+  r2dtJobId: null,
+  r2dtStatus: "RUNNING",
+  r2dtSubmissionError: null,
+  r2dtThumbnail: null,
+
   // admin
   showAdmin: false,
   showLastJob: false,

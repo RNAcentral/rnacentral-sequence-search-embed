@@ -5,6 +5,7 @@ import { CSVLink } from "react-csv";
 import Facets from 'containers/SequenceSearch/components/Results/components/Facets.jsx';
 import Hit from 'containers/SequenceSearch/components/Results/components/Hit.jsx';
 import Filter from 'containers/SequenceSearch/components/Results/components/Filter.jsx';
+import R2DT from 'containers/SequenceSearch/components/Results/components/R2DT.jsx';
 
 import * as actionCreators from 'actions/actions';
 import {store} from "app.jsx";
@@ -139,6 +140,9 @@ class Results extends React.Component {
               </div>
             </div>
           )
+        }
+        {
+          this.props.jobId && <R2DT customStyle={this.props.customStyle} />
         }
         {
           this.props.jobId && this.props.rfam && (
