@@ -19,13 +19,16 @@ class R2DT extends Component {
       color: this.props.customStyle && this.props.customStyle.h3Color ? this.props.customStyle.h3Color : "#007c82",
       fontSize: this.props.customStyle && this.props.customStyle.h3Size ? this.props.customStyle.h3Size : "28px",
     };
+    const titleStyle = {
+      fontSize: this.props.customStyle && this.props.customStyle.facetSize ? this.props.customStyle.facetSize : "20px",
+    }
     const searchButtonColor = this.props.customStyle && this.props.customStyle.searchButtonColor ? this.props.customStyle.searchButtonColor : "";
     const fixCss = this.props.customStyle && this.props.customStyle.fixCss && this.props.customStyle.fixCss === "true" ? "1.5rem" : "";
     const fixCssBtn = this.props.customStyle && this.props.customStyle.fixCss && this.props.customStyle.fixCss === "true" ? "38px" : "";
     return (
       <div className="row" key={`r2dt-div`}>
-        <div className="col-sm-12 mt-3 mb-3">
-          <div className="mb-3">
+        <div className="col-sm-12">
+          <div className="mt-3 mb-3">
             <span style={h3Style}>Secondary structure </span>{ this.props.r2dtStatus === "RUNNING" ? <div className={`spinner-border ${fixCss ? '' : 'spinner-border-sm'} mb-1`} role="status" /> : <span style={h3Style}><a className="text-muted" style={{fontSize: "65%", verticalAlign: "10%"}} href="https://rnacentral.org/help/secondary-structure" target="_blank"><MdHelpOutline /></a></span> }
           </div>
           {
@@ -53,18 +56,18 @@ class R2DT extends Component {
           {
             this.props.r2dtStatus === "FINISHED" && this.props.r2dtThumbnail && (
               <div className="media">
-                <img className="img-thumbnail" width="140" height="120" src={this.props.r2dtThumbnail} />
+                <img className="img-thumbnail mb-3" width="140" height="120" src={this.props.r2dtThumbnail} />
                 <div className="media-body">
-                  <h5 className="ml-3">R2DT</h5>
+                  <p style={titleStyle} className="ml-3">R2DT</p>
                   <p className="ml-3">Visualise RNA secondary structure in standard orientations using RNA 2D Templates (R2DT).</p>
-                  <a href={this.rnacentralServer(this.props.r2dtThumbnail)} className="btn btn-primary ml-3" style={{background: searchButtonColor, borderColor: searchButtonColor, fontSize: fixCss, height: fixCssBtn}} target="_blank">Visualise</a>
+                  <div className="ml-3"><a href={this.rnacentralServer(this.props.r2dtThumbnail)} className="btn btn-primary" style={{background: searchButtonColor, borderColor: searchButtonColor, fontSize: fixCss, height: fixCssBtn}} target="_blank">Visualise</a></div>
                 </div>
               </div>
             )
           }
           {
             this.props.r2dtStatus === "FINISHED" && !this.props.r2dtThumbnail && (
-              <div>
+              <div className="mb-3">
                 The sequence did not match any of the templates. If you think it's an error, please <a href="https://github.com/RNAcentral/r2dt-web/issues" target="_blank">get in touch</a>.
               </div>
             )
