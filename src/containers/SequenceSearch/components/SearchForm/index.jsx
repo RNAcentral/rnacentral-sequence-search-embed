@@ -69,7 +69,7 @@ class SearchForm extends React.Component {
     } else if (state.sequence && state.sequence.match("^([0-9a-fA-F]{8})-(([0-9a-fA-F]{4}\\-){3})([0-9a-fA-F]{12})$")) {
       store.dispatch(actionCreators.updateJobId(state.sequence));
     } else if (state.sequence && state.sequence.match("^URS[A-Fa-f0-9]{10}$")) {
-      store.dispatch(actionCreators.onSubmitUrs(state.sequence, this.props.databases));
+      store.dispatch(actionCreators.onSubmitUrs(state.sequence, this.props.databases, r2dt));
     } else if (state.sequence && (state.sequence.length < 10 || state.sequence.length > 7000)) {
       store.dispatch(actionCreators.invalidSequence());
     } else if (state.sequence) {

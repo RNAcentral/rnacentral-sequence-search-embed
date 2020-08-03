@@ -126,7 +126,7 @@ export function onMultipleSubmit(sequence, databases) {
   }
 }
 
-export function onSubmitUrs(urs, database) {
+export function onSubmitUrs(urs, database, r2dt) {
   return function(dispatch) {
     fetch(routes.rnacentralUrs(urs))
     .then(function(response) {
@@ -138,7 +138,7 @@ export function onSubmitUrs(urs, database) {
         dispatch({type: types.SUBMIT_URS, status: 'invalid', data: data.sequence});
         dispatch(invalidSequence())
       } else {
-        dispatch(onSubmit(data.sequence, database))
+        dispatch(onSubmit(data.sequence, database, r2dt))
       }
     })
     .catch(error => {dispatch({type: types.SUBMIT_URS, status: 'error', response: error})});
