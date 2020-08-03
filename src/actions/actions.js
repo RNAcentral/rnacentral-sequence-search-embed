@@ -28,7 +28,7 @@ let buildQuery = function (selectedFacets) {
   return outputText;
 };
 
-export function onSubmit(sequence, databases) {
+export function onSubmit(sequence, databases, r2dt= false) {
   let url = window.location.href;
 
   return function(dispatch) {
@@ -53,7 +53,7 @@ export function onSubmit(sequence, databases) {
     })
     .then(data => {
         dispatch({type: types.SUBMIT_JOB, status: 'success', data: data});
-        dispatch(r2dtSubmit(sequence));
+        if (r2dt){ dispatch(r2dtSubmit(sequence)) }
         dispatch(fetchStatus(data.job_id));
         dispatch(fetchInfernalStatus(data.job_id));
     })

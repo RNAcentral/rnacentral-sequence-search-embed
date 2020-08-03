@@ -142,7 +142,7 @@ class Results extends React.Component {
           )
         }
         {
-          this.props.jobId && <R2DT customStyle={this.props.customStyle} />
+          this.props.jobId && this.props.r2dt && <R2DT customStyle={this.props.customStyle} />
         }
         {
           this.props.jobId && this.props.rfam && (

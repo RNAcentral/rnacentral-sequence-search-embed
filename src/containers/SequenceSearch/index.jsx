@@ -42,12 +42,14 @@ class SequenceSearch extends React.Component {
           customStyle={this.props.customStyle}
           databases={this.props.databases}
           examples={this.props.examples}
+          r2dt={this.props.r2dt}
       />,
       <Results
           key={`results`}
           customStyle={this.props.customStyle}
           databases={this.props.databases}
           hideFacet={this.props.hideFacet}
+          r2dt={this.props.r2dt}
           rfam={this.props.rfam}
       />
     ]

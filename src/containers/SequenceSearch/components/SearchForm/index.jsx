@@ -21,8 +21,9 @@ class SearchForm extends React.Component {
   }
 
   exampleSequence(sequence) {
+    const r2dt = !!this.props.r2dt;  // true if exists, otherwise false
     store.dispatch(actionCreators.onExampleSequence(sequence));
-    store.dispatch(actionCreators.onSubmit(sequence, this.props.databases));
+    store.dispatch(actionCreators.onSubmit(sequence, this.props.databases, r2dt));
   }
 
   showExactMatch(linkColor){
@@ -59,6 +60,7 @@ class SearchForm extends React.Component {
   onSubmit(event) {
     event.preventDefault();
     const state = store.getState();
+    const r2dt = !!this.props.r2dt;  // true if exists, otherwise false
 
     // split the sequence for batch queries and set a limit on the number of queries
     if (state.fileUpload && state.sequence) {
@@ -71,7 +73,7 @@ class SearchForm extends React.Component {
     } else if (state.sequence && (state.sequence.length < 10 || state.sequence.length > 7000)) {
       store.dispatch(actionCreators.invalidSequence());
     } else if (state.sequence) {
-      store.dispatch(actionCreators.onSubmit(state.sequence, this.props.databases));
+      store.dispatch(actionCreators.onSubmit(state.sequence, this.props.databases, r2dt));
     }
   }
 
