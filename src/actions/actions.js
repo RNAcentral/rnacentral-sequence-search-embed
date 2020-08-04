@@ -62,7 +62,12 @@ export function onSubmit(sequence, databases, r2dt= false) {
 }
 
 export function r2dtSubmit(sequence) {
-  let description = ">description\n";
+  let query = "";
+  if (/^>/.test(sequence)) {
+    query = sequence;
+  } else {
+    query = ">description\n" + sequence
+  }
   return function(dispatch) {
     fetch(routes.submitR2DTJob(), {
       method: 'POST',
@@ -70,7 +75,7 @@ export function r2dtSubmit(sequence) {
         'Accept': 'text/plain',
         'Content-Type': 'application/x-www-form-urlencoded'
       },
-      body: `email=rnacentral%40gmail.com&sequence=${description + sequence}`
+      body: `email=rnacentral%40gmail.com&sequence=${query}`
     })
     .then(function (response) {
       if (response.ok) { return response.text() }
@@ -111,11 +116,14 @@ export function onMultipleSubmit(sequence, databases) {
         if (response.ok) {
           return response.json();
         } else {
-          jobIds.push("Error submitting sequence. Check your fasta file and try again later.");
+          jobIds = [...jobIds, {"jobid": "", "description": "Error submitting sequence. Check your fasta file and try again later.", "sequence": ""}];
         }
       })
       .then(data => {
-        jobIds.push(data.job_id);
+        let querySplit = newQuery.split("\n");
+        let description = querySplit.shift();
+        let seq = querySplit.join('');
+        jobIds = [...jobIds, {"jobid": data.job_id, "description": description, "sequence": seq}];
         if (jobIds.length === sequence.length) {
           dispatch({type: types.BATCH_SEARCH, data: false});
           dispatch({type: types.SUBMIT_MULTIPLE_JOB, status: 'success', data: jobIds});

@@ -18,12 +18,15 @@ class Results extends React.Component {
     super(props);
   }
 
-  onSeeResults(e) {
-    if (e.target.value === 'Select an Id to check the results' || e.target.value === 'Error submitting sequence. Check your fasta file and try again later.'){
+  onSeeResults(e, r2dt) {
+    if (e.target.value === '{}' || JSON.parse(e.target.value).description === "Error submitting sequence. Check your fasta file and try again later."){
       store.dispatch(actionCreators.onClearJobId());
     } else {
       store.dispatch(actionCreators.onClearResult());
-      store.dispatch(actionCreators.updateJobId(e.target.value));
+      store.dispatch(actionCreators.updateJobId(JSON.parse(e.target.value).jobid));
+      if (r2dt) {
+        store.dispatch(actionCreators.r2dtSubmit(JSON.parse(e.target.value).description + "\n" + JSON.parse(e.target.value).sequence))
+      }
     }
   }
 
@@ -74,9 +77,18 @@ class Results extends React.Component {
         })
     }
 
-    // batch queries info
+    // batch queries
     const sequences = this.props.jobList;
-    const sequenceError = sequences.filter(sequence => sequence === 'Error submitting sequence. Check your fasta file and try again later.')
+    const sequenceError = sequences.filter(sequence => sequence.description === "Error submitting sequence. Check your fasta file and try again later.")
+    const r2dt = !!this.props.r2dt;  // true if exists, otherwise false
+    const headers = [
+      { label: "Job ID", key: "jobid" },
+      { label: "Description", key: "description" },
+      { label: "Sequence", key: "sequence" }
+    ];
+    const csvData = this.props.jobList.map(item => (
+      { jobid: item.jobid, description: item.description, sequence: item.sequence }
+    ));
 
     return (
       <div className="rna">
@@ -91,15 +103,15 @@ class Results extends React.Component {
                           <span>{sequences.length} sequences were submitted, but {sequenceError.length} failed. </span>
                         : <span>{sequences.length} sequences were submitted. </span>
                       }
-                      <CSVLink data={Object.entries(this.props.jobList)} filename={"job-ids.csv"}>
+                      <CSVLink data={csvData} headers={headers} filename={"RNAcentral jobs.csv"}>
                         <span>Download the Ids</span>
                       </CSVLink>
                       <span> for future reference.</span>
                     </label>
                   </div>
-                  <select className="form-select mb-3" style={{fontSize: fixCss}} id="selectJobId" onChange={this.onSeeResults}>
-                    <option key={'no-job-selected'}>Select an Id to check the results</option>
-                    {this.props.jobList.map((job, index) => <option key={`${index}_${job}`}>{job}</option>)}
+                  <select className="form-select mb-3" style={{fontSize: fixCss}} id="selectJobId" onChange={(e) => this.onSeeResults(e, r2dt)}>
+                    <option key={'no-job-selected'} value={JSON.stringify({})}>Select an Id to check the results</option>
+                    {this.props.jobList.map((item, index) => <option key={`${index}_${item.jobid}`} value={JSON.stringify(item)}>{item.description}</option>)}
                   </select>
                 </div>
               </div>
