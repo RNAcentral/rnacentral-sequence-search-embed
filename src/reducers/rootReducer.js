@@ -63,9 +63,9 @@ const rootReducer = function (state = initialState, action) {
 
     case actions.FAILED_FETCH_INFERNAL_RESULTS:
       if ('does not exist') {
-        return Object.assign({}, state, {infernalStatus: "does_not_exist", start: 0});
+        return Object.assign({}, state, {infernalStatus: "does_not_exist"});
       } else if ('error') {
-        return Object.assign({}, state, {infernalStatus: "error", start: 0});
+        return Object.assign({}, state, {infernalStatus: "error"});
       } else {
         return Object.assign({}, state, {});
       }
