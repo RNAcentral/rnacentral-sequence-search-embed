@@ -155,10 +155,10 @@ class Results extends React.Component {
           )
         }
         {
-          this.props.jobId && this.props.r2dt && <R2DT customStyle={this.props.customStyle} />
+          this.props.jobId && this.props.status !== "does_not_exist" && this.props.r2dt && <R2DT customStyle={this.props.customStyle} />
         }
         {
-          this.props.jobId && this.props.rfam && <Rfam customStyle={this.props.customStyle} />
+          this.props.jobId && this.props.status !== "does_not_exist" && this.props.rfam && <Rfam customStyle={this.props.customStyle} />
         }
         {
           this.props.jobId && (this.props.status === "loading" || this.props.status === "success" || this.props.status === "partial_success") && [

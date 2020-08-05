@@ -42,15 +42,16 @@ class R2DT extends Component {
           {
             this.props.r2dtStatus === "FAILURE" || this.props.r2dtStatus === "ERROR" && (
               <div className="alert alert-danger">
-                There was an error. Let us know if the problem persists by raising an issue on <a href="https://github.com/RNAcentral/r2dt-web/issues" target="_blank">GitHub</a>.
+                <p><strong>There was an error</strong></p>
+                <span>Let us know if the problem persists by raising an issue on <a href="https://github.com/RNAcentral/r2dt-web/issues" target="_blank">GitHub</a>.</span>
               </div>
             )
           }
           {
             this.props.r2dtStatus === "NOT_FOUND" && (
               <div className="alert alert-warning">
-                Job not found. The results might have expired.
-                If you think this is an error, please let us know by raising an issue on <a href="https://github.com/RNAcentral/r2dt-web/issues" target="_blank">GitHub</a>
+                <p><strong>Job not found</strong></p>
+                <span>The results might have expired. If you think this is an error, please let us know by raising an issue on <a href="https://github.com/RNAcentral/r2dt-web/issues" target="_blank">GitHub</a></span>
               </div>
             )
           }
