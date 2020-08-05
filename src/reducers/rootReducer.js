@@ -25,9 +25,6 @@ const rootReducer = function (state = initialState, action) {
           textSearchError: action.data.textSearchError,
           searchInProgress: ""
         });
-
-      } else if (action.status === 'error') {
-        return Object.assign({}, state, { status: 'error' });
       } else {
         return Object.assign({}, state, {});
       }
@@ -51,9 +48,6 @@ const rootReducer = function (state = initialState, action) {
           infernalStatus: "success",
           infernalEntries: [...action.data],
         });
-
-      } else if (action.infernalStatus === 'error') {
-        return Object.assign({}, state, { status: 'error' });
       } else {
         return Object.assign({}, state, {});
       }
@@ -63,6 +57,15 @@ const rootReducer = function (state = initialState, action) {
         return Object.assign({}, state, {status: "does_not_exist", start: 0});
       } else if ('error') {
         return Object.assign({}, state, {status: "error", start: 0});
+      } else {
+        return Object.assign({}, state, {});
+      }
+
+    case actions.FAILED_FETCH_INFERNAL_RESULTS:
+      if ('does not exist') {
+        return Object.assign({}, state, {infernalStatus: "does_not_exist", start: 0});
+      } else if ('error') {
+        return Object.assign({}, state, {infernalStatus: "error", start: 0});
       } else {
         return Object.assign({}, state, {});
       }

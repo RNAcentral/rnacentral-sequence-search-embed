@@ -123,8 +123,8 @@ class Results extends React.Component {
             <div className="row" key={`partial-success-div`}>
               <div className="col-sm-9">
                 <div className="alert alert-warning">
-                  <h4>Search against some databases failed.</h4>
-                  <p>This usually happens when the nhmmer is unable to complete the search within a 5 minute time limit.</p>
+                  <p><strong>Search against some databases failed</strong></p>
+                  <span>This usually happens when the nhmmer is unable to complete the search within a 5 minute time limit.</span>
                 </div>
               </div>
             </div>
@@ -135,7 +135,8 @@ class Results extends React.Component {
             <div className="row" key={`does-not-exist-div`}>
               <div className="col-sm-9">
                 <div className="alert alert-danger">
-                  <h4>Job with id='{ this.props.jobId }' does not exist.</h4>
+                  <p><strong>Job not found</strong></p>
+                  <span>The results might have expired. If you think this is an error, please let us know by raising an issue on <a href="https://github.com/RNAcentral/rnacentral-sequence-search-embed/issues" target="_blank">GitHub</a>.</span>
                 </div>
               </div>
             </div>
@@ -146,8 +147,8 @@ class Results extends React.Component {
             <div className="row" key={`error-div`}>
               <div className="col-sm-9">
                 <div className="alert alert-danger">
-                  <h4>There was an error.</h4>
-                  <a href="mailto:rnacentral@gmail.com">Contact us</a> if the problem persists.
+                  <p><strong>There was an error</strong></p>
+                  <span>Let us know if the problem persists by raising an issue on <a href="https://github.com/RNAcentral/rnacentral-sequence-search-embed/issues" target="_blank">GitHub</a>.</span>
                 </div>
               </div>
             </div>

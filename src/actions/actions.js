@@ -220,7 +220,7 @@ export function fetchStatus(jobId) {
       if (store.getState().hasOwnProperty('statusTimeout')) {
         clearTimeout(store.getState().statusTimeout); // clear status timeout
       }
-      dispatch({type: types.FETCH_STATUS, status: 'error'})
+      dispatch(failedFetchResults(error))
     });
   }
 }
@@ -288,7 +288,7 @@ export function fetchInfernalStatus(jobId) {
       if (store.getState().hasOwnProperty('statusTimeout')) {
         clearTimeout(store.getState().statusTimeout); // clear status timeout
       }
-      dispatch({type: types.FETCH_STATUS, infernalStatus: 'error'})
+      dispatch(failedFetchInfernalResults(error))
     });
   }
 }
@@ -314,7 +314,7 @@ export function fetchResults(jobId) {
       dispatch({type: types.FETCH_RESULTS, status: 'success', data: data});
       dispatch(dataForDownload());
     })
-    .catch(error => dispatch({type: types.FETCH_RESULTS, status: 'error'}));
+    .catch(error => dispatch(failedFetchResults(error)));
   }
 }
 
@@ -355,7 +355,7 @@ export function fetchInfernalResults(jobId) {
       else { throw response }
     })
     .then(data => dispatch({type: types.FETCH_INFERNAL_RESULTS, infernalStatus: 'success', data: data}))
-    .catch(error => dispatch({type: types.FETCH_INFERNAL_RESULTS, infernalStatus: 'error'}));
+    .catch(error => dispatch(failedFetchInfernalResults(error)));
   }
 }
 
@@ -364,6 +364,14 @@ export function failedFetchResults(response) {
     return { type: types.FAILED_FETCH_RESULTS, status: "does_not_exist", start: 0 };
   } else if (response.status === 500) {
     return { type: types.FAILED_FETCH_RESULTS, status: "error", start: 0 };
+  }
+}
+
+export function failedFetchInfernalResults(response) {
+  if (response.status === 404) {
+    return { type: types.FAILED_FETCH_INFERNAL_RESULTS, status: "does_not_exist" };
+  } else if (response.status === 500) {
+    return { type: types.FAILED_FETCH_INFERNAL_RESULTS, status: "error" };
   }
 }
 
