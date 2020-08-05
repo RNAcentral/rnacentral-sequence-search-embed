@@ -74,7 +74,7 @@ class Rfam extends Component {
                     </tbody>
                   </table>
                 </div>
-              ] : <p className="mt-3">The query sequence did not match any <img src={'https://rnacentral.org/static/img/expert-db-logos/rfam.png'} alt="Rfam logo" style={{width: "5%", verticalAlign: "1px"}}/> families.</p>}
+              ] : <div className="mt-3 media">The query sequence did not match any <img src={'https://rnacentral.org/static/img/expert-db-logos/rfam.png'} alt="Rfam logo" style={{width: "5%"}}/> <div className="media-body ml-1">families</div>.</div>}
             </div>
           )
         }
