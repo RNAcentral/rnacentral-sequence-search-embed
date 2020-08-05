@@ -6,6 +6,7 @@ import Facets from 'containers/SequenceSearch/components/Results/components/Face
 import Hit from 'containers/SequenceSearch/components/Results/components/Hit.jsx';
 import Filter from 'containers/SequenceSearch/components/Results/components/Filter.jsx';
 import R2DT from 'containers/SequenceSearch/components/Results/components/R2DT.jsx';
+import Rfam from 'containers/SequenceSearch/components/Results/components/Rfam.jsx';
 
 import * as actionCreators from 'actions/actions';
 import {store} from "app.jsx";
@@ -66,7 +67,6 @@ class Results extends React.Component {
     const fixCss = this.props.customStyle && this.props.customStyle.fixCss && this.props.customStyle.fixCss === "true" ? "1.5rem" : "";
     const fixCssBtn = this.props.customStyle && this.props.customStyle.fixCss && this.props.customStyle.fixCss === "true" ? "38px" : "";
     const linkColor = this.props.customStyle && this.props.customStyle.linkColor ? this.props.customStyle.linkColor : "#337ab7";
-    const showRfamAlignment = !!(this.props.customStyle && this.props.customStyle.showRfamAlignment);
 
     // exact match URS ids
     const exactMatch = this.props.exactMatch;
@@ -158,69 +158,7 @@ class Results extends React.Component {
           this.props.jobId && this.props.r2dt && <R2DT customStyle={this.props.customStyle} />
         }
         {
-          this.props.jobId && this.props.rfam && (
-            <div className="row">
-              <div className="col-sm-12">
-                <span style={h3Style}>Rfam classification </span>{ this.props.infernalStatus === "loading" ? <div className={`spinner-border ${fixCss ? '' : 'spinner-border-sm'} mb-1`} role="status" /> : <span style={h3Style}><a className="text-muted" style={{fontSize: "65%", verticalAlign: "10%"}} href="https://rnacentral.org/help/sequence-search#rfam" target="_blank"><MdHelpOutline /></a></span> }
-                { this.props.infernalStatus === "loading" ? '' : this.props.infernalStatus === "success" && this.props.infernalEntries.length ? [
-                  <div className="table-responsive mt-3" key={`infernal-div`}>
-                    <table className="table">
-                      <thead>
-                        <tr>
-                          <th>Family</th>
-                          <th>Accession</th>
-                          <th>Start</th>
-                          <th>End</th>
-                          <th>Bit score</th>
-                          <th>E-value</th>
-                          <th>Strand</th>
-                          {showRfamAlignment ? null : <th>Alignment</th>}
-                        </tr>
-                      </thead>
-                      <tbody>
-                      {this.props.infernalEntries.map((entry, index) => (
-                        <React.Fragment key={`react-fragment-${index}`}>
-                          <tr className="noBorder">
-                            <td><a className="custom-link" style={{color: linkColor}} href={`https://rfam.org/family/${entry.target_name}`} target="_blank">{entry.description}</a></td>
-                            <td><a className="custom-link" style={{color: linkColor}} href={`https://rfam.org/family/${entry.accession_rfam}`} target="_blank">{entry.accession_rfam}</a></td>
-                            <td>{entry.seq_from}</td>
-                            <td>{entry.seq_to}</td>
-                            <td>{entry.score}</td>
-                            <td>{entry.e_value}</td>
-                            <td>{entry.strand}</td>
-                            {showRfamAlignment ? null :
-                              <td>
-                                {
-                                  entry.alignment ?
-                                  <a className="custom-link" onClick={ this.props.onToggleInfernalAlignmentsCollapsed }>
-                                    { this.props.infernalAlignmentsCollapsed ? <span style={{color: linkColor}}>&#x25B6; Show</span> : <span style={{color: linkColor}}>&#x25BC; Hide</span> }
-                                  </a> : "Not available"
-                                }
-                              </td>
-                            }
-                          </tr>
-                          {
-                            showRfamAlignment ?
-                              <tr>
-                                <td className="alignment-rfam-td" colSpan={7}>
-                                  <div className="alignment-rfam">{ entry.alignment + '\n' }</div>
-                                </td>
-                              </tr> : this.props.infernalAlignmentsCollapsed ? null :
-                              <tr>
-                                <td className="alignment-rfam-td" colSpan={8}>
-                                  <div className="alignment-rfam">{ entry.alignment + '\n' }</div>
-                                </td>
-                              </tr>
-                          }
-                        </React.Fragment>
-                      ))}
-                      </tbody>
-                    </table>
-                  </div>
-                ] : <p className="mt-3">The query sequence did not match any <img src={'https://rnacentral.org/static/img/expert-db-logos/rfam.png'} alt="Rfam logo" style={{width: "4%", verticalAlign: "sub"}}/> families.</p>}
-              </div>
-            </div>
-          )
+          this.props.jobId && this.props.rfam && <Rfam customStyle={this.props.customStyle} />
         }
         {
           this.props.jobId && (this.props.status === "loading" || this.props.status === "success" || this.props.status === "partial_success") && [
@@ -269,7 +207,6 @@ class Results extends React.Component {
 function mapStateToProps(state) {
   return {
     status: state.status,
-    infernalStatus: state.infernalStatus,
     sequence: state.sequence,
     hits: state.hits,
     entries: state.entries,
@@ -283,8 +220,6 @@ function mapStateToProps(state) {
     detailsCollapsed: state.detailsCollapsed,
     jobId: state.jobId,
     jobList: state.jobList,
-    infernalEntries: state.infernalEntries,
-    infernalAlignmentsCollapsed: state.infernalAlignmentsCollapsed,
     exactMatch: state.exactMatch,
     rnacentral: state.rnacentral,
     searchInProgress: state.searchInProgress,
@@ -294,7 +229,6 @@ function mapStateToProps(state) {
 function mapDispatchToProps(dispatch) {
   return {
     onLoadMore: (event) => dispatch(actionCreators.onLoadMore(event)),
-    onToggleInfernalAlignmentsCollapsed: (event) => dispatch(actionCreators.toggleInfernalAlignmentsCollapsed(event)),
   }
 }
 
