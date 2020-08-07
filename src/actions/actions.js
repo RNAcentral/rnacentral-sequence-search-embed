@@ -192,16 +192,20 @@ export function fetchStatus(jobId, r2dt= false) {
     })
     .then((data) => {
       // used if r2dt is enable
-      if (r2dt && !state.r2dt_id && data.r2dt_id) {
-        // r2dt_id is in the db, so use it
-        dispatch({type: types.SUBMIT_R2DT_JOB, status: 'success', data: data.r2dt_id});
-        dispatch(fetchR2DTStatus(data.r2dt_id));
-      } else if (r2dt && !state.r2dt_id && !data.r2dt_id) {
-        // submit a new r2dt job
-        if (data.description){ dispatch(r2dtSubmit(">" + data.description + "\n" + data.query)) }
-        else {dispatch(r2dtSubmit(">description\n" + data.query))}
+      if (r2dt) {
+        let timeLimit = 603000 // 6 days, 23 hours and 30 minutes
+        if (!state.r2dt_id && data.r2dt_id && data.r2dt_date && data.r2dt_date < timeLimit) {
+          // use r2dt_id
+          dispatch({type: types.SUBMIT_R2DT_JOB, status: 'success', data: data.r2dt_id});
+          dispatch(fetchR2DTStatus(data.r2dt_id));
+        } else if (!state.r2dt_id) {
+          // submit a new r2dt job
+          if (data.description){ dispatch(r2dtSubmit(">" + data.description + "\n" + data.query)) }
+          else {dispatch(r2dtSubmit(">description\n" + data.query))}
+        }
       }
 
+      // check the status
       if (data.status === 'started' || data.status === 'pending' || data.status === 'running') {
         // Given jobChunks from jobStatus route, estimates the search progress.
         let finishedChunk = 0;
