@@ -153,10 +153,10 @@ export function onSubmitUrs(urs, database, r2dt) {
   }
 }
 
-export function updateJobId(jobId) {
+export function updateJobId(jobId, r2dt= false) {
   return function(dispatch) {
     dispatch({type: types.UPDATE_JOB_ID, data: jobId});
-    dispatch(fetchStatus(jobId));
+    dispatch(fetchStatus(jobId, r2dt));
     dispatch(fetchInfernalStatus(jobId));
   }
 }

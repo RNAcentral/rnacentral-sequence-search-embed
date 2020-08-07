@@ -24,10 +24,7 @@ class Results extends React.Component {
       store.dispatch(actionCreators.onClearJobId());
     } else {
       store.dispatch(actionCreators.onClearResult());
-      store.dispatch(actionCreators.updateJobId(JSON.parse(e.target.value).jobid));
-      if (r2dt) {
-        store.dispatch(actionCreators.r2dtSubmit(JSON.parse(e.target.value).description + "\n" + JSON.parse(e.target.value).sequence))
-      }
+      store.dispatch(actionCreators.updateJobId(JSON.parse(e.target.value).jobid, r2dt));
     }
   }
 
