@@ -15,6 +15,7 @@ module.exports = {
   infernalJobResult:   (resultId) => `${server}/api/infernal-result/${resultId}`,
   searchEndpoint:      (query) => `https://${ebiDevOrProd}.ebi.ac.uk/ebisearch/ws/rest/rnacentral?query=${query}&fields=description,url&format=json&sort=boost:descending`,
   rnacentralUrs:       (urs) => `https://rnacentral.org/api/v1/rna/${urs}`,
+  saveR2DTId:          (jobId) => `${server}/api/r2dt/${jobId}`,
   submitR2DTJob:       () => `${r2dtServer}/run`,
   r2dtJobStatus:       (jobId) => `${r2dtServer}/status/${jobId}`,
   r2dtThumbnail:       (jobId) => `${r2dtServer}/result/${jobId}/thumbnail`,
