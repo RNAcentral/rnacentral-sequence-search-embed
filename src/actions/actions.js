@@ -53,8 +53,7 @@ export function onSubmit(sequence, databases, r2dt= false) {
     })
     .then(data => {
         dispatch({type: types.SUBMIT_JOB, status: 'success', data: data});
-        if (r2dt){ dispatch(r2dtSubmit(sequence)) }
-        dispatch(fetchStatus(data.job_id));
+        dispatch(fetchStatus(data.job_id, r2dt));
         dispatch(fetchInfernalStatus(data.job_id));
     })
     .catch(error => dispatch({type: types.SUBMIT_JOB, status: 'error', response: error}));
@@ -62,12 +61,12 @@ export function onSubmit(sequence, databases, r2dt= false) {
 }
 
 export function r2dtSubmit(sequence) {
+  let state = store.getState();
+
   let query = "";
-  if (/^>/.test(sequence)) {
-    query = sequence;
-  } else {
-    query = ">description\n" + sequence
-  }
+  if (/^>/.test(sequence)) { query = sequence }
+  else { query = ">description\n" + sequence }
+
   return function(dispatch) {
     fetch(routes.submitR2DTJob(), {
       method: 'POST',
@@ -84,6 +83,7 @@ export function r2dtSubmit(sequence) {
     .then(data => {
         dispatch({type: types.SUBMIT_R2DT_JOB, status: 'success', data: data});
         dispatch(fetchR2DTStatus(data));
+        dispatch(onSaveR2DTId(state.jobId, data));
     })
     .catch(error => dispatch({type: types.SUBMIT_R2DT_JOB, status: 'error', response: error}));
   }
@@ -173,7 +173,9 @@ export function invalidSequence() {
   return {type: types.INVALID_SEQUENCE}
 }
 
-export function fetchStatus(jobId) {
+export function fetchStatus(jobId, r2dt= false) {
+  let state = store.getState();
+
   return function(dispatch) {
     fetch(routes.jobStatus(jobId), {
       method: 'GET',
@@ -189,6 +191,17 @@ export function fetchStatus(jobId) {
       else { throw response }
     })
     .then((data) => {
+      // used if r2dt is enable
+      if (r2dt && !state.r2dt_id && data.r2dt_id) {
+        // r2dt_id is in the db, so use it
+        dispatch({type: types.SUBMIT_R2DT_JOB, status: 'success', data: data.r2dt_id});
+        dispatch(fetchR2DTStatus(data.r2dt_id));
+      } else if (r2dt && !state.r2dt_id && !data.r2dt_id) {
+        // submit a new r2dt job
+        if (data.description){ dispatch(r2dtSubmit(">" + data.description + "\n" + data.query)) }
+        else {dispatch(r2dtSubmit(">description\n" + data.query))}
+      }
+
       if (data.status === 'started' || data.status === 'pending' || data.status === 'running') {
         // Given jobChunks from jobStatus route, estimates the search progress.
         let finishedChunk = 0;
@@ -210,7 +223,7 @@ export function fetchStatus(jobId) {
         dispatch({type: types.SEARCH_PROGRESS, data: newSearchInProgress });
 
         // Wait a little bit and check it again
-        let statusTimeout = setTimeout(() => store.dispatch(fetchStatus(jobId)), 2000);
+        let statusTimeout = setTimeout(() => store.dispatch(fetchStatus(jobId, r2dt)), 2000);
         dispatch({type: types.SET_STATUS_TIMEOUT, timeout: statusTimeout});
       } else if (data.status === 'success' || data.status === 'partial_success') {
         dispatch(fetchResults(jobId));
@@ -600,6 +613,23 @@ export function dataForDownload() {
       .catch(response => dispatch({ type: types.DOWNLOAD, status: "error" }));
       start+=100;
     }
+  }
+}
+
+export function onSaveR2DTId(job_id, r2dt_id) {
+  return function(dispatch) {
+    fetch(routes.saveR2DTId(job_id), {
+      method: 'PATCH',
+      mode: 'cors',
+      credentials: 'include',
+      headers: {
+        'Accept': 'application/json, text/plain, */*',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        r2dt_id: r2dt_id,
+      })
+    })
   }
 }
 
