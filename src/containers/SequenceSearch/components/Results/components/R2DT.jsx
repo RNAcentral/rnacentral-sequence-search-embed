@@ -63,8 +63,8 @@ class R2DT extends Component {
                 </a>
                 <div className="media-body">
                   <p style={titleStyle} className="ml-3">R2DT</p>
-                  <p className="ml-3">Visualise RNA secondary structure in standard orientations using RNA 2D Templates (R2DT).</p>
-                  <div className="ml-3"><a href={this.rnacentralServer(this.props.r2dtThumbnail)} className="btn btn-primary" style={{background: searchButtonColor, borderColor: searchButtonColor, fontSize: fixCss, height: fixCssBtn}} role="button" target="_blank"><span className="btn-icon"><FaExternalLinkAlt /></span> Visualise</a></div>
+                  <p className="ml-3">Visualise RNA secondary structure in standard orientations using RNA 2D Templates.</p>
+                  <div className="ml-3"><a href={this.rnacentralServer(this.props.r2dtThumbnail)} className="btn btn-primary" style={{background: searchButtonColor, borderColor: searchButtonColor, fontSize: fixCss, height: fixCssBtn}} role="button" target="_blank"><span className="btn-icon"><FaExternalLinkAlt /></span> View</a></div>
                 </div>
               </div>
             )
