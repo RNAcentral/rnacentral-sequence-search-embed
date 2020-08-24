@@ -40,7 +40,7 @@ class R2DT extends Component {
             )
           }
           {
-            this.props.r2dtStatus === "FAILURE" || this.props.r2dtStatus === "ERROR" && (
+            (this.props.r2dtStatus === "FAILURE" || this.props.r2dtStatus === "ERROR") && (
               <div className="alert alert-danger">
                 <p><strong>There was an error</strong></p>
                 <span>Let us know if the problem persists by raising an issue on <a href="https://github.com/RNAcentral/r2dt-web/issues" target="_blank">GitHub</a>.</span>
