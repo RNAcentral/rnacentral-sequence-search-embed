@@ -58,7 +58,9 @@ class R2DT extends Component {
           {
             this.props.r2dtStatus === "FINISHED" && this.props.r2dtThumbnail && (
               <div className="media">
-                <img className="img-thumbnail mb-3" width="140" height="120" src={this.props.r2dtThumbnail} />
+                <a href={this.rnacentralServer(this.props.r2dtThumbnail)} target="_blank">
+                  <img className="img-thumbnail mb-3" width="140" height="120" src={this.props.r2dtThumbnail} />
+                </a>
                 <div className="media-body">
                   <p style={titleStyle} className="ml-3">R2DT</p>
                   <p className="ml-3">Visualise RNA secondary structure in standard orientations using RNA 2D Templates (R2DT).</p>
