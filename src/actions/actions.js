@@ -61,8 +61,6 @@ export function onSubmit(sequence, databases, r2dt= false) {
 }
 
 export function r2dtSubmit(sequence) {
-  let state = store.getState();
-
   let query = "";
   if (/^>/.test(sequence)) { query = sequence }
   else { query = ">description\n" + sequence }
@@ -83,7 +81,6 @@ export function r2dtSubmit(sequence) {
     .then(data => {
         dispatch({type: types.SUBMIT_R2DT_JOB, status: 'success', data: data});
         dispatch(fetchR2DTStatus(data));
-        dispatch(onSaveR2DTId(state.jobId, data));
     })
     .catch(error => dispatch({type: types.SUBMIT_R2DT_JOB, status: 'error', response: error}));
   }
@@ -243,6 +240,8 @@ export function fetchStatus(jobId, r2dt= false) {
 }
 
 export function fetchR2DTStatus(jobId) {
+  let state = store.getState();
+
   return function(dispatch) {
     fetch(routes.r2dtJobStatus(jobId), {
       method: 'GET',
@@ -260,6 +259,7 @@ export function fetchR2DTStatus(jobId) {
         // Wait another second to change the status. This will allow the SVG resultType to work correctly.
         let statusTimeout = setTimeout(() => dispatch({type: types.FETCH_R2DT_STATUS, status: 'FINISHED'}), 1000);
         dispatch({type: types.SET_STATUS_TIMEOUT, timeout: statusTimeout});
+        dispatch(onSaveR2DTId(state.jobId, jobId));
         dispatch(fetchR2DTThumbnail(jobId));
       } else if (data === 'NOT_FOUND') {
         dispatch({type: types.FETCH_R2DT_STATUS, status: 'NOT_FOUND'})
