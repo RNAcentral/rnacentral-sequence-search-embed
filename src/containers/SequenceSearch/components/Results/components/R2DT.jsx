@@ -1,7 +1,6 @@
 import React, {Component} from "react";
 import {connect} from "react-redux";
 import { MdHelpOutline } from "react-icons/md"
-import {FaExternalLinkAlt, FaSearch} from "react-icons/fa"
 
 
 class R2DT extends Component {
@@ -23,9 +22,7 @@ class R2DT extends Component {
     const titleStyle = {
       fontSize: this.props.customStyle && this.props.customStyle.facetSize ? this.props.customStyle.facetSize : "20px",
     }
-    const searchButtonColor = this.props.customStyle && this.props.customStyle.searchButtonColor ? this.props.customStyle.searchButtonColor : "";
     const fixCss = this.props.customStyle && this.props.customStyle.fixCss && this.props.customStyle.fixCss === "true" ? "1.5rem" : "";
-    const fixCssBtn = this.props.customStyle && this.props.customStyle.fixCss && this.props.customStyle.fixCss === "true" ? "38px" : "";
     return (
       <div className="row" key={`r2dt-div`}>
         <div className="col-sm-12">
@@ -59,12 +56,12 @@ class R2DT extends Component {
             this.props.r2dtStatus === "FINISHED" && this.props.r2dtThumbnail && (
               <div className="media">
                 <a href={this.rnacentralServer(this.props.r2dtThumbnail)} target="_blank">
-                  <img className="img-thumbnail mb-3" width="140" height="120" src={this.props.r2dtThumbnail} />
+                  <img className="img-thumbnail mb-3" width="140" height="120" alt="R2DT thumbnail" src={this.props.r2dtThumbnail} />
                 </a>
                 <div className="media-body">
                   <p style={titleStyle} className="ml-3">R2DT</p>
                   <p className="ml-3">Visualise RNA secondary structure in standard orientations using RNA 2D Templates.</p>
-                  <div className="ml-3"><a href={this.rnacentralServer(this.props.r2dtThumbnail)} className="btn btn-primary" style={{background: searchButtonColor, borderColor: searchButtonColor, fontSize: fixCss, height: fixCssBtn}} role="button" target="_blank"><span className="btn-icon"><FaExternalLinkAlt /></span> View</a></div>
+                  <div className="ml-3"><a href={this.rnacentralServer(this.props.r2dtThumbnail)} className="btn btn-outline-secondary" style={{fontSize: fixCss}} target="_blank">View</a></div>
                 </div>
               </div>
             )
