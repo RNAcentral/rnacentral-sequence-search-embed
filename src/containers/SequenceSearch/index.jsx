@@ -1,10 +1,10 @@
 import React from 'react';
-
-import Results from 'containers/SequenceSearch/components/Results/index.jsx';
-import SearchForm from 'containers/SequenceSearch/components/SearchForm/index.jsx';
 import {connect} from "react-redux";
 import * as actionCreators from 'actions/actions';
 import {store} from "app.jsx";
+
+import Results from 'containers/SequenceSearch/components/Results/index.jsx';
+import SearchForm from 'containers/SequenceSearch/components/SearchForm/index.jsx';
 
 
 class SequenceSearch extends React.Component {
@@ -18,7 +18,8 @@ class SequenceSearch extends React.Component {
     url = url.split("?jobid=");
     let jobId = url[url.length - 1]
     if (jobId.match("^([0-9a-fA-F]{8})-(([0-9a-fA-F]{4}\\-){3})([0-9a-fA-F]{12})$")) {
-      store.dispatch(actionCreators.updateJobId(jobId))
+      const r2dt = !!this.props.r2dt;  // true if exists, otherwise false
+      store.dispatch(actionCreators.updateJobId(jobId, r2dt))
     }
   }
 
