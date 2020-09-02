@@ -80,7 +80,7 @@ export function r2dtSubmit(sequence) {
     })
     .then(data => {
         dispatch({type: types.SUBMIT_R2DT_JOB, status: 'success', data: data});
-        dispatch(fetchR2DTStatus(data));
+        dispatch(fetchR2DTStatus(data, true));
     })
     .catch(error => dispatch({type: types.SUBMIT_R2DT_JOB, status: 'error', response: error}));
   }
@@ -240,7 +240,7 @@ export function fetchStatus(jobId, r2dt= false) {
   }
 }
 
-export function fetchR2DTStatus(jobId) {
+export function fetchR2DTStatus(jobId, saveR2DTId = false) {
   let state = store.getState();
 
   return function(dispatch) {
@@ -254,14 +254,14 @@ export function fetchR2DTStatus(jobId) {
     })
     .then((data) => {
       if (data === 'RUNNING') {
-        let statusTimeout = setTimeout(() => store.dispatch(fetchR2DTStatus(jobId)), 2000);
+        let statusTimeout = setTimeout(() => store.dispatch(fetchR2DTStatus(jobId, saveR2DTId)), 2000);
         dispatch({type: types.SET_STATUS_TIMEOUT, timeout: statusTimeout});
       } else if (data === 'FINISHED') {
         // Wait another second to change the status. This will allow the SVG resultType to work correctly.
         let statusTimeout = setTimeout(() => dispatch({type: types.FETCH_R2DT_STATUS, status: 'FINISHED'}), 1000);
         dispatch({type: types.SET_STATUS_TIMEOUT, timeout: statusTimeout});
-        dispatch(onSaveR2DTId(state.jobId, jobId));
         dispatch(fetchR2DTThumbnail(jobId));
+        if (saveR2DTId) { dispatch(onSaveR2DTId(state.jobId, jobId)) }
       } else if (data === 'NOT_FOUND') {
         dispatch({type: types.FETCH_R2DT_STATUS, status: 'NOT_FOUND'})
       } else if (data === 'FAILURE') {
