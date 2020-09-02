@@ -200,6 +200,7 @@ export function fetchStatus(jobId, r2dt= false) {
           if (data.description){ dispatch(r2dtSubmit(">" + data.description + "\n" + data.query)) }
           else {dispatch(r2dtSubmit(">description\n" + data.query))}
         }
+        r2dt = false;
       }
 
       // check the status
