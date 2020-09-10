@@ -28,7 +28,7 @@ let buildQuery = function (selectedFacets) {
   return outputText;
 };
 
-export function onSubmit(sequence, databases) {
+export function onSubmit(sequence, databases, r2dt= false) {
   let url = window.location.href;
 
   return function(dispatch) {
@@ -53,10 +53,36 @@ export function onSubmit(sequence, databases) {
     })
     .then(data => {
         dispatch({type: types.SUBMIT_JOB, status: 'success', data: data});
-        dispatch(fetchStatus(data.job_id));
+        dispatch(fetchStatus(data.job_id, r2dt));
         dispatch(fetchInfernalStatus(data.job_id));
     })
     .catch(error => dispatch({type: types.SUBMIT_JOB, status: 'error', response: error}));
+  }
+}
+
+export function r2dtSubmit(sequence) {
+  let query = "";
+  if (/^>/.test(sequence)) { query = sequence }
+  else { query = ">description\n" + sequence }
+
+  return function(dispatch) {
+    fetch(routes.submitR2DTJob(), {
+      method: 'POST',
+      headers: {
+        'Accept': 'text/plain',
+        'Content-Type': 'application/x-www-form-urlencoded'
+      },
+      body: `email=rnacentral%40gmail.com&sequence=${query}`
+    })
+    .then(function (response) {
+      if (response.ok) { return response.text() }
+      else { throw response }
+    })
+    .then(data => {
+        dispatch({type: types.SUBMIT_R2DT_JOB, status: 'success', data: data});
+        dispatch(fetchR2DTStatus(data, true));
+    })
+    .catch(error => dispatch({type: types.SUBMIT_R2DT_JOB, status: 'error', response: error}));
   }
 }
 
@@ -87,11 +113,14 @@ export function onMultipleSubmit(sequence, databases) {
         if (response.ok) {
           return response.json();
         } else {
-          jobIds.push("Error submitting sequence. Check your fasta file and try again later.");
+          jobIds = [...jobIds, {"jobid": "", "description": "Error submitting sequence. Check your fasta file and try again later.", "sequence": ""}];
         }
       })
       .then(data => {
-        jobIds.push(data.job_id);
+        let querySplit = newQuery.split("\n");
+        let description = querySplit.shift();
+        let seq = querySplit.join('');
+        jobIds = [...jobIds, {"jobid": data.job_id, "description": description, "sequence": seq}];
         if (jobIds.length === sequence.length) {
           dispatch({type: types.BATCH_SEARCH, data: false});
           dispatch({type: types.SUBMIT_MULTIPLE_JOB, status: 'success', data: jobIds});
@@ -102,7 +131,7 @@ export function onMultipleSubmit(sequence, databases) {
   }
 }
 
-export function onSubmitUrs(urs, database) {
+export function onSubmitUrs(urs, database, r2dt) {
   return function(dispatch) {
     fetch(routes.rnacentralUrs(urs))
     .then(function(response) {
@@ -114,17 +143,17 @@ export function onSubmitUrs(urs, database) {
         dispatch({type: types.SUBMIT_URS, status: 'invalid', data: data.sequence});
         dispatch(invalidSequence())
       } else {
-        dispatch(onSubmit(data.sequence, database))
+        dispatch(onSubmit(data.sequence, database, r2dt))
       }
     })
     .catch(error => {dispatch({type: types.SUBMIT_URS, status: 'error', response: error})});
   }
 }
 
-export function updateJobId(jobId) {
+export function updateJobId(jobId, r2dt= false) {
   return function(dispatch) {
     dispatch({type: types.UPDATE_JOB_ID, data: jobId});
-    dispatch(fetchStatus(jobId));
+    dispatch(fetchStatus(jobId, r2dt));
     dispatch(fetchInfernalStatus(jobId));
   }
 }
@@ -141,7 +170,9 @@ export function invalidSequence() {
   return {type: types.INVALID_SEQUENCE}
 }
 
-export function fetchStatus(jobId) {
+export function fetchStatus(jobId, r2dt= false) {
+  let state = store.getState();
+
   return function(dispatch) {
     fetch(routes.jobStatus(jobId), {
       method: 'GET',
@@ -157,6 +188,22 @@ export function fetchStatus(jobId) {
       else { throw response }
     })
     .then((data) => {
+      // used if r2dt is enable
+      if (r2dt) {
+        let timeLimit = 603000 // 6 days, 23 hours and 30 minutes
+        if (!state.r2dt_id && data.r2dt_id && data.r2dt_date && data.r2dt_date < timeLimit) {
+          // use r2dt_id
+          dispatch({type: types.SUBMIT_R2DT_JOB, status: 'success', data: data.r2dt_id});
+          dispatch(fetchR2DTStatus(data.r2dt_id));
+        } else if (!state.r2dt_id) {
+          // submit a new r2dt job
+          if (data.description){ dispatch(r2dtSubmit(">" + data.description + "\n" + data.query)) }
+          else {dispatch(r2dtSubmit(">description\n" + data.query))}
+        }
+        r2dt = false;
+      }
+
+      // check the status
       if (data.status === 'started' || data.status === 'pending' || data.status === 'running') {
         // Given jobChunks from jobStatus route, estimates the search progress.
         let finishedChunk = 0;
@@ -178,7 +225,7 @@ export function fetchStatus(jobId) {
         dispatch({type: types.SEARCH_PROGRESS, data: newSearchInProgress });
 
         // Wait a little bit and check it again
-        let statusTimeout = setTimeout(() => store.dispatch(fetchStatus(jobId)), 2000);
+        let statusTimeout = setTimeout(() => store.dispatch(fetchStatus(jobId, r2dt)), 2000);
         dispatch({type: types.SET_STATUS_TIMEOUT, timeout: statusTimeout});
       } else if (data.status === 'success' || data.status === 'partial_success') {
         dispatch(fetchResults(jobId));
@@ -188,7 +235,46 @@ export function fetchStatus(jobId) {
       if (store.getState().hasOwnProperty('statusTimeout')) {
         clearTimeout(store.getState().statusTimeout); // clear status timeout
       }
-      dispatch({type: types.FETCH_STATUS, status: 'error'})
+      dispatch(failedFetchResults(error))
+    });
+  }
+}
+
+export function fetchR2DTStatus(jobId, saveR2DTId = false) {
+  let state = store.getState();
+
+  return function(dispatch) {
+    fetch(routes.r2dtJobStatus(jobId), {
+      method: 'GET',
+      headers: { 'Accept': 'text/plain' }
+    })
+    .then(function(response) {
+      if (response.ok) { return response.text() }
+      else { throw response }
+    })
+    .then((data) => {
+      if (data === 'RUNNING') {
+        let statusTimeout = setTimeout(() => store.dispatch(fetchR2DTStatus(jobId, saveR2DTId)), 2000);
+        dispatch({type: types.SET_STATUS_TIMEOUT, timeout: statusTimeout});
+      } else if (data === 'FINISHED') {
+        // Wait another second to change the status. This will allow the SVG resultType to work correctly.
+        let statusTimeout = setTimeout(() => dispatch({type: types.FETCH_R2DT_STATUS, status: 'FINISHED'}), 1000);
+        dispatch({type: types.SET_STATUS_TIMEOUT, timeout: statusTimeout});
+        dispatch(fetchR2DTThumbnail(jobId));
+        if (saveR2DTId) { dispatch(onSaveR2DTId(state.jobId, jobId)) }
+      } else if (data === 'NOT_FOUND') {
+        dispatch({type: types.FETCH_R2DT_STATUS, status: 'NOT_FOUND'})
+      } else if (data === 'FAILURE') {
+        dispatch({type: types.FETCH_R2DT_STATUS, status: 'FAILURE'})
+      } else if (data === 'ERROR') {
+        dispatch({type: types.FETCH_R2DT_STATUS, status: 'ERROR'})
+      }
+    })
+    .catch(error => {
+      if (store.getState().hasOwnProperty('statusTimeout')) {
+        clearTimeout(store.getState().statusTimeout); // clear status timeout
+      }
+      dispatch({type: types.FETCH_R2DT_STATUS, status: 'error'})
     });
   }
 }
@@ -220,7 +306,7 @@ export function fetchInfernalStatus(jobId) {
       if (store.getState().hasOwnProperty('statusTimeout')) {
         clearTimeout(store.getState().statusTimeout); // clear status timeout
       }
-      dispatch({type: types.FETCH_STATUS, infernalStatus: 'error'})
+      dispatch(failedFetchInfernalResults(error))
     });
   }
 }
@@ -246,7 +332,28 @@ export function fetchResults(jobId) {
       dispatch({type: types.FETCH_RESULTS, status: 'success', data: data});
       dispatch(dataForDownload());
     })
-    .catch(error => dispatch({type: types.FETCH_RESULTS, status: 'error'}));
+    .catch(error => dispatch(failedFetchResults(error)));
+  }
+}
+
+export function fetchR2DTThumbnail(jobId) {
+  return function(dispatch) {
+    fetch(routes.r2dtThumbnail(jobId), {
+      method: 'GET',
+      headers: { 'Accept': 'text/plain' },
+    })
+    .then(function (response) {
+      if (response.ok) { return response.text() }
+      else { throw response }
+    })
+    .then(data => {
+      if (data){
+        dispatch({type: types.FETCH_R2DT_THUMBNAIL, status: 'success', thumbnail: routes.r2dtThumbnail(jobId)})
+      } else {
+        dispatch({type: types.FETCH_R2DT_THUMBNAIL, status: 'success', thumbnail: null})
+      }
+    })
+    .catch(error => dispatch({type: types.FETCH_R2DT_THUMBNAIL, status: 'error'}));
   }
 }
 
@@ -266,7 +373,7 @@ export function fetchInfernalResults(jobId) {
       else { throw response }
     })
     .then(data => dispatch({type: types.FETCH_INFERNAL_RESULTS, infernalStatus: 'success', data: data}))
-    .catch(error => dispatch({type: types.FETCH_INFERNAL_RESULTS, infernalStatus: 'error'}));
+    .catch(error => dispatch(failedFetchInfernalResults(error)));
   }
 }
 
@@ -275,6 +382,14 @@ export function failedFetchResults(response) {
     return { type: types.FAILED_FETCH_RESULTS, status: "does_not_exist", start: 0 };
   } else if (response.status === 500) {
     return { type: types.FAILED_FETCH_RESULTS, status: "error", start: 0 };
+  }
+}
+
+export function failedFetchInfernalResults(response) {
+  if (response.status === 404) {
+    return { type: types.FAILED_FETCH_INFERNAL_RESULTS, status: "does_not_exist" };
+  } else if (response.status === 500) {
+    return { type: types.FAILED_FETCH_INFERNAL_RESULTS, status: "error" };
   }
 }
 
@@ -503,6 +618,23 @@ export function dataForDownload() {
       .catch(response => dispatch({ type: types.DOWNLOAD, status: "error" }));
       start+=100;
     }
+  }
+}
+
+export function onSaveR2DTId(job_id, r2dt_id) {
+  return function(dispatch) {
+    fetch(routes.saveR2DTId(job_id), {
+      method: 'PATCH',
+      mode: 'cors',
+      credentials: 'include',
+      headers: {
+        'Accept': 'application/json, text/plain, */*',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        r2dt_id: r2dt_id,
+      })
+    })
   }
 }
 

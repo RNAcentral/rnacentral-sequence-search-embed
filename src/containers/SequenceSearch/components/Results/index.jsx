@@ -5,6 +5,8 @@ import { CSVLink } from "react-csv";
 import Facets from 'containers/SequenceSearch/components/Results/components/Facets.jsx';
 import Hit from 'containers/SequenceSearch/components/Results/components/Hit.jsx';
 import Filter from 'containers/SequenceSearch/components/Results/components/Filter.jsx';
+import R2DT from 'containers/SequenceSearch/components/Results/components/R2DT.jsx';
+import Rfam from 'containers/SequenceSearch/components/Results/components/Rfam.jsx';
 
 import * as actionCreators from 'actions/actions';
 import {store} from "app.jsx";
@@ -17,12 +19,12 @@ class Results extends React.Component {
     super(props);
   }
 
-  onSeeResults(e) {
-    if (e.target.value === 'Select an Id to check the results' || e.target.value === 'Error submitting sequence. Check your fasta file and try again later.'){
+  onSeeResults(e, r2dt) {
+    if (e.target.value === '{}' || JSON.parse(e.target.value).description === "Error submitting sequence. Check your fasta file and try again later."){
       store.dispatch(actionCreators.onClearJobId());
     } else {
       store.dispatch(actionCreators.onClearResult());
-      store.dispatch(actionCreators.updateJobId(e.target.value));
+      store.dispatch(actionCreators.updateJobId(JSON.parse(e.target.value).jobid, r2dt));
     }
   }
 
@@ -62,7 +64,6 @@ class Results extends React.Component {
     const fixCss = this.props.customStyle && this.props.customStyle.fixCss && this.props.customStyle.fixCss === "true" ? "1.5rem" : "";
     const fixCssBtn = this.props.customStyle && this.props.customStyle.fixCss && this.props.customStyle.fixCss === "true" ? "38px" : "";
     const linkColor = this.props.customStyle && this.props.customStyle.linkColor ? this.props.customStyle.linkColor : "#337ab7";
-    const showRfamAlignment = !!(this.props.customStyle && this.props.customStyle.showRfamAlignment);
 
     // exact match URS ids
     const exactMatch = this.props.exactMatch;
@@ -73,9 +74,18 @@ class Results extends React.Component {
         })
     }
 
-    // batch queries info
+    // batch queries
     const sequences = this.props.jobList;
-    const sequenceError = sequences.filter(sequence => sequence === 'Error submitting sequence. Check your fasta file and try again later.')
+    const sequenceError = sequences.filter(sequence => sequence.description === "Error submitting sequence. Check your fasta file and try again later.")
+    const r2dt = !!this.props.r2dt;  // true if exists, otherwise false
+    const headers = [
+      { label: "Job ID", key: "jobid" },
+      { label: "Description", key: "description" },
+      { label: "Sequence", key: "sequence" }
+    ];
+    const csvData = this.props.jobList.map(item => (
+      { jobid: item.jobid, description: item.description, sequence: item.sequence }
+    ));
 
     return (
       <div className="rna">
@@ -90,15 +100,15 @@ class Results extends React.Component {
                           <span>{sequences.length} sequences were submitted, but {sequenceError.length} failed. </span>
                         : <span>{sequences.length} sequences were submitted. </span>
                       }
-                      <CSVLink data={Object.entries(this.props.jobList)} filename={"job-ids.csv"}>
+                      <CSVLink data={csvData} headers={headers} filename={"RNAcentral jobs.csv"}>
                         <span>Download the Ids</span>
                       </CSVLink>
                       <span> for future reference.</span>
                     </label>
                   </div>
-                  <select className="form-select mb-3" style={{fontSize: fixCss}} id="selectJobId" onChange={this.onSeeResults}>
-                    <option key={'no-job-selected'}>Select an Id to check the results</option>
-                    {this.props.jobList.map((job, index) => <option key={`${index}_${job}`}>{job}</option>)}
+                  <select className="form-select mb-3" style={{fontSize: fixCss}} id="selectJobId" onChange={(e) => this.onSeeResults(e, r2dt)}>
+                    <option key={'no-job-selected'} value={JSON.stringify({})}>Select an Id to check the results</option>
+                    {this.props.jobList.map((item, index) => <option key={`${index}_${item.jobid}`} value={JSON.stringify(item)}>{item.description}</option>)}
                   </select>
                 </div>
               </div>
@@ -110,8 +120,8 @@ class Results extends React.Component {
             <div className="row" key={`partial-success-div`}>
               <div className="col-sm-9">
                 <div className="alert alert-warning">
-                  <h4>Search against some databases failed.</h4>
-                  <p>This usually happens when the nhmmer is unable to complete the search within a 5 minute time limit.</p>
+                  <p><strong>Search against some databases failed</strong></p>
+                  <span>This usually happens when the nhmmer is unable to complete the search within a 5 minute time limit.</span>
                 </div>
               </div>
             </div>
@@ -122,7 +132,8 @@ class Results extends React.Component {
             <div className="row" key={`does-not-exist-div`}>
               <div className="col-sm-9">
                 <div className="alert alert-danger">
-                  <h4>Job with id='{ this.props.jobId }' does not exist.</h4>
+                  <p><strong>Job not found</strong></p>
+                  <span>The results might have expired. If you think this is an error, please let us know by raising an issue on <a href="https://github.com/RNAcentral/rnacentral-sequence-search-embed/issues" target="_blank">GitHub</a>.</span>
                 </div>
               </div>
             </div>
@@ -133,77 +144,18 @@ class Results extends React.Component {
             <div className="row" key={`error-div`}>
               <div className="col-sm-9">
                 <div className="alert alert-danger">
-                  <h4>There was an error.</h4>
-                  <a href="mailto:rnacentral@gmail.com">Contact us</a> if the problem persists.
+                  <p><strong>There was an error</strong></p>
+                  <span>Let us know if the problem persists by raising an issue on <a href="https://github.com/RNAcentral/rnacentral-sequence-search-embed/issues" target="_blank">GitHub</a>.</span>
                 </div>
               </div>
             </div>
           )
         }
         {
-          this.props.jobId && this.props.rfam && (
-            <div className="row">
-              <div className="col-sm-12">
-                <span style={h3Style}>Rfam classification </span>{ this.props.infernalStatus === "loading" ? <div className={`spinner-border ${fixCss ? '' : 'spinner-border-sm'} mb-1`} role="status" /> : <span style={h3Style}><a className="text-muted" style={{fontSize: "65%", verticalAlign: "10%"}} href="https://rnacentral.org/help/sequence-search#rfam" target="_blank"><MdHelpOutline /></a></span> }
-                { this.props.infernalStatus === "loading" ? '' : this.props.infernalStatus === "success" && this.props.infernalEntries.length ? [
-                  <div className="table-responsive mt-3" key={`infernal-div`}>
-                    <table className="table">
-                      <thead>
-                        <tr>
-                          <th>Family</th>
-                          <th>Accession</th>
-                          <th>Start</th>
-                          <th>End</th>
-                          <th>Bit score</th>
-                          <th>E-value</th>
-                          <th>Strand</th>
-                          {showRfamAlignment ? null : <th>Alignment</th>}
-                        </tr>
-                      </thead>
-                      <tbody>
-                      {this.props.infernalEntries.map((entry, index) => (
-                        <React.Fragment key={`react-fragment-${index}`}>
-                          <tr className="noBorder">
-                            <td><a className="custom-link" style={{color: linkColor}} href={`https://rfam.org/family/${entry.target_name}`} target="_blank">{entry.description}</a></td>
-                            <td><a className="custom-link" style={{color: linkColor}} href={`https://rfam.org/family/${entry.accession_rfam}`} target="_blank">{entry.accession_rfam}</a></td>
-                            <td>{entry.seq_from}</td>
-                            <td>{entry.seq_to}</td>
-                            <td>{entry.score}</td>
-                            <td>{entry.e_value}</td>
-                            <td>{entry.strand}</td>
-                            {showRfamAlignment ? null :
-                              <td>
-                                {
-                                  entry.alignment ?
-                                  <a className="custom-link" onClick={ this.props.onToggleInfernalAlignmentsCollapsed }>
-                                    { this.props.infernalAlignmentsCollapsed ? <span style={{color: linkColor}}>&#x25B6; Show</span> : <span style={{color: linkColor}}>&#x25BC; Hide</span> }
-                                  </a> : "Not available"
-                                }
-                              </td>
-                            }
-                          </tr>
-                          {
-                            showRfamAlignment ?
-                              <tr>
-                                <td className="alignment-rfam-td" colSpan={7}>
-                                  <div className="alignment-rfam">{ entry.alignment + '\n' }</div>
-                                </td>
-                              </tr> : this.props.infernalAlignmentsCollapsed ? null :
-                              <tr>
-                                <td className="alignment-rfam-td" colSpan={8}>
-                                  <div className="alignment-rfam">{ entry.alignment + '\n' }</div>
-                                </td>
-                              </tr>
-                          }
-                        </React.Fragment>
-                      ))}
-                      </tbody>
-                    </table>
-                  </div>
-                ] : <p className="mt-3">The query sequence did not match any <img src={'https://rnacentral.org/static/img/expert-db-logos/rfam.png'} alt="Rfam logo" style={{width: "4%", verticalAlign: "sub"}}/> families.</p>}
-              </div>
-            </div>
-          )
+          this.props.jobId && this.props.status !== "does_not_exist" && this.props.r2dt && <R2DT customStyle={this.props.customStyle} />
+        }
+        {
+          this.props.jobId && this.props.status !== "does_not_exist" && this.props.rfam && <Rfam customStyle={this.props.customStyle} />
         }
         {
           this.props.jobId && (this.props.status === "loading" || this.props.status === "success" || this.props.status === "partial_success") && [
@@ -252,7 +204,6 @@ class Results extends React.Component {
 function mapStateToProps(state) {
   return {
     status: state.status,
-    infernalStatus: state.infernalStatus,
     sequence: state.sequence,
     hits: state.hits,
     entries: state.entries,
@@ -266,8 +217,6 @@ function mapStateToProps(state) {
     detailsCollapsed: state.detailsCollapsed,
     jobId: state.jobId,
     jobList: state.jobList,
-    infernalEntries: state.infernalEntries,
-    infernalAlignmentsCollapsed: state.infernalAlignmentsCollapsed,
     exactMatch: state.exactMatch,
     rnacentral: state.rnacentral,
     searchInProgress: state.searchInProgress,
@@ -277,7 +226,6 @@ function mapStateToProps(state) {
 function mapDispatchToProps(dispatch) {
   return {
     onLoadMore: (event) => dispatch(actionCreators.onLoadMore(event)),
-    onToggleInfernalAlignmentsCollapsed: (event) => dispatch(actionCreators.toggleInfernalAlignmentsCollapsed(event)),
   }
 }
 

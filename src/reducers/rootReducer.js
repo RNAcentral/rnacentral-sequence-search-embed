@@ -25,11 +25,18 @@ const rootReducer = function (state = initialState, action) {
           textSearchError: action.data.textSearchError,
           searchInProgress: ""
         });
-
-      } else if (action.status === 'error') {
-        return Object.assign({}, state, { status: 'error' });
       } else {
-        console.log('Default');
+        return Object.assign({}, state, {});
+      }
+
+    case actions.FETCH_R2DT_THUMBNAIL:
+      if (!action.status) {
+        return Object.assign({}, state, {}); // do nothing, all the logic is in action creator
+      } else if (action.status === 'success') {
+        return Object.assign({}, state, { r2dtThumbnail: action.thumbnail});
+      } else if (action.status === 'error') {
+        return Object.assign({}, state, { r2dtStatus: 'error' });
+      } else {
         return Object.assign({}, state, {});
       }
 
@@ -41,9 +48,6 @@ const rootReducer = function (state = initialState, action) {
           infernalStatus: "success",
           infernalEntries: [...action.data],
         });
-
-      } else if (action.infernalStatus === 'error') {
-        return Object.assign({}, state, { status: 'error' });
       } else {
         return Object.assign({}, state, {});
       }
@@ -53,6 +57,15 @@ const rootReducer = function (state = initialState, action) {
         return Object.assign({}, state, {status: "does_not_exist", start: 0});
       } else if ('error') {
         return Object.assign({}, state, {status: "error", start: 0});
+      } else {
+        return Object.assign({}, state, {});
+      }
+
+    case actions.FAILED_FETCH_INFERNAL_RESULTS:
+      if ('does not exist') {
+        return Object.assign({}, state, {infernalStatus: "does_not_exist"});
+      } else if ('error') {
+        return Object.assign({}, state, {infernalStatus: "error"});
       } else {
         return Object.assign({}, state, {});
       }
@@ -143,6 +156,20 @@ const rootReducer = function (state = initialState, action) {
           return newState;
       }
 
+    case actions.SUBMIT_R2DT_JOB:
+      switch (action.status) {
+        case 'success':
+          return Object.assign({}, state, {
+            r2dtJobId: action.data,
+            r2dtStatus: "RUNNING",
+            r2dtSubmissionError: ""
+          });
+        case 'error':
+          return Object.assign({}, state, {r2dtStatus: "error", r2dtSubmissionError: action.response.statusText});
+        default:
+          return newState;
+      }
+
     case actions.SUBMIT_MULTIPLE_JOB:
       switch (action.status) {
         case 'success':
@@ -193,6 +220,10 @@ const rootReducer = function (state = initialState, action) {
         infernalAlignmentsCollapsed: true,
         exactMatch: null,
         filter: "",
+        r2dtJobId: null,
+        r2dtStatus: "RUNNING",
+        r2dtSubmissionError: null,
+        r2dtThumbnail: null,
       });
 
     case actions.INVALID_SEQUENCE:
@@ -203,6 +234,21 @@ const rootReducer = function (state = initialState, action) {
         return Object.assign({}, state, {status: "error"});
       } else {
         return Object.assign({}, state, {status: action.status})
+      }
+
+    case actions.FETCH_R2DT_STATUS:
+      if (action.status === 'error') {
+        return Object.assign({}, state, {r2dtStatus: "error"});
+      } else if (action.status === 'NOT_FOUND') {
+        return Object.assign({}, state, {r2dtStatus: "NOT_FOUND"});
+      } else if (action.status === 'FAILURE') {
+        return Object.assign({}, state, {r2dtStatus: "FAILURE"});
+      } else if (action.status === 'ERROR') {
+        return Object.assign({}, state, {r2dtStatus: "ERROR"});
+      } else if (action.status === 'FINISHED') {
+        return Object.assign({}, state, {r2dtStatus: "FINISHED"});
+      } else {
+        return Object.assign({}, state, {r2dtStatus: action})
       }
 
     case actions.SEARCH_PROGRESS:
@@ -246,7 +292,11 @@ const rootReducer = function (state = initialState, action) {
         rnacentral: false,
         submissionError: null,
         downloadStatus: "notSubmitted",
-        downloadEntries: []
+        downloadEntries: [],
+        r2dtJobId: null,
+        r2dtStatus: "RUNNING",
+        r2dtSubmissionError: null,
+        r2dtThumbnail: null,
       });
 
     case actions.EXAMPLE_SEQUENCE:
@@ -274,7 +324,11 @@ const rootReducer = function (state = initialState, action) {
         rnacentral: false,
         submissionError: null,
         downloadStatus: "notSubmitted",
-        downloadEntries: []
+        downloadEntries: [],
+        r2dtJobId: null,
+        r2dtStatus: "RUNNING",
+        r2dtSubmissionError: null,
+        r2dtThumbnail: null,
       });
 
     case actions.CLEAR_SEQUENCE:
@@ -304,7 +358,11 @@ const rootReducer = function (state = initialState, action) {
         rnacentral: false,
         submissionError: null,
         downloadStatus: "notSubmitted",
-        downloadEntries: []
+        downloadEntries: [],
+        r2dtJobId: null,
+        r2dtStatus: "RUNNING",
+        r2dtSubmissionError: null,
+        r2dtThumbnail: null,
       });
 
     case actions.FILE_UPLOAD:

@@ -21,8 +21,9 @@ class SearchForm extends React.Component {
   }
 
   exampleSequence(sequence) {
+    const r2dt = !!this.props.r2dt;  // true if exists, otherwise false
     store.dispatch(actionCreators.onExampleSequence(sequence));
-    store.dispatch(actionCreators.onSubmit(sequence, this.props.databases));
+    store.dispatch(actionCreators.onSubmit(sequence, this.props.databases, r2dt));
   }
 
   showExactMatch(linkColor){
@@ -59,23 +60,21 @@ class SearchForm extends React.Component {
   onSubmit(event) {
     event.preventDefault();
     const state = store.getState();
+    const r2dt = !!this.props.r2dt;  // true if exists, otherwise false
 
     // split the sequence for batch queries and set a limit on the number of queries
     if (state.fileUpload && state.sequence) {
       let getSequence = state.sequence.split(/(?=>)/g).slice(0, 50);
-      state.sequence = "";
       store.dispatch(actionCreators.onMultipleSubmit(getSequence, this.props.databases));
     } else if (state.sequence && state.sequence.match("^([0-9a-fA-F]{8})-(([0-9a-fA-F]{4}\\-){3})([0-9a-fA-F]{12})$")) {
-      store.dispatch(actionCreators.updateJobId(state.sequence));
+      store.dispatch(actionCreators.updateJobId(state.sequence, r2dt));
     } else if (state.sequence && state.sequence.match("^URS[A-Fa-f0-9]{10}$")) {
-      store.dispatch(actionCreators.onSubmitUrs(state.sequence, this.props.databases));
+      store.dispatch(actionCreators.onSubmitUrs(state.sequence, this.props.databases, r2dt));
     } else if (state.sequence && (state.sequence.length < 10 || state.sequence.length > 7000)) {
       store.dispatch(actionCreators.invalidSequence());
     } else if (state.sequence) {
-      store.dispatch(actionCreators.onSubmit(state.sequence, this.props.databases));
+      store.dispatch(actionCreators.onSubmit(state.sequence, this.props.databases, r2dt));
     }
-
-    state.sequence = "";
   }
 
   render() {
@@ -87,6 +86,7 @@ class SearchForm extends React.Component {
     const fixCssBtn = this.props.customStyle && this.props.customStyle.fixCss && this.props.customStyle.fixCss === "true" ? "38px" : "";
     const hideRnacentral = this.props.customStyle && this.props.customStyle.hideRnacentral && this.props.customStyle.hideRnacentral === "true" ? "none" : "initial";
     const linkColor = this.props.customStyle && this.props.customStyle.linkColor ? this.props.customStyle.linkColor : "#337ab7";
+    const urlWithJobId = this.props.customStyle && this.props.customStyle.urlWithJobId ? this.props.customStyle.urlWithJobId : "";
     return (
       <div className="rna">
         { this.props.admin ? <Admin customStyle={this.props.customStyle} /> : '' }
@@ -94,7 +94,7 @@ class SearchForm extends React.Component {
           <div className="col-sm-9">
             <small className="text-muted" style={{display: hideRnacentral}}><img src={'https://rnacentral.org/static/img/logo/rnacentral-logo.png'} alt="RNAcentral logo" style={{width: "1%", verticalAlign: "text-top"}}/> Powered by <a className="custom-link mr-2" style={{color: linkColor}} target='_blank' href='https://rnacentral.org/'>RNAcentral</a>|</small>
             <small className="text-muted ml-2">Local alignment using <a target='_blank' className="custom-link" style={{color: linkColor}} href='https://www.ncbi.nlm.nih.gov/pubmed/23842809'>nhmmer</a></small>
-            { this.props.jobId ? <small className="text-muted float-right">Job id: {this.props.jobId}</small> : ''}
+            { urlWithJobId !== "true" && this.props.jobId ? <small className="text-muted float-right">Job id: {this.props.jobId}</small> : ''}
           </div>
         </div>
         <form onSubmit={(e) => this.onSubmit(e)}>
