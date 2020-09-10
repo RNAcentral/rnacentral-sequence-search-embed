@@ -13,25 +13,31 @@ class SequenceSearch extends React.Component {
   }
 
   componentDidMount() {
-    // check if a jobId was passed as a parameter to search for results
-    let url = window.location.href;
-    url = url.split("?jobid=");
-    let jobId = url[url.length - 1]
-    if (jobId.match("^([0-9a-fA-F]{8})-(([0-9a-fA-F]{4}\\-){3})([0-9a-fA-F]{12})$")) {
-      const r2dt = !!this.props.r2dt;  // true if exists, otherwise false
-      store.dispatch(actionCreators.updateJobId(jobId, r2dt))
+    const urlWithJobId = this.props.customStyle && this.props.customStyle.urlWithJobId ? this.props.customStyle.urlWithJobId : "";
+    if (urlWithJobId === "true") {
+      // check if a jobId was passed as a parameter to search for results
+      let url = window.location.href;
+      url = url.split("?jobid=");
+      let jobId = url[url.length - 1]
+      if (jobId.match("^([0-9a-fA-F]{8})-(([0-9a-fA-F]{4}\\-){3})([0-9a-fA-F]{12})$")) {
+        const r2dt = !!this.props.r2dt;  // true if exists, otherwise false
+        store.dispatch(actionCreators.updateJobId(jobId, r2dt))
+      }
     }
   }
 
   componentDidUpdate() {
-    // show the jobId in the URL
-    let url = window.location.href;
-    let splitUrl = url.split("?jobid=");
-    let domain = splitUrl[0]
-    if (this.props.jobId){
-      window.history.replaceState("", "", domain + "?jobid=" + this.props.jobId);
-    } else {
-      window.history.replaceState("", "", domain);
+    const urlWithJobId = this.props.customStyle && this.props.customStyle.urlWithJobId ? this.props.customStyle.urlWithJobId : "";
+    if (urlWithJobId === "true") {
+      // show the jobId in the URL
+      let url = window.location.href;
+      let splitUrl = url.split("?jobid=");
+      let domain = splitUrl[0]
+      if (this.props.jobId){
+        window.history.replaceState("", "", domain + "?jobid=" + this.props.jobId);
+      } else {
+        window.history.replaceState("", "", domain);
+      }
     }
   }
 

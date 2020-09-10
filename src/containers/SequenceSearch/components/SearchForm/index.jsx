@@ -86,6 +86,7 @@ class SearchForm extends React.Component {
     const fixCssBtn = this.props.customStyle && this.props.customStyle.fixCss && this.props.customStyle.fixCss === "true" ? "38px" : "";
     const hideRnacentral = this.props.customStyle && this.props.customStyle.hideRnacentral && this.props.customStyle.hideRnacentral === "true" ? "none" : "initial";
     const linkColor = this.props.customStyle && this.props.customStyle.linkColor ? this.props.customStyle.linkColor : "#337ab7";
+    const urlWithJobId = this.props.customStyle && this.props.customStyle.urlWithJobId ? this.props.customStyle.urlWithJobId : "";
     return (
       <div className="rna">
         { this.props.admin ? <Admin customStyle={this.props.customStyle} /> : '' }
@@ -93,6 +94,7 @@ class SearchForm extends React.Component {
           <div className="col-sm-9">
             <small className="text-muted" style={{display: hideRnacentral}}><img src={'https://rnacentral.org/static/img/logo/rnacentral-logo.png'} alt="RNAcentral logo" style={{width: "1%", verticalAlign: "text-top"}}/> Powered by <a className="custom-link mr-2" style={{color: linkColor}} target='_blank' href='https://rnacentral.org/'>RNAcentral</a>|</small>
             <small className="text-muted ml-2">Local alignment using <a target='_blank' className="custom-link" style={{color: linkColor}} href='https://www.ncbi.nlm.nih.gov/pubmed/23842809'>nhmmer</a></small>
+            { urlWithJobId !== "true" && this.props.jobId ? <small className="text-muted float-right">Job id: {this.props.jobId}</small> : ''}
           </div>
         </div>
         <form onSubmit={(e) => this.onSubmit(e)}>
@@ -174,6 +176,7 @@ const mapStateToProps = (state) => ({
   infernalEntries: state.infernalEntries,
   fileUpload: state.fileUpload,
   exactMatch: state.exactMatch,
+  jobId: state.jobId,
 });
 
 const mapDispatchToProps = (dispatch) => ({
