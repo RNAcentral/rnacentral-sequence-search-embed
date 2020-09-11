@@ -25,8 +25,8 @@ class R2DT extends Component {
     const fixCss = this.props.customStyle && this.props.customStyle.fixCss && this.props.customStyle.fixCss === "true" ? "1.5rem" : "";
     return (
       <div className="row" key={`r2dt-div`}>
-        <div className="col-sm-12">
-          <div className="mt-3 mb-3">
+        <div className="col-sm-12 mt-3">
+          <div>
             <span style={h3Style}>Secondary structure </span>{ this.props.r2dtStatus === "RUNNING" ? <div className={`spinner-border ${fixCss ? '' : 'spinner-border-sm'} mb-1`} role="status" /> : <span style={h3Style}><a className="text-muted" style={{fontSize: "65%", verticalAlign: "10%"}} href="https://rnacentral.org/help/secondary-structure" target="_blank"><MdHelpOutline /></a></span> }
           </div>
           {
@@ -54,7 +54,7 @@ class R2DT extends Component {
           }
           {
             this.props.r2dtStatus === "FINISHED" && this.props.r2dtThumbnail && (
-              <div className="media">
+              <div className="media mt-3">
                 <a href={this.rnacentralServer(this.props.r2dtThumbnail)} target="_blank">
                   <img className="img-thumbnail mb-3" width="140" height="120" alt="R2DT thumbnail" src={this.props.r2dtThumbnail} />
                 </a>
@@ -68,7 +68,7 @@ class R2DT extends Component {
           }
           {
             this.props.r2dtStatus === "FINISHED" && !this.props.r2dtThumbnail && (
-              <div className="mb-3">
+              <div className="mt-3">
                 The sequence did not match any of the templates. If you think it's an error, please <a href="https://github.com/RNAcentral/r2dt-web/issues" target="_blank">get in touch</a>.
               </div>
             )

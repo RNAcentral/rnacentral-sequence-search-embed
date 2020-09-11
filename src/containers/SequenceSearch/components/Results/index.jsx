@@ -64,6 +64,7 @@ class Results extends React.Component {
     const fixCss = this.props.customStyle && this.props.customStyle.fixCss && this.props.customStyle.fixCss === "true" ? "1.5rem" : "";
     const fixCssBtn = this.props.customStyle && this.props.customStyle.fixCss && this.props.customStyle.fixCss === "true" ? "38px" : "";
     const linkColor = this.props.customStyle && this.props.customStyle.linkColor ? this.props.customStyle.linkColor : "#337ab7";
+    const showRfamFirst = !!(this.props.customStyle && this.props.customStyle.showRfamAlignment);
 
     // exact match URS ids
     const exactMatch = this.props.exactMatch;
@@ -152,10 +153,16 @@ class Results extends React.Component {
           )
         }
         {
-          this.props.jobId && this.props.status !== "does_not_exist" && this.props.r2dt && <R2DT customStyle={this.props.customStyle} />
+          showRfamFirst && this.props.jobId && this.props.status !== "does_not_exist" && this.props.rfam && <Rfam customStyle={this.props.customStyle} />
         }
         {
-          this.props.jobId && this.props.status !== "does_not_exist" && this.props.rfam && <Rfam customStyle={this.props.customStyle} />
+          showRfamFirst && this.props.jobId && this.props.status !== "does_not_exist" && this.props.r2dt && <R2DT customStyle={this.props.customStyle} />
+        }
+        {
+          !showRfamFirst && this.props.jobId && this.props.status !== "does_not_exist" && this.props.r2dt && <R2DT customStyle={this.props.customStyle} />
+        }
+        {
+          !showRfamFirst && this.props.jobId && this.props.status !== "does_not_exist" && this.props.rfam && <Rfam customStyle={this.props.customStyle} />
         }
         {
           this.props.jobId && (this.props.status === "loading" || this.props.status === "success" || this.props.status === "partial_success") && [
