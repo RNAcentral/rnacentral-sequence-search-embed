@@ -4,7 +4,7 @@ import * as actionCreators from 'actions/actions';
 import {connect} from "react-redux";
 import ReactGA from 'react-ga';
 import JSZip from 'jszip';
-import images from 'images/expert-db-logos/index';
+import info from 'expert-dbs/index';
 
 class Filter extends Component {
   onFilterSubmit(event) {
@@ -83,7 +83,7 @@ class Filter extends Component {
     const newExpertDb = expertDbs.map((item) => {
       return item.toLowerCase();
     });
-    const showExpertDb = images.filter(({title}) => newExpertDb.includes(title));
+    const showExpertDb = info.filter(({name}) => newExpertDb.includes(name));
 
     // get current date/time
     const today = new Date();
@@ -116,13 +116,13 @@ class Filter extends Component {
       "sources": this.props.databases.length === 0 ?
         showExpertDb.map(entry => (
           {
-            "name": entry.title,
+            "name": entry.name,
             "web": entry.url
           }
           )) :
           {
             "name": this.props.databases[0],
-            "web": showExpertDb.find(db => db.title===this.props.databases[0].toLowerCase()).url
+            "web": showExpertDb.find(db => db.name===this.props.databases[0].toLowerCase()).url
           },
       "resources": [
         {
