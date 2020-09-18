@@ -2,7 +2,7 @@ import React from 'react';
 import {connect} from "react-redux";
 
 import * as actionCreators from 'actions/actions';
-import images from 'images/expert-db-logos/index'
+import info from 'expert-dbs/index'
 
 import { FaCheckCircle } from 'react-icons/fa';
 
@@ -23,7 +23,7 @@ class Hit extends React.Component {
     const newExpertDb = expertDb.map((item) => {
       return item.toLowerCase();
     });
-    const showExpertDb = images.filter(({src, title}) => newExpertDb.includes(title));
+    const showExpertDb = info.filter(({name}) => newExpertDb.includes(name));
     const exactMatchUrsId = this.props.exactMatchUrsId.indexOf(this.props.entry.rnacentral_id) > -1 ? <FaCheckCircle style={{color: '#3c763d', verticalAlign: '-1px'}}/> : '';
 
     // check database used. Empty array means RNAcentral
@@ -39,7 +39,7 @@ class Hit extends React.Component {
         {exactMatchUrsId} <a className="custom-link" style={seqTitleStyle} href={link ? link[0] : `https://rnacentral.org/rna/${this.props.entry.rnacentral_id}`} target='_blank'>
           {this.props.entry.description}
         </a>
-        {database === "" ? <div className="text-muted mt-2" style={seqInfoStyle}>{ this.props.entry.rnacentral_id } {showExpertDb.map((db, index) => <img key={index} className="ml-2 desaturate" src={db.src} style={{height: "16px"}} />)}</div>
+        {database === "" ? <div className="text-muted mt-2" style={seqInfoStyle}>{ this.props.entry.rnacentral_id } {showExpertDb.map((db, index) => <img key={index} className="ml-2 desaturate" src={`https://rnacentral.org/static/img/expert-db-logos/${db.name}.png`} alt={`${db.name} logo`} style={{height: "16px"}} />)}</div>
             : <div className="text-muted mt-2" style={seqInfoStyle}>{this.props.entry.target_length} nucleotides</div>}
         <div className={this.props.detailsCollapsed ? 'detail-collapsed' : 'mt-1'}>
           <span className="detail">E-value: { this.props.entry.e_value.toExponential() }</span>
