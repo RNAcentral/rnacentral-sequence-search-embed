@@ -28,31 +28,35 @@ class SearchForm extends React.Component {
 
   showExactMatch(linkColor){
     const exactMatch = this.props.exactMatch;
-    const database = this.props.databases;
+    let database = this.props.databases.length !== 0 ? this.props.databases[0].toLowerCase() : "";
+    // there isn’t always a relationship between the DB name and the url.
+    if (database === "snodb") {
+      database = "scottgroup";
+    }
 
     if (exactMatch && exactMatch.hitCount > 0) {
       const exactMatchBackgroundColor = this.props.customStyle && this.props.customStyle.exactMatchBackgroundColor ? this.props.customStyle.exactMatchBackgroundColor : "";
       const exactMatchDescription = exactMatch.entries[0].fields.description[0];
       const exactMatchId = exactMatch.entries[0].id;
-      const exactMatchUrl = exactMatch.entries[0].fields.url[0];
+      const exactMatchUrl = exactMatch.entries[0]["fields"]["url"].length ? exactMatch.entries[0]["fields"]["url"].filter((item) => item.includes(database)) : '';
       const exactMatchUrsId = exactMatchId.split('_')[0];
       const remainingExactMatch = exactMatch.hitCount > 1 ? (exactMatch.hitCount - 1) : null;
       const exactMatchOther = remainingExactMatch && remainingExactMatch > 1 ? remainingExactMatch + ' other sequences' : remainingExactMatch && remainingExactMatch === 1 ? remainingExactMatch + ' other sequence' : '';
 
       return <div className="row">
-        <div className="col-sm-9">
-          <div className="alert alert-success" style={{backgroundColor: exactMatchBackgroundColor, borderColor: exactMatchBackgroundColor}}>
-            {
-              database.length === 0 ? <div>
-                <FaCheckCircle style={{verticalAlign: "-10%", marginLeft: "-5px"}} /> Identical match: <a className="custom-link" style={{color: linkColor}} href={`https://rnacentral.org/rna/${exactMatchId}`} target='_blank'>{exactMatchDescription}</a>
-                {exactMatchOther && ' and '}
-                {exactMatchOther ? <a className="custom-link" style={{color: linkColor}} href={`https://rnacentral.org/search?q=${exactMatchUrsId}*`} target='_blank'>{exactMatchOther}</a> : ''}
-              </div> : <div>
-                <FaCheckCircle style={{verticalAlign: "-10%", marginLeft: "-5px"}} /> Identical match: <a className="custom-link" style={{color: linkColor}} href={exactMatchUrl} target='_blank'>{exactMatchDescription}</a>
-              </div>
-            }
-          </div>
-        </div>
+        {
+          database.length === 0 ? <div className="col-sm-9">
+            <div className="alert alert-success" style={{backgroundColor: exactMatchBackgroundColor, borderColor: exactMatchBackgroundColor}}>
+              <FaCheckCircle style={{verticalAlign: "-10%", marginLeft: "-5px"}} /> Identical match: <a className="custom-link" style={{color: linkColor}} href={`https://rnacentral.org/rna/${exactMatchId}`} target='_blank'>{exactMatchDescription}</a>
+              {exactMatchOther && ' and '}
+              {exactMatchOther ? <a className="custom-link" style={{color: linkColor}} href={`https://rnacentral.org/search?q=${exactMatchUrsId}*`} target='_blank'>{exactMatchOther}</a> : ''}
+            </div>
+          </div> : exactMatchUrl.length ? <div className="col-sm-9">
+            <div className="alert alert-success" style={{backgroundColor: exactMatchBackgroundColor, borderColor: exactMatchBackgroundColor}}>
+              <FaCheckCircle style={{verticalAlign: "-10%", marginLeft: "-5px"}} /> Identical match: <a className="custom-link" style={{color: linkColor}} href={exactMatchUrl[0]} target='_blank'>{exactMatchDescription}</a>
+            </div>
+          </div> : ''
+        }
       </div>
     }
   }
