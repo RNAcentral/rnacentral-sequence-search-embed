@@ -151,7 +151,7 @@ const rootReducer = function (state = initialState, action) {
             submissionError: ""
           });
         case 'error':
-          return Object.assign({}, state, {status: "error", submissionError: action.response.statusText});
+          return Object.assign({}, state, {status: "error", submissionError: action.response});
         default:
           return newState;
       }
