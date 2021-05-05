@@ -48,8 +48,8 @@ class Filter extends Component {
         "Alignment: " + "\n" + entry.alignment + "\n" + "\n" + "\n"
       ))
     textData = textData.replace(/,>>/g, '>>')
-    let textfile = new Blob([textData], {type: 'text/plain'})
-    sequenceFolder.file('similar-sequences.txt', textfile)
+    let textFile = new Blob([textData], {type: 'text/plain'});
+    sequenceFolder.file('similar-sequences.txt', textFile)
 
     // create json file with the results
     let jsonData = {
@@ -68,6 +68,14 @@ class Filter extends Component {
     }
     let jsonFile = new Blob([JSON.stringify(jsonData)], {type: 'application/json'});
     sequenceFolder.file('similar-sequences.json', jsonFile)
+
+    // create fasta file with sequences extracted from alignment
+    let fastaData = '';
+    this.props.downloadEntries.map((entry, index) => {
+      fastaData += "> " + entry.rnacentral_id + "/" + entry.alignment_start + "-" + entry.alignment_stop + "\n" + entry.alignment_sequence + "\n" + "\n"
+    })
+    let fastaFile = new Blob([fastaData], {type: 'text/plain'});
+    sequenceFolder.file('similar-sequences.fasta', fastaFile)
 
     // info for the metadata below
     // get url
@@ -139,6 +147,14 @@ class Filter extends Component {
           "description": "Results file in JSON format",
           "format": "json",
           "mediatype": "application/json",
+          "encoding": "ASCII",
+        },
+        {
+          "name": "similar-sequences",
+          "path": "sequences/similar-sequences.fasta",
+          "description": "List of similar sequences in FASTA format",
+          "format": "txt",
+          "mediatype": "text/txt",
           "encoding": "ASCII",
         }
       ],
