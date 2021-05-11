@@ -56,7 +56,13 @@ export function onSubmit(sequence, databases, r2dt= false) {
         dispatch(fetchStatus(data.job_id, r2dt));
         dispatch(fetchInfernalStatus(data.job_id));
     })
-    .catch(error => dispatch({type: types.SUBMIT_JOB, status: 'error', response: error}));
+    .catch(error => {
+      if (error.statusText === undefined) {
+        dispatch({type: types.SUBMIT_JOB, status: 'error', response: "The sequence search is temporarily unreachable. Please try again later."})
+      } else {
+        dispatch({type: types.SUBMIT_JOB, status: 'error', response: error.statusText})
+      }
+    });
   }
 }
 
