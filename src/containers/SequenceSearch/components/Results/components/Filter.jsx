@@ -72,7 +72,7 @@ class Filter extends Component {
     // create fasta file with sequences extracted from alignment
     let fastaData = '';
     this.props.downloadEntries.map((entry, index) => {
-      fastaData += "> " + entry.rnacentral_id + "/" + entry.alignment_start + "-" + entry.alignment_stop + "\n" + entry.alignment_sequence + "\n" + "\n"
+      fastaData += ">" + entry.rnacentral_id + "/" + entry.alignment_start + "-" + entry.alignment_stop + " " + entry.description + "\n" + entry.alignment_sequence + "\n"
     })
     let fastaFile = new Blob([fastaData], {type: 'text/plain'});
     sequenceFolder.file('similar-sequences.fasta', fastaFile)
