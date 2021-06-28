@@ -119,7 +119,7 @@ class Filter extends Component {
       "homepage": url,
       "title": title,
       "description": description,
-      "rnacentral_version": "v17",
+      "rnacentral_version": "v18",
       "download_date": dateTime,
       "sources": this.props.databases.length === 0 ?
         showExpertDb.map(entry => (
