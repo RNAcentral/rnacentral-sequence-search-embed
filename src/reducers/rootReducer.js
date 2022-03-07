@@ -140,6 +140,9 @@ const rootReducer = function (state = initialState, action) {
     case actions.BATCH_SEARCH:
       return Object.assign({}, state, { submitBatchSearch: action.data });
 
+    case actions.UPDATE_STATUS:
+      return Object.assign({}, state, { status: action.data });
+
     // submission form
     case actions.SUBMIT_JOB:
       switch (action.status) {

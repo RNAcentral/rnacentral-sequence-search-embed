@@ -31,6 +31,7 @@ export const FILTER_CHANGE = 'FILTER_CHANGE';
 export const EXAMPLE_SEQUENCE = 'EXAMPLE_SEQUENCE';
 export const CLEAR_SEQUENCE = 'CLEAR_SEQUENCE';
 export const FILE_UPLOAD = 'FILE_UPLOAD';
+export const UPDATE_STATUS = 'UPDATE_STATUS';
 
 // check exact match
 export const EXACT_MATCH = 'EXACT_MATCH';
