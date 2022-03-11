@@ -66,6 +66,9 @@ class SearchForm extends React.Component {
     const state = store.getState();
     const r2dt = !!this.props.r2dt;  // true if exists, otherwise false
 
+    // update status
+    store.dispatch(actionCreators.updateStatus())
+
     // split the sequence for batch queries and set a limit on the number of queries
     if (state.fileUpload && state.sequence) {
       let getSequence = state.sequence.split(/(?=>)/g).slice(0, 50);
@@ -107,8 +110,8 @@ class SearchForm extends React.Component {
               <textarea style={{fontSize: fixCss}} className="form-control" id="sequence" name="sequence" rows="7" value={this.props.sequence} onChange={(e) => this.props.onSequenceTextareaChange(e)} placeholder="Enter RNA/DNA sequence (with an optional description in FASTA format) or job id" />
             </div>
             <div className="col-sm-3">
-              <button className="btn btn-primary mb-2" style={{background: searchButtonColor, borderColor: searchButtonColor, fontSize: fixCss, height: fixCssBtn}} type="submit" disabled={!this.props.sequence ? "disabled" : ""}>
-                { this.props.submitBatchSearch ? <span><span className={`spinner-border ${fixCss ? '' : 'spinner-border-sm'}`} role="status" aria-hidden="true"></span> Loading</span> : <span><span className="btn-icon"><FaSearch /></span> Search</span>}
+              <button className="btn btn-primary mb-2" style={{background: searchButtonColor, borderColor: searchButtonColor, fontSize: fixCss, height: fixCssBtn}} type="submit" disabled={!this.props.sequence || this.props.status === 'loading' ? "disabled" : ""}>
+                { this.props.submitBatchSearch || this.props.status === 'loading' ? <span><span className={`spinner-border ${fixCss ? '' : 'spinner-border-sm'}`} role="status" aria-hidden="true"></span> Loading</span> : <span><span className="btn-icon"><FaSearch /></span> Search</span>}
               </button><br />
               <button className="btn btn-secondary mb-2" style={{background: clearButtonColor, borderColor: clearButtonColor, fontSize: fixCss, height: fixCssBtn}} type="submit" onClick={ this.props.onClearSequence } disabled={!this.props.sequence ? "disabled" : ""}><span className="btn-icon"><FiTrash2 /></span> Clear</button><br />
               <div style={{display: hideUploadButton}}>

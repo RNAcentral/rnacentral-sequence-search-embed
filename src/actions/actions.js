@@ -28,6 +28,10 @@ let buildQuery = function (selectedFacets) {
   return outputText;
 };
 
+export function updateStatus() {
+  return {type: types.UPDATE_STATUS, data: "loading"}
+}
+
 export function onSubmit(sequence, databases, r2dt= false) {
   let url = window.location.href;
 
@@ -129,6 +133,7 @@ export function onMultipleSubmit(sequence, databases) {
         jobIds = [...jobIds, {"jobid": data.job_id, "description": description, "sequence": seq}];
         if (jobIds.length === sequence.length) {
           dispatch({type: types.BATCH_SEARCH, data: false});
+          dispatch({type: types.UPDATE_STATUS, data: "submitted"});
           dispatch({type: types.SUBMIT_MULTIPLE_JOB, status: 'success', data: jobIds});
         }
       })
