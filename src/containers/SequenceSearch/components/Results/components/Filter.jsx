@@ -120,6 +120,11 @@ class Filter extends Component {
       "title": title,
       "description": description,
       "rnacentral_version": "v19",
+      "licenses": [{
+        "name": "CC0",
+        "path": "https://creativecommons.org/share-your-work/public-domain/cc0/",
+        "title": "Creative Commons Zero license"
+      }],
       "download_date": dateTime,
       "sources": this.props.databases.length === 0 ?
         showExpertDb.map(entry => (
@@ -162,7 +167,7 @@ class Filter extends Component {
         "name": "RNAcentral",
         "web": "https://rnacentral.org"
       }],
-      "datapackage_version": "1.1",
+      "datapackage_version": "1.2",
     }
     let dataPackageFile = new Blob([JSON.stringify(dataPackage)], {type: 'application/json'});
     zip.file('datapackage.json', dataPackageFile)
