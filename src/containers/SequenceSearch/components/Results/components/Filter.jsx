@@ -111,7 +111,7 @@ class Filter extends Component {
         "collection of non-coding RNA sequences from a consortium of RNA databases. The search is powered by the " +
         "nhmmer software."
         : "The search found " + this.props.downloadEntries.length + " similar sequences. " +
-        this.props.databases + " is part of RNAcentral, which integrates more than 40 different specialized ncRNA " +
+        this.props.databases + " is part of RNAcentral, which integrates more than 45 different specialized ncRNA " +
         "databases. The search is powered by the nhmmer software."
 
     // create json file with metadata
