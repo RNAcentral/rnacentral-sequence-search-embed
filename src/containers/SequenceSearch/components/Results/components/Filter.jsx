@@ -111,7 +111,7 @@ class Filter extends Component {
         "collection of non-coding RNA sequences from a consortium of RNA databases. The search is powered by the " +
         "nhmmer software."
         : "The search found " + this.props.downloadEntries.length + " similar sequences. " +
-        this.props.databases + " is part of RNAcentral, which integrates more than 40 different specialized ncRNA " +
+        this.props.databases + " is part of RNAcentral, which integrates more than 45 different specialized ncRNA " +
         "databases. The search is powered by the nhmmer software."
 
     // create json file with metadata
@@ -119,7 +119,12 @@ class Filter extends Component {
       "homepage": url,
       "title": title,
       "description": description,
-      "rnacentral_version": "v19",
+      "rnacentral_version": "v20",
+      "licenses": [{
+        "name": "CC0",
+        "path": "https://creativecommons.org/share-your-work/public-domain/cc0/",
+        "title": "Creative Commons Zero license"
+      }],
       "download_date": dateTime,
       "sources": this.props.databases.length === 0 ?
         showExpertDb.map(entry => (
@@ -162,7 +167,7 @@ class Filter extends Component {
         "name": "RNAcentral",
         "web": "https://rnacentral.org"
       }],
-      "datapackage_version": "1.1",
+      "datapackage_version": "1.2",
     }
     let dataPackageFile = new Blob([JSON.stringify(dataPackage)], {type: 'application/json'});
     zip.file('datapackage.json', dataPackageFile)
