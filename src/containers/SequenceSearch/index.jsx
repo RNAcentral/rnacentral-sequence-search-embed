@@ -18,12 +18,13 @@ class SequenceSearch extends React.Component {
       // check if a jobId was passed as a parameter to search for results
       let url = window.location.href;
       url = url.split("?jobid=");
-      let jobId = url[url.length - 1]
+      let jobId = url[url.length - 1];
       const r2dt = !!this.props.r2dt;  // true if exists, otherwise false
       if (jobId.match("^([0-9a-fA-F]{8})-(([0-9a-fA-F]{4}\\-){3})([0-9a-fA-F]{12})$")) {
         store.dispatch(actionCreators.updateJobId(jobId, r2dt))
       } else if (jobId.startsWith("URS")) {
-        store.dispatch(actionCreators.onSubmitUrs(jobId, this.props.databases, r2dt))
+        store.dispatch(actionCreators.onSubmitUrs(jobId, this.props.databases, r2dt));
+        store.dispatch(actionCreators.updateStatus());
       }
     }
   }
