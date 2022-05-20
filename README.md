@@ -163,7 +163,7 @@ Parameters that you can use to customise some elements of this embeddable compon
 
 3. `npm run clean` to clean the dist folder of old assets
 
-4. `npm run build` to generate a new distribution.
+4. `npm run build` to generate a new distribution
 
 ### Notes
 
