@@ -154,11 +154,16 @@ export function onSubmitUrs(urs, database, r2dt) {
         dispatch({type: types.SUBMIT_URS, status: 'invalid', data: data.sequence});
         dispatch(invalidSequence())
       } else {
-        dispatch(onSubmit(data.sequence, database, r2dt))
+        dispatch(updateSequence(data.sequence));
+        dispatch(onSubmit(data.sequence, database, r2dt));
       }
     })
     .catch(error => {dispatch({type: types.SUBMIT_URS, status: 'error', response: error})});
   }
+}
+
+export function updateSequence(sequence) {
+  return {type: types.UPDATE_SEQUENCE, data: sequence}
 }
 
 export function updateJobId(jobId, r2dt= false) {

@@ -143,6 +143,9 @@ const rootReducer = function (state = initialState, action) {
     case actions.UPDATE_STATUS:
       return Object.assign({}, state, { status: action.data });
 
+    case actions.UPDATE_SEQUENCE:
+      return Object.assign({}, state, { sequence: action.data });
+
     // submission form
     case actions.SUBMIT_JOB:
       switch (action.status) {

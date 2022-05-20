@@ -24,7 +24,7 @@ To use it just insert an html tag somewhere in your html:
 <rnacentral-sequence-search databases='["miRBase"]' />
 ```
 
-To show some examples and/or enable the Rfam search, use:
+To show some examples, use:
 
 ```
 <rnacentral-sequence-search 
@@ -32,7 +32,16 @@ To show some examples and/or enable the Rfam search, use:
     examples='[
         {"description": "miRNA hsa-let-7a-1", "urs": "URS000004F5D8", "sequence": "CUAUACAAUCUACUGUCUUUC"}
     ]
+/>
+```
+
+To enable Rfam classification and generate secondary structure (2D) diagrams using R2DT, use:
+
+```
+<rnacentral-sequence-search 
+    databases='["miRBase"]'
     rfam="true"
+    r2dt="true"
 />
 ```
 
@@ -163,7 +172,7 @@ Parameters that you can use to customise some elements of this embeddable compon
 
 3. `npm run clean` to clean the dist folder of old assets
 
-4. `npm run build` to generate a new distribution.
+4. `npm run build` to generate a new distribution
 
 ### Notes
 
