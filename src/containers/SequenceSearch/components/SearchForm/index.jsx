@@ -65,6 +65,7 @@ class SearchForm extends React.Component {
     event.preventDefault();
     const state = store.getState();
     const r2dt = !!this.props.r2dt;  // true if exists, otherwise false
+    const invalidNucleotide = state.sequence.match(/[^acgtunwsmkrybdhvx\s]/i);
 
     // update status
     store.dispatch(actionCreators.updateStatus())
@@ -77,7 +78,7 @@ class SearchForm extends React.Component {
       store.dispatch(actionCreators.updateJobId(state.sequence, r2dt));
     } else if (state.sequence && state.sequence.match("^URS[A-Fa-f0-9]{10}$")) {
       store.dispatch(actionCreators.onSubmitUrs(state.sequence, this.props.databases, r2dt));
-    } else if (state.sequence && (state.sequence.length < 10 || state.sequence.length > 7000)) {
+    } else if (state.sequence && (state.sequence.length < 10 || state.sequence.length > 7000 || invalidNucleotide)) {
       store.dispatch(actionCreators.invalidSequence());
     } else if (state.sequence) {
       store.dispatch(actionCreators.onSubmit(state.sequence, this.props.databases, r2dt));
@@ -153,7 +154,7 @@ class SearchForm extends React.Component {
               <div className="row">
                 <div className="col-sm-9">
                   <div className="alert alert-warning">
-                    {this.props.sequence.length < 10 ? "The sequence cannot be shorter than 10 nucleotides" : "The sequence cannot be longer than 7000 nucleotides"}
+                    {this.props.sequence.length < 10 ? "The sequence cannot be shorter than 10 nucleotides" : this.props.sequence.length > 7000 ? "The sequence cannot be longer than 7000 nucleotides" : "The sequence contains invalid nucleotides"}
                   </div>
                 </div>
               </div>
