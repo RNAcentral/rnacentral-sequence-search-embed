@@ -7,7 +7,7 @@ import Admin from "containers/SequenceSearch/components/SearchForm/components/Ad
 
 import { FaSearch, FaCheckCircle } from 'react-icons/fa';
 import { FiTrash2 } from 'react-icons/fi';
-import { MdFileUpload } from 'react-icons/md';
+import { MdFileUpload, MdHelpOutline } from 'react-icons/md';
 
 
 class SearchForm extends React.Component {
@@ -118,7 +118,7 @@ class SearchForm extends React.Component {
               <div style={{display: hideUploadButton}}>
                 <label htmlFor="file-upload" className="custom-file-upload" style={{background: uploadButtonColor}}><MdFileUpload /> Upload file</label>
                 <input id="file-upload" type="file" accept=".fasta" onClick={ this.props.onClearSequence } onChange={this.props.onFileUpload} />
-                <div className="row"><small>Up to 50 queries (beta)</small></div>
+                <div className="row"><small>Up to 50 queries <a className="text-muted" href="https://rnacentral.org/help/sequence-search#batch-queries" target="_blank"><MdHelpOutline /></a></small></div>
               </div>
             </div>
           </div>
