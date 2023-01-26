@@ -57,6 +57,7 @@ class SequenceSearch extends React.Component {
       <Results
           key={`results`}
           customStyle={this.props.customStyle}
+          customUrl={this.props.customUrl}
           databases={this.props.databases}
           hideFacet={this.props.hideFacet}
           r2dt={this.props.r2dt}

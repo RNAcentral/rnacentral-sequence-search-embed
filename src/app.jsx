@@ -29,6 +29,7 @@ class RNAcentralSequenceSearch extends HTMLElement {
     // parse arguments
     const admin = JSON.parse(this.attributes.admin ? this.attributes.admin.nodeValue : null);
     const customStyle = JSON.parse(this.attributes.customStyle ? this.attributes.customStyle.nodeValue : null);
+    const customUrl = JSON.parse(this.attributes.customUrl ? this.attributes.customUrl.nodeValue : null);
     const databases = JSON.parse(this.attributes.databases ? this.attributes.databases.nodeValue : null);
     const examples = JSON.parse(this.attributes.examples ? this.attributes.examples.nodeValue : null);
     const hideFacet = JSON.parse(this.attributes.hideFacet ? this.attributes.hideFacet.nodeValue : null);
@@ -44,6 +45,7 @@ class RNAcentralSequenceSearch extends HTMLElement {
           <SequenceSearch
               admin={admin}
               customStyle={customStyle}
+              customUrl={customUrl}
               databases={databases}
               examples={examples}
               hideFacet={hideFacet}

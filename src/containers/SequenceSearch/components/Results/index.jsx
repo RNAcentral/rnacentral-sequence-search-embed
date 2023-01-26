@@ -192,7 +192,15 @@ class Results extends React.Component {
                     <div className="col-sm-9">
                       <section>
                         { this.props.entries.map((entry, index) => (
-                        <ul className="list-unstyled" key={`${entry}_${index}`}><Hit entry={entry} customStyle={this.props.customStyle} databases={this.props.databases} exactMatchUrsId={exactMatchUrsId}/></ul>
+                        <ul className="list-unstyled" key={`${entry}_${index}`}>
+                          <Hit
+                              entry={entry}
+                              customStyle={this.props.customStyle}
+                              customUrl={this.props.customUrl}
+                              databases={this.props.databases}
+                              exactMatchUrsId={exactMatchUrsId}
+                          />
+                        </ul>
                         )) }
                         {this.props.status === "loading" ? <div className="spinner-border" role="status" /> : (this.props.status === "success" || this.props.status === "partial_success") && (this.props.entries.length < this.props.hitCount) && (<button className="btn btn-secondary" onClick={this.props.onLoadMore} style={{background: loadMoreButtonColor, borderColor: loadMoreButtonColor, fontSize: fixCss, height: fixCssBtn}}>Load more</button>)}
                       </section>
