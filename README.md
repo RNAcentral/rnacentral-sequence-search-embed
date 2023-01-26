@@ -12,77 +12,20 @@ javascript or CSS.
 
 ## How to use
 
-To use the latest stable version without worrying about updates, use the component's javascript package available at Github:
+Just insert this html tag somewhere in your code:
 
-`<script type="text/javascript" src="https://rnacentral.github.io/rnacentral-sequence-search-embed/dist/RNAcentral-sequence-search.js"></script>`
+```
+<rnacentral-sequence-search databases='["your-database-name"]' />
+```
+
+and also the component's javascript package available at Github:
+
+```
+<script type="text/javascript" src="https://rnacentral.github.io/rnacentral-sequence-search-embed/dist/RNAcentral-sequence-search.js"></script>
+```
 
 If you prefer to install this package and perform the updates manually, see the [Installation](#Installation) section.
 
-To use it just insert an html tag somewhere in your html:
-
-```
-<rnacentral-sequence-search databases='["miRBase"]' />
-```
-
-To show some examples, use:
-
-```
-<rnacentral-sequence-search 
-    databases='["miRBase"]'
-    examples='[
-        {"description": "miRNA hsa-let-7a-1", "urs": "URS000004F5D8", "sequence": "CUAUACAAUCUACUGUCUUUC"}
-    ]
-/>
-```
-
-To enable Rfam classification and generate secondary structure (2D) diagrams using R2DT, use:
-
-```
-<rnacentral-sequence-search 
-    databases='["miRBase"]'
-    rfam="true"
-    r2dt="true"
-/>
-```
-
-If you want to hide one specific facet, use:
-```
-<rnacentral-sequence-search 
-    databases='["miRBase"]'
-    hideFacet='["has_conserved_structure"]'
-/>
-```
-
-You can hide any facet - ` "rna_type", "TAXONOMY", "expert_db", "qc_warning_found", "has_go_annotations", 
-"has_conserved_structure", "has_genomic_coordinates" `
-
-You can also customise some elements of this embeddable component. See what you can change [here](#layout).
-The example below changes the color of the buttons:
-
-```
-<rnacentral-sequence-search
-    databases='["miRBase"]'
-    customStyle='{
-      "searchButtonColor": "#007c82",
-      "clearButtonColor": "#6c757d"
-    }'
-/>
-```
-
-For a minimal example, see [index.html](./index.html). For an Rfam example, see [rfam.html](./rfam.html).
-
-## Installation
-
-Download this package directly from Github.
-
-`git clone https://github.com/RNAcentral/rnacentral-sequence-search-embed.git`
-
-Now you can add the component's javascript bundle (it contains all the styles and fonts) to your web page either 
-directly or through an import with Webpack:
-
-`<script type="text/javascript" src="/rnacentral-sequence-search-embed/dist/RNAcentral-sequence-search.js"></script>`
-
-You will need to run the `git pull` command whenever there are updates.
 
 ## Attributes/parameters
 
@@ -96,6 +39,7 @@ Array of databases to search query sequence against. Currently you can choose fr
 | database         |
 |------------------|
 | 5srrnadb         |
+| crw              |
 | dictybase        |
 | ena              |
 | ensembl          |
@@ -103,12 +47,13 @@ Array of databases to search query sequence against. Currently you can choose fr
 | ensembl_metazoa  |
 | ensembl_plants   |
 | ensembl_protists |
+| expression_atlas |
 | flybase          |
-| gencode          |
 | genecards        |
 | greengenes       |
 | gtrnadb          |
 | hgnc             |
+| intact           |
 | lncbase          |
 | lncbook          |
 | lncipedia        |
@@ -120,25 +65,81 @@ Array of databases to search query sequence against. Currently you can choose fr
 | modomics         |
 | noncode          |
 | pdbe             |
+| pirbase          |
+| plncdb           |
 | pombase          |
+| psicquic         |
 | rdp              |
 | refseq           |
 | rfam             |
 | rgd              |
+| ribovision       |
 | sgd              |
 | silva            |
 | snodb            |
 | snopy            |
+| snorna_database  |
 | srpdb            |
 | tair             |
 | tarbase          |
 | tmrna_web        |
 | wormbase         |
+| zfin             |
 | zwd              |
+
+#### examples
+
+To show some examples, use:
+
+```
+<rnacentral-sequence-search 
+    databases='["miRBase"]'
+    examples='[
+        {"description": "miRNA hsa-let-7a-1", "urs": "URS000004F5D8", "sequence": "CUAUACAAUCUACUGUCUUUC"}
+    ]
+/>
+```
+
+#### Rfam and R2DT
+
+To enable Rfam classification and generate secondary structure (2D) diagrams using R2DT, use:
+
+```
+<rnacentral-sequence-search 
+    databases='["miRBase"]'
+    rfam="true"
+    r2dt="true"
+/>
+```
+
+#### facets
+
+If you want to hide one specific facet, use:
+```
+<rnacentral-sequence-search 
+    databases='["miRBase"]'
+    hideFacet='["has_conserved_structure"]'
+/>
+```
+
+You can hide any facet - ` "rna_type", "TAXONOMY", "expert_db", "qc_warning_found", "has_go_annotations", 
+"has_conserved_structure", "has_genomic_coordinates" `
 
 #### layout
 
-Parameters that you can use to customise some elements of this embeddable component
+You can also customise some elements of this embeddable component. The example below changes the color of the buttons:
+
+```
+<rnacentral-sequence-search
+    databases='["miRBase"]'
+    customStyle='{
+      "searchButtonColor": "#007c82",
+      "clearButtonColor": "#6c757d"
+    }'
+/>
+```
+
+Parameters that you can use to customise the widget:
 
 | parameter                 | description                                                                        |
 |---------------------------|------------------------------------------------------------------------------------|
@@ -161,6 +162,38 @@ Parameters that you can use to customise some elements of this embeddable compon
 | loadMoreButtonColor       | change the color of the `Load more` button                                         |
 
 &ast; The urlWithJobId parameter may not work as desired. We recommend testing this feature in a test environment.
+
+#### links
+
+Search results links can also be changed. For example, assuming the link points to 
+*www.example.com/?id=12345* and you want to change the URL to *www.newurl.com/12345*, use:
+
+```
+<rnacentral-sequence-search
+    databases='["miRBase"]'
+    customUrl='{
+      "stringToSplit": "id=",
+      "newUrl": "www.newurl.com/"
+    }'
+/>
+```
+
+#### example files
+
+For a minimal example, see [index.html](./index.html). For an Rfam example, see [rfam.html](./rfam.html).
+
+## Installation
+
+Download this package directly from Github.
+
+`git clone https://github.com/RNAcentral/rnacentral-sequence-search-embed.git`
+
+Now you can add the component's javascript bundle (it contains all the styles and fonts) to your web page either 
+directly or through an import with Webpack:
+
+`<script type="text/javascript" src="/rnacentral-sequence-search-embed/dist/RNAcentral-sequence-search.js"></script>`
+
+You will need to run the `git pull` command whenever there are updates.
 
 ## Developer details
 
