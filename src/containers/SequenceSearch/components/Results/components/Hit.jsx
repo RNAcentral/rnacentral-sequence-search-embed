@@ -32,11 +32,20 @@ class Hit extends React.Component {
     if (database === "snodb") {
       database = "scottgroup";
     }
-    const link = database && this.props.entry.fields && this.props.entry.fields.url && this.props.entry.fields.url.length ? this.props.entry.fields.url.filter((item) => item.includes(database)) : ''
+    let link = database && this.props.entry.fields && this.props.entry.fields.url && this.props.entry.fields.url.length ? this.props.entry.fields.url.filter((item) => item.includes(database)) : ''
+
+    // check if the link should be changed
+    const stringToSplit = this.props.customUrl && this.props.customUrl.stringToSplit ? this.props.customUrl.stringToSplit : "";
+    const newUrl = this.props.customUrl && this.props.customUrl.newUrl ? this.props.customUrl.newUrl : "";
+    if (link && stringToSplit && newUrl){
+      link = newUrl + link[0].split(stringToSplit)[1]
+    } else if (link) {
+      link = link[0]
+    }
 
     return (
       <li>
-        {exactMatchUrsId} <a className="custom-link" style={seqTitleStyle} href={link ? link[0] : `https://rnacentral.org/rna/${this.props.entry.rnacentral_id}`} target='_blank'>
+        {exactMatchUrsId} <a className="custom-link" style={seqTitleStyle} href={link ? link : `https://rnacentral.org/rna/${this.props.entry.rnacentral_id}`} target='_blank'>
           {this.props.entry.description}
         </a>
         {database === "" ? <div className="text-muted mt-2" style={seqInfoStyle}>{ this.props.entry.rnacentral_id } {showExpertDb.map((db, index) => <img key={index} className="ml-2 desaturate" src={`https://rnacentral.org/static/img/expert-db-logos/${db.name}.png`} alt={`${db.name} logo`} style={{height: "16px"}} />)}</div>
