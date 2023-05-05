@@ -269,7 +269,7 @@ export function fetchR2DTStatus(jobId, saveR2DTId = false) {
       else { throw response }
     })
     .then((data) => {
-      if (data === 'RUNNING') {
+      if (data === 'RUNNING' || data === 'QUEUED') {
         let statusTimeout = setTimeout(() => store.dispatch(fetchR2DTStatus(jobId, saveR2DTId)), 2000);
         dispatch({type: types.SET_STATUS_TIMEOUT, timeout: statusTimeout});
       } else if (data === 'FINISHED') {
