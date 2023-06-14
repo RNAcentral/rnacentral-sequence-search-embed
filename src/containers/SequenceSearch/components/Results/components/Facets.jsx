@@ -3,7 +3,7 @@ import {connect} from "react-redux";
 
 import * as actionCreators from 'actions/actions';
 import {store} from "app.jsx";
-import ReactGA from 'react-ga';
+import ReactGA from 'react-ga4';
 
 import { AiOutlineReload } from 'react-icons/ai';
 

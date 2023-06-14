@@ -2,7 +2,7 @@ import React, {Component} from 'react';
 import {store} from "app.jsx";
 import * as actionCreators from 'actions/actions';
 import {connect} from "react-redux";
-import ReactGA from 'react-ga';
+import ReactGA from 'react-ga4';
 import JSZip from 'jszip';
 import info from 'expert-dbs/index';
 
