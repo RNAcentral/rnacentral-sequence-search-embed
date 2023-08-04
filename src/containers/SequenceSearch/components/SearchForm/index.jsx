@@ -65,7 +65,15 @@ class SearchForm extends React.Component {
     event.preventDefault();
     const state = store.getState();
     const r2dt = !!this.props.r2dt;  // true if exists, otherwise false
-    const invalidNucleotide = state.sequence.match(/[^acgtunwsmkrybdhvx\s]/i);
+
+    // validate a single fasta sequence
+    let invalidNucleotide
+    if (state.sequence[0] === '>') {
+      let [, ...rest] = state.sequence.split(/\r?\n/);
+      invalidNucleotide = rest.join('').match(/[^acgtunwsmkrybdhvx\s]/i);
+    } else {
+      invalidNucleotide = state.sequence.match(/[^acgtunwsmkrybdhvx\s]/i);
+    }
 
     // update status
     store.dispatch(actionCreators.updateStatus())
@@ -108,7 +116,7 @@ class SearchForm extends React.Component {
         <form onSubmit={(e) => this.onSubmit(e)}>
           <div className="row mt-1">
             <div className="col-sm-9">
-              <textarea style={{fontSize: fixCss}} className="form-control" id="sequence" name="sequence" rows="7" value={this.props.sequence} onChange={(e) => this.props.onSequenceTextareaChange(e)} placeholder="Enter RNA/DNA sequence (with an optional description in FASTA format) or job id" />
+              <textarea style={{fontSize: fixCss}} className="form-control" id="sequence" name="sequence" rows="7" value={this.props.sequence} onChange={(e) => this.props.onSequenceTextareaChange(e)} placeholder="Enter a single RNA/DNA sequence (with an optional description in FASTA format) or job id" />
             </div>
             <div className="col-sm-3">
               <button className="btn btn-primary mb-2" style={{background: searchButtonColor, borderColor: searchButtonColor, fontSize: fixCss, height: fixCssBtn}} type="submit" disabled={!this.props.sequence || this.props.status === 'loading' ? "disabled" : ""}>
