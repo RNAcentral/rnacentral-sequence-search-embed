@@ -119,7 +119,7 @@ class Filter extends Component {
       "homepage": url,
       "title": title,
       "description": description,
-      "rnacentral_version": "v22",
+      "rnacentral_version": "v23",
       "licenses": [{
         "name": "CC0",
         "path": "https://creativecommons.org/share-your-work/public-domain/cc0/",
