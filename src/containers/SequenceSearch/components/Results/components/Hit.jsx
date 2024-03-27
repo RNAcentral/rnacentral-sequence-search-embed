@@ -37,10 +37,12 @@ class Hit extends React.Component {
     // check if the link should be changed
     const stringToSplit = this.props.customUrl && this.props.customUrl.stringToSplit ? this.props.customUrl.stringToSplit : "";
     const newUrl = this.props.customUrl && this.props.customUrl.newUrl ? this.props.customUrl.newUrl : "";
-    if (link && stringToSplit && newUrl){
+    if (link && link.length > 0 && stringToSplit && newUrl){
       link = newUrl + link[0].split(stringToSplit)[1]
-    } else if (link) {
+    } else if (link && link.length > 0) {
       link = link[0]
+    } else {
+      link = null
     }
 
     return (
