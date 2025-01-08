@@ -31,6 +31,9 @@ class Filter extends Component {
   }
 
   onDownload() {
+    // filter out entries without rnacentral_id
+    const validEntries = this.props.downloadEntries.filter(entry => entry?.rnacentral_id);
+
     // create sequence folder
     let zip = new JSZip();
     let FileSaver = require('file-saver');
@@ -38,44 +41,44 @@ class Filter extends Component {
 
     // create text file with the results
     let textData = "Query: " + this.props.sequence + "\n" + "\n" +
-      "Number of hits: " + this.props.downloadEntries.length + "\n" + "\n" +
-      this.props.downloadEntries.map((entry, index) => (
-        ">> " + entry.rnacentral_id + " " + entry.description + "\n" +
-        "E-value: " + entry.e_value.toExponential() + "\t" +
-        "Identity: " +  `${parseFloat(entry.identity).toFixed(2)}%` + "\t" +
-        "Query coverage: " + `${parseFloat(entry.query_coverage).toFixed(2)}%` + "\t" +
-        "Gaps: " + `${parseFloat(entry.gaps).toFixed(2)}%` + "\n" + "\n" +
-        "Alignment: " + "\n" + entry.alignment + "\n" + "\n" + "\n"
+      "Number of hits: " + validEntries.length + "\n" + "\n" +
+      validEntries.map((entry, index) => (
+        ">> " + (entry?.rnacentral_id ?? "") + " " + (entry?.description ?? "") + "\n" +
+        "E-value: " + (entry?.e_value?.toExponential() ?? "") + "\t" +
+        "Identity: " +  `${parseFloat(entry?.identity ?? 0).toFixed(2)}%` + "\t" +
+        "Query coverage: " + `${parseFloat(entry?.query_coverage ?? 0).toFixed(2)}%` + "\t" +
+        "Gaps: " + `${parseFloat(entry?.gaps ?? 0).toFixed(2)}%` + "\n" + "\n" +
+        "Alignment: " + "\n" + (entry?.alignment ?? "") + "\n" + "\n" + "\n"
       ))
     textData = textData.replace(/,>>/g, '>>')
     let textFile = new Blob([textData], {type: 'text/plain'});
-    sequenceFolder.file('similar-sequences.txt', textFile)
+    sequenceFolder.file('similar-sequences.txt', textFile);
 
     // create json file with the results
     let jsonData = {
       "query": this.props.sequence,
-      "hits": this.props.downloadEntries.length,
-      "results": this.props.downloadEntries.map((entry, index) => (
+      "hits": validEntries.length,
+      "results": validEntries.map((entry, index) => (
           {
-            "description": entry.description,
-            "e-value": entry.e_value.toExponential(),
-            "identity": `${parseFloat(entry.identity).toFixed(2)}%`,
-            "query_coverage": `${parseFloat(entry.query_coverage).toFixed(2)}%`,
-            "gaps": `${parseFloat(entry.gaps).toFixed(2)}%`,
-            "alignment": entry.alignment
+            "description": entry?.description ?? "",
+            "e-value": entry?.e_value?.toExponential() ?? "",
+            "identity": `${parseFloat(entry?.identity ?? 0).toFixed(2)}%`,
+            "query_coverage": `${parseFloat(entry?.query_coverage ?? 0).toFixed(2)}%`,
+            "gaps": `${parseFloat(entry?.gaps ?? 0).toFixed(2)}%`,
+            "alignment": entry?.alignment ?? ""
           }
         ))
     }
     let jsonFile = new Blob([JSON.stringify(jsonData)], {type: 'application/json'});
-    sequenceFolder.file('similar-sequences.json', jsonFile)
+    sequenceFolder.file('similar-sequences.json', jsonFile);
 
     // create fasta file with sequences extracted from alignment
     let fastaData = '';
-    this.props.downloadEntries.map((entry, index) => {
-      fastaData += ">" + entry.rnacentral_id + "/" + entry.alignment_start + "-" + entry.alignment_stop + " " + entry.description + "\n" + entry.alignment_sequence + "\n"
-    })
+    validEntries.map((entry, index) => {
+      fastaData += ">" + (entry?.rnacentral_id ?? "") + "/" + (entry?.alignment_start ?? "") + "-" + (entry?.alignment_stop ?? "") + " " + (entry?.description ?? "") + "\n" + (entry?.alignment_sequence ?? "") + "\n";
+    });
     let fastaFile = new Blob([fastaData], {type: 'text/plain'});
-    sequenceFolder.file('similar-sequences.fasta', fastaFile)
+    sequenceFolder.file('similar-sequences.fasta', fastaFile);
 
     // info for the metadata below
     // get url
