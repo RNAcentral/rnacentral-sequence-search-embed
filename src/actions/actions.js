@@ -33,34 +33,53 @@ export function updateStatus() {
 }
 
 export function onSubmit(sequence, databases, r2dt= false) {
-  let url = window.location.href;
+  // Format sequence for Job Dispatcher - needs FASTA format
+  let fastaSequence = sequence;
+  if (!/^>/.test(sequence)) {
+    fastaSequence = ">query\n" + sequence;
+  }
+
+  // Build the form data for Job Dispatcher
+  // Format: email=rnacentral%40ebi.ac.uk&database=rfam-0&sequence=<fasta>
+  const formData = new URLSearchParams();
+  formData.append('email', 'rnacentral@ebi.ac.uk');
+  formData.append('database', databases[0] || 'rfam-0'); // Use first database or default
+  formData.append('sequence', fastaSequence);
+
+  console.log('[DEBUG] onSubmit - submitting job to Job Dispatcher');
+  console.log('[DEBUG] onSubmit - URL:', routes.jdSubmitJob());
+  console.log('[DEBUG] onSubmit - sequence:', fastaSequence);
+  console.log('[DEBUG] onSubmit - database:', databases[0] || 'rfam-0');
 
   return function(dispatch) {
-    fetch(routes.submitJob(), {
+    fetch(routes.jdSubmitJob(), {
       method: 'POST',
-      mode: 'cors',
-      credentials: 'include',
       headers: {
-        'Accept': 'application/json, text/plain, */*',
-        'Content-Type': 'application/json'
+        'Accept': 'text/plain',
+        'Content-Type': 'application/x-www-form-urlencoded'
       },
-      body: JSON.stringify({
-        query: sequence,
-        databases: databases,
-        url: url,
-        priority: 'high'
-      })
+      body: formData.toString()
     })
     .then(function (response) {
-      if (response.ok) { return response.json() }
+      console.log('[DEBUG] onSubmit - response status:', response.status);
+      if (response.ok) { return response.text() }
       else { throw response }
     })
-    .then(data => {
-        dispatch({type: types.SUBMIT_JOB, status: 'success', data: data});
-        dispatch(fetchStatus(data.job_id, r2dt));
-        dispatch(fetchInfernalStatus(data.job_id));
+    .then(jobId => {
+        console.log('[DEBUG] onSubmit - received job ID:', jobId);
+        // Job Dispatcher returns plain text job ID
+        dispatch({type: types.SUBMIT_JOB, status: 'success', data: { job_id: jobId.trim() }});
+        dispatch(fetchStatus(jobId.trim(), r2dt));
+        // Infernal search is not available with Job Dispatcher - skip it
+        // dispatch(fetchInfernalStatus(jobId.trim()));
     })
-    .catch(error => {
+    .catch(async (error) => {
+      console.error('[DEBUG] onSubmit - error:', error);
+      // Try to get more details from the error response
+      if (error.text) {
+        const errorText = await error.text();
+        console.error('[DEBUG] onSubmit - error response body:', errorText);
+      }
       if (error.statusText === undefined) {
         dispatch({type: types.SUBMIT_JOB, status: 'error', response: "The sequence search is temporarily unreachable. Please try again later."})
       } else {
@@ -170,7 +189,8 @@ export function updateJobId(jobId, r2dt= false) {
   return function(dispatch) {
     dispatch({type: types.UPDATE_JOB_ID, data: jobId});
     dispatch(fetchStatus(jobId, r2dt));
-    dispatch(fetchInfernalStatus(jobId));
+    // Infernal search is not available with Job Dispatcher - skip it
+    // dispatch(fetchInfernalStatus(jobId));
   }
 }
 
@@ -189,65 +209,61 @@ export function invalidSequence() {
 export function fetchStatus(jobId, r2dt= false) {
   let state = store.getState();
 
+  console.log('[DEBUG] fetchStatus - checking status for job:', jobId);
+  console.log('[DEBUG] fetchStatus - URL:', routes.jdJobStatus(jobId));
+
   return function(dispatch) {
-    fetch(routes.jobStatus(jobId), {
+    fetch(routes.jdJobStatus(jobId), {
       method: 'GET',
-      mode: 'cors',
-      credentials: 'include',
       headers: {
-        'Accept': 'application/json, text/plain, */*',
-        'Content-Type': 'application/json'
+        'Accept': 'text/plain'
       }
     })
     .then(function(response) {
-      if (response.ok) { return response.json() }
+      console.log('[DEBUG] fetchStatus - response status:', response.status);
+      if (response.ok) { return response.text() }
       else { throw response }
     })
-    .then((data) => {
-      // used if r2dt is enable
-      if (r2dt) {
-        let timeLimit = 603000 // 6 days, 23 hours and 30 minutes
-        if (!state.r2dt_id && data.r2dt_id && data.r2dt_date && data.r2dt_date < timeLimit) {
-          // use r2dt_id
-          dispatch({type: types.SUBMIT_R2DT_JOB, status: 'success', data: data.r2dt_id});
-          dispatch(fetchR2DTStatus(data.r2dt_id));
-        } else if (!state.r2dt_id) {
-          // submit a new r2dt job
-          if (data.description){ dispatch(r2dtSubmit(">" + data.description + "\n" + data.query)) }
-          else {dispatch(r2dtSubmit(">description\n" + data.query))}
-        }
-        r2dt = false;
+    .then((statusText) => {
+      const status = statusText.trim();
+      console.log('[DEBUG] fetchStatus - job status:', status);
+
+      // Handle r2dt if enabled (submit r2dt job when nhmmer is running)
+      if (r2dt && !state.r2dt_id) {
+        // For Job Dispatcher, we don't have the query in the status response
+        // We'll need to handle r2dt submission differently or skip for now
+        console.log('[DEBUG] fetchStatus - r2dt enabled but Job Dispatcher does not return query in status');
       }
 
-      // check the status
-      if (data.status === 'started' || data.status === 'pending' || data.status === 'running') {
-        // Given jobChunks from jobStatus route, estimates the search progress.
-        let finishedChunk = 0;
-        data.chunks.map(item => {
-          if (item.status === 'success' || item.status === 'timeout' || item.status === 'error'){
-            finishedChunk = finishedChunk + 1
-          }
-        });
+      // Job Dispatcher status values: QUEUED, RUNNING, FINISHED, FAILURE, NOT_FOUND, ERROR
+      if (status === 'RUNNING' || status === 'QUEUED') {
+        console.log('[DEBUG] fetchStatus - job still in progress, will check again');
 
-        // Update the search progress
-        let state = store.getState();
-        let newSearchInProgress = [...state.searchInProgress];
-        let foundJobId = newSearchInProgress.find(el => el.jobId === data.job_id);
+        // Update the search progress (simplified for Job Dispatcher)
+        let currentState = store.getState();
+        let newSearchInProgress = [...currentState.searchInProgress];
+        let foundJobId = newSearchInProgress.find(el => el.jobId === jobId);
         if (foundJobId){
-          foundJobId['finishedChunk'] = finishedChunk * 100 / data.chunks.length;
+          // Increment progress slightly for UX feedback
+          foundJobId['finishedChunk'] = Math.min(foundJobId['finishedChunk'] + 5, 90);
         } else {
-          newSearchInProgress.push({jobId: data.job_id, finishedChunk: finishedChunk * 100 / data.chunks.length});
+          newSearchInProgress.push({jobId: jobId, finishedChunk: 10});
         }
         dispatch({type: types.SEARCH_PROGRESS, data: newSearchInProgress });
 
         // Wait a little bit and check it again
         let statusTimeout = setTimeout(() => store.dispatch(fetchStatus(jobId, r2dt)), 2000);
         dispatch({type: types.SET_STATUS_TIMEOUT, timeout: statusTimeout});
-      } else if (data.status === 'success' || data.status === 'partial_success') {
+      } else if (status === 'FINISHED') {
+        console.log('[DEBUG] fetchStatus - job FINISHED, fetching results');
         dispatch(fetchResults(jobId));
+      } else if (status === 'ERROR' || status === 'FAILURE' || status === 'NOT_FOUND') {
+        console.error('[DEBUG] fetchStatus - job failed with status:', status);
+        dispatch(failedFetchResults({ status: 500 }));
       }
     })
     .catch(error => {
+      console.error('[DEBUG] fetchStatus - error:', error);
       if (store.getState().hasOwnProperty('statusTimeout')) {
         clearTimeout(store.getState().statusTimeout); // clear status timeout
       }
@@ -329,27 +345,269 @@ export function fetchInfernalStatus(jobId) {
 
 export function fetchResults(jobId) {
   let state = store.getState();
+  const extraQuery = buildQuery(state.selectedFacets);
+
+  console.log('[DEBUG] fetchResults - fetching results for job:', jobId);
+  console.log('[DEBUG] fetchResults - Job Dispatcher URL:', routes.jdJobResult(jobId));
 
   return function(dispatch) {
-    fetch(routes.facetsSearch(jobId, buildQuery(state.selectedFacets), 0, 20, 'e_value'), {
+    // Step 1: Fetch results from Job Dispatcher
+    fetch(routes.jdJobResult(jobId), {
       method: 'GET',
-      mode: 'cors',
-      credentials: 'include',
       headers: {
-        'Accept': 'application/json, text/plain, */*',
-        'Content-Type': 'application/json'
+        'Accept': 'application/json'
       }
     })
     .then(function(response) {
+      console.log('[DEBUG] fetchResults - Job Dispatcher response status:', response.status);
       if (response.ok) { return response.json() }
       else { throw response }
     })
+    .then(jsonArray => {
+      console.log('[DEBUG] fetchResults - received', jsonArray.length, 'results from Job Dispatcher');
+
+      // Transform Job Dispatcher results to the format expected by the app
+      const jdData = parseJobDispatcherJsonResults(jsonArray, jobId);
+
+      // Step 2: Build query with RNAcentral IDs to fetch facets from EBI Search
+      if (jdData.entries.length > 0) {
+        // Build an OR query with all RNAcentral IDs (limit to first 100 for URL length)
+        const idsToQuery = jdData.entries.slice(0, 100).map(e => e.rnacentral_id);
+        const idsQuery = idsToQuery.map(id => `entry_type:Sequence AND id:"${id}"`).join(' OR ');
+
+        console.log('[DEBUG] fetchResults - fetching facets from EBI Search for', idsToQuery.length, 'IDs');
+        console.log('[DEBUG] fetchResults - EBI Search URL:', routes.ebiSearchByIds(idsQuery, extraQuery, 0, 20));
+
+        return fetch(routes.ebiSearchByIds(idsQuery, extraQuery, 0, 20), {
+          method: 'GET',
+          headers: { 'Accept': 'application/json' }
+        })
+        .then(response => {
+          if (response.ok) { return response.json() }
+          else {
+            console.warn('[DEBUG] fetchResults - EBI Search failed, returning results without facets');
+            return null;
+          }
+        })
+        .then(ebiData => {
+          if (ebiData && ebiData.facets) {
+            console.log('[DEBUG] fetchResults - received facets from EBI Search:', ebiData.facets.length);
+            jdData.facets = parseFacets(ebiData.facets);
+            jdData.hitCount = ebiData.hitCount || jdData.entries.length;
+          }
+          return jdData;
+        })
+        .catch(err => {
+          console.warn('[DEBUG] fetchResults - EBI Search error, returning results without facets:', err);
+          return jdData;
+        });
+      }
+      return jdData;
+    })
     .then(data => {
+      console.log('[DEBUG] fetchResults - final data:', data);
       dispatch({type: types.FETCH_RESULTS, status: 'success', data: data});
       dispatch(dataForDownload());
     })
-    .catch(error => dispatch(failedFetchResults(error)));
+    .catch(error => {
+      console.error('[DEBUG] fetchResults - error:', error);
+      dispatch(failedFetchResults(error));
+    });
   }
+}
+
+// Parse facets from EBI Search response
+function parseFacets(ebiFacets) {
+  if (!ebiFacets) return [];
+
+  const facetOrder = ['rna_type', 'TAXONOMY', 'expert_db', 'qc_warning_found', 'has_go_annotations', 'has_conserved_structure', 'has_genomic_coordinates', 'popular_species', 'length'];
+
+  const facets = ebiFacets.map(facet => ({
+    id: facet.id,
+    label: facet.label,
+    total: facet.total,
+    facetValues: (facet.facetValues || []).map(fv => ({
+      label: fv.label,
+      value: fv.value,
+      count: fv.count
+    }))
+  }));
+
+  // Sort facets according to predefined order
+  facets.sort((a, b) => {
+    const aIndex = facetOrder.indexOf(a.id);
+    const bIndex = facetOrder.indexOf(b.id);
+    if (aIndex === -1 && bIndex === -1) return 0;
+    if (aIndex === -1) return 1;
+    if (bIndex === -1) return -1;
+    return aIndex - bIndex;
+  });
+
+  // Merge popular_species into TAXONOMY
+  const popularSpeciesIndex = facets.findIndex(f => f.id === 'popular_species');
+  const taxonomyIndex = facets.findIndex(f => f.id === 'TAXONOMY');
+
+  if (popularSpeciesIndex !== -1 && taxonomyIndex !== -1) {
+    const popularSpecies = facets[popularSpeciesIndex];
+    const taxonomy = facets[taxonomyIndex];
+
+    // Prepend popular species to taxonomy, avoiding duplicates
+    const existingValues = new Set(taxonomy.facetValues.map(fv => fv.value));
+    const newFacetValues = [...popularSpecies.facetValues.filter(fv => !existingValues.has(fv.value)), ...taxonomy.facetValues];
+    taxonomy.facetValues = newFacetValues;
+
+    // Remove popular_species facet
+    facets.splice(popularSpeciesIndex, 1);
+  }
+
+  return facets;
+}
+
+// Helper function to parse Job Dispatcher JSON results into the app's expected format
+function parseJobDispatcherJsonResults(jsonData, jobId) {
+  console.log('[DEBUG] parseJobDispatcherJsonResults - parsing JSON data');
+
+  // Job Dispatcher returns an array directly with all the fields we need
+  const hitArray = Array.isArray(jsonData) ? jsonData : (jsonData.hits || jsonData.results || []);
+
+  console.log('[DEBUG] parseJobDispatcherJsonResults - processing hits:', hitArray.length);
+
+  const entries = hitArray.map((hit, index) => ({
+    id: hit.result_id || index,
+    rnacentral_id: hit.rnacentral_id,
+    description: hit.description || '',
+    score: parseFloat(hit.score || 0),
+    bias: parseFloat(hit.bias || 0),
+    e_value: parseFloat(hit.e_value || 0),
+    identity: parseFloat(hit.identity || 0),
+    query_coverage: parseFloat(hit.query_coverage || 0),
+    target_coverage: parseFloat(hit.target_coverage || 0),
+    alignment: hit.alignment || '',
+    alignment_length: parseInt(hit.alignment_length || 0),
+    target_length: parseInt(hit.target_length || 0),
+    query_length: parseInt(hit.query_length || 0),
+    gaps: parseFloat(hit.gaps || 0),
+    gap_count: parseInt(hit.gap_count || 0),
+    match_count: parseInt(hit.match_count || 0),
+    nts_count1: parseInt(hit.nts_count1 || 0),
+    nts_count2: parseInt(hit.nts_count2 || 0),
+    alignment_start: parseFloat(hit.alignment_start || 0),
+    alignment_stop: parseFloat(hit.alignment_stop || 0),
+  }));
+
+  console.log('[DEBUG] parseJobDispatcherJsonResults - processed entries:', entries.length);
+
+  return {
+    job_id: jobId,
+    entries: entries,
+    hitCount: entries.length,
+    facets: [], // Facets would need to come from EBI Search - TODO
+    textSearchError: false
+  };
+}
+
+// Helper function to parse EBI Search results into the app's expected format
+function parseEbiSearchResults(ebiData, jobId) {
+  console.log('[DEBUG] parseEbiSearchResults - parsing EBI Search response');
+
+  const entries = [];
+
+  if (ebiData.entries) {
+    ebiData.entries.forEach((entry, index) => {
+      const fields = entry.fields || {};
+      entries.push({
+        id: index,
+        rnacentral_id: entry.id,
+        description: Array.isArray(fields.description) ? fields.description[0] : (fields.description || ''),
+        score: parseFloat(entry.score || 0),
+        e_value: parseFloat(fields.e_value?.[0] || fields.evalue?.[0] || 0),
+        identity: parseFloat(fields.identity?.[0] || 0),
+        query_coverage: parseFloat(fields.query_coverage?.[0] || 0),
+        target_coverage: parseFloat(fields.target_coverage?.[0] || 0),
+        alignment: fields.alignment?.[0] || '',
+        alignment_length: parseInt(fields.alignment_length?.[0] || 0),
+        target_length: parseInt(fields.target_length?.[0] || 0),
+        nts_count1: parseInt(fields.nts_count1?.[0] || 0),
+        nts_count2: parseInt(fields.nts_count2?.[0] || 0),
+        gaps: parseInt(fields.gaps?.[0] || 0),
+      });
+    });
+  }
+
+  console.log('[DEBUG] parseEbiSearchResults - parsed entries:', entries.length);
+
+  // Parse facets
+  const facets = [];
+  if (ebiData.facets) {
+    ebiData.facets.forEach(facet => {
+      const facetValues = [];
+      if (facet.facetValues) {
+        facet.facetValues.forEach(fv => {
+          facetValues.push({
+            label: fv.label,
+            value: fv.value,
+            count: fv.count
+          });
+        });
+      }
+      facets.push({
+        id: facet.id,
+        label: facet.label,
+        facetValues: facetValues
+      });
+    });
+  }
+
+  console.log('[DEBUG] parseEbiSearchResults - parsed facets:', facets.length);
+
+  return {
+    job_id: jobId,
+    entries: entries,
+    hitCount: ebiData.hitCount || entries.length,
+    facets: facets,
+    textSearchError: false
+  };
+}
+
+// Helper function to parse Job Dispatcher XML results into the app's expected format
+function parseJobDispatcherResults(xmlDoc, jobId) {
+  console.log('[DEBUG] parseJobDispatcherResults - parsing XML document');
+
+  const entries = [];
+  const hits = xmlDoc.querySelectorAll('hit');
+  console.log('[DEBUG] parseJobDispatcherResults - found hits:', hits.length);
+
+  hits.forEach((hit, index) => {
+    const entry = {
+      id: index,
+      rnacentral_id: hit.getAttribute('id') || hit.querySelector('id')?.textContent || `hit_${index}`,
+      description: hit.querySelector('description')?.textContent || hit.getAttribute('description') || '',
+      score: parseFloat(hit.querySelector('score')?.textContent || hit.getAttribute('score') || 0),
+      e_value: parseFloat(hit.querySelector('evalue')?.textContent || hit.querySelector('e_value')?.textContent || hit.getAttribute('evalue') || 0),
+      identity: parseFloat(hit.querySelector('identity')?.textContent || hit.getAttribute('identity') || 0),
+      query_coverage: parseFloat(hit.querySelector('query_coverage')?.textContent || hit.getAttribute('query_coverage') || 0),
+      target_coverage: parseFloat(hit.querySelector('target_coverage')?.textContent || hit.getAttribute('target_coverage') || 0),
+      alignment: hit.querySelector('alignment')?.textContent || '',
+      alignment_length: parseInt(hit.querySelector('alignment_length')?.textContent || hit.getAttribute('alignment_length') || 0),
+      target_length: parseInt(hit.querySelector('target_length')?.textContent || hit.getAttribute('target_length') || 0),
+      nts_count1: parseInt(hit.querySelector('nts_count1')?.textContent || 0),
+      nts_count2: parseInt(hit.querySelector('nts_count2')?.textContent || 0),
+      gaps: parseInt(hit.querySelector('gaps')?.textContent || hit.getAttribute('gaps') || 0),
+    };
+    entries.push(entry);
+  });
+
+  // Filter out entries without rnacentral_id
+  const filteredEntries = entries.filter(entry => entry.rnacentral_id && !entry.rnacentral_id.startsWith('hit_'));
+  console.log('[DEBUG] parseJobDispatcherResults - filtered entries:', filteredEntries.length);
+
+  return {
+    job_id: jobId,
+    entries: filteredEntries,
+    hitCount: filteredEntries.length,
+    facets: [],
+    textSearchError: false
+  };
 }
 
 export function fetchR2DTThumbnail(jobId) {
@@ -394,9 +652,11 @@ export function fetchInfernalResults(jobId) {
 }
 
 export function failedFetchResults(response) {
-  if (response.status === 404) {
+  console.error('[DEBUG] failedFetchResults - response:', response);
+  if (response && response.status === 404) {
     return { type: types.FAILED_FETCH_RESULTS, status: "does_not_exist", start: 0 };
-  } else if (response.status === 500) {
+  } else {
+    // Default to error for any other status or missing response
     return { type: types.FAILED_FETCH_RESULTS, status: "error", start: 0 };
   }
 }
@@ -411,20 +671,45 @@ export function failedFetchInfernalResults(response) {
 
 export function onFilterResult() {
   let state = store.getState();
+  const extraQuery = buildQuery(state.selectedFacets);
+
+  console.log('[DEBUG] onFilterResult - fetching filtered results');
 
   return function(dispatch) {
-    fetch(routes.facetsSearch(state.jobId, buildQuery(state.selectedFacets), 0, state.size, state.ordering), {
+    // First get all results from Job Dispatcher
+    fetch(routes.jdJobResult(state.jobId), {
       method: 'GET',
-      mode: 'cors',
-      credentials: 'include',
-      headers: {
-        'Accept': 'application/json, text/plain, */*',
-        'Content-Type': 'application/json'
-      }
+      headers: { 'Accept': 'application/json' }
     })
-    .then(function(response) {
-      if (response.ok) { return response.json() }
-      else { throw response }
+    .then(response => response.ok ? response.json() : Promise.reject(response))
+    .then(jsonArray => {
+      const jdData = parseJobDispatcherJsonResults(jsonArray, state.jobId);
+
+      // Then query EBI Search with facet filters
+      if (jdData.entries.length > 0) {
+        const idsToQuery = jdData.entries.slice(0, 100).map(e => e.rnacentral_id);
+        const idsQuery = idsToQuery.map(id => `entry_type:Sequence AND id:"${id}"`).join(' OR ');
+
+        return fetch(routes.ebiSearchByIds(idsQuery, extraQuery, 0, state.size), {
+          method: 'GET',
+          headers: { 'Accept': 'application/json' }
+        })
+        .then(response => response.ok ? response.json() : null)
+        .then(ebiData => {
+          if (ebiData) {
+            jdData.facets = parseFacets(ebiData.facets);
+            // Filter entries based on EBI Search results if there's a filter
+            if (extraQuery && ebiData.entries) {
+              const matchingIds = new Set(ebiData.entries.map(e => e.id));
+              jdData.entries = jdData.entries.filter(e => matchingIds.has(e.rnacentral_id));
+              jdData.hitCount = jdData.entries.length;
+            }
+          }
+          return jdData;
+        })
+        .catch(() => jdData);
+      }
+      return jdData;
     })
     .then(data => {
       dispatch({type: types.FETCH_RESULTS, status: 'success', data: data})
@@ -455,11 +740,43 @@ export function onToggleFacet(event, facet, facetValue) {
 
     dispatch({type: types.TOGGLE_FACET, id: facet.id, value: facetValue.value});
 
-    // start loading from the first page again
-    return fetch(routes.facetsSearch(state.jobId, buildQuery(selectedFacets), 0, state.size, state.ordering))
-      .then((response) => {
-        if (response.ok) { return response.json(); }
-        else { throw response; }
+    const extraQuery = buildQuery(selectedFacets);
+    console.log('[DEBUG] onToggleFacet - fetching with updated facets, query:', extraQuery);
+
+    // First get all results from Job Dispatcher
+    return fetch(routes.jdJobResult(state.jobId), {
+        method: 'GET',
+        headers: { 'Accept': 'application/json' }
+      })
+      .then(response => response.ok ? response.json() : Promise.reject(response))
+      .then(jsonArray => {
+        const jdData = parseJobDispatcherJsonResults(jsonArray, state.jobId);
+
+        // Then query EBI Search with facet filters
+        if (jdData.entries.length > 0) {
+          const idsToQuery = jdData.entries.slice(0, 100).map(e => e.rnacentral_id);
+          const idsQuery = idsToQuery.map(id => `entry_type:Sequence AND id:"${id}"`).join(' OR ');
+
+          return fetch(routes.ebiSearchByIds(idsQuery, extraQuery, 0, state.size), {
+            method: 'GET',
+            headers: { 'Accept': 'application/json' }
+          })
+          .then(response => response.ok ? response.json() : null)
+          .then(ebiData => {
+            if (ebiData) {
+              jdData.facets = parseFacets(ebiData.facets);
+              // Filter entries based on EBI Search results if there's a filter
+              if (extraQuery && ebiData.entries) {
+                const matchingIds = new Set(ebiData.entries.map(e => e.id));
+                jdData.entries = jdData.entries.filter(e => matchingIds.has(e.rnacentral_id));
+                jdData.hitCount = jdData.entries.length;
+              }
+            }
+            return jdData;
+          })
+          .catch(() => jdData);
+        }
+        return jdData;
       })
       .then(data => {
         dispatch({
@@ -486,14 +803,22 @@ export function onLoadMore(event) {
   return function(dispatch) {
     dispatch({type: types.LOAD_MORE});
 
-    let size = state.entries.length + state.size < state.hitCount ? state.size: state.hitCount - state.entries.length;
+    console.log('[DEBUG] onLoadMore - loading more results');
 
-    return fetch(routes.facetsSearch(state.jobId, buildQuery(state.selectedFacets), state.start, size, state.ordering))
+    // Job Dispatcher returns all results at once, so we just re-fetch
+    // Client-side pagination would need to be implemented
+    return fetch(routes.jdJobResult(state.jobId), {
+        method: 'GET',
+        headers: { 'Accept': 'application/json' }
+      })
       .then(response => {
         if (response.ok) { return response.json(); }
         else { throw response; }
       })
-      .then(data => dispatch({type: types.LOAD_MORE, data: data}))
+      .then(jsonArray => {
+        const data = parseJobDispatcherJsonResults(jsonArray, state.jobId);
+        dispatch({type: types.LOAD_MORE, data: data})
+      })
       .catch(response => dispatch({ type: types.FAILED_FETCH_RESULTS, status: "error", start: 0 }))
   }
 }
@@ -502,15 +827,22 @@ export function onSort(event) {
   let ordering = event.target.value;
   let state = store.getState();
 
+  console.log('[DEBUG] onSort - sorting by:', ordering);
+
   return function(dispatch) {
     dispatch({type: types.SORT_RESULTS});
 
-    return fetch(routes.facetsSearch(state.jobId, buildQuery(state.selectedFacets), 0, state.size, ordering))
+    // Re-fetch and sort client-side
+    return fetch(routes.jdJobResult(state.jobId), {
+        method: 'GET',
+        headers: { 'Accept': 'application/json' }
+      })
       .then((response) => {
         if (response.ok) { return response.json(); }
         else { throw response; }
       })
-      .then(data => {
+      .then(jsonArray => {
+        const data = parseJobDispatcherJsonResults(jsonArray, state.jobId);
         dispatch({type: types.SORT_RESULTS, data: data, ordering: ordering});
         dispatch(dataForDownload());
       })
@@ -607,33 +939,27 @@ export function dataForDownload() {
     iterations = 10
   }
 
+  console.log('[DEBUG] dataForDownload - fetching all results for download');
+
   return async function(dispatch) {
     dispatch({type: types.DOWNLOAD, status: "clear"})
-    let start = 0;
-    for (let i=0; i<iterations; i++) {
-      await fetch(routes.facetsSearch(state.jobId, buildQuery(state.selectedFacets), start, 100, state.ordering), {
-        method: 'GET',
-        mode: 'cors',
-        credentials: 'include',
-        headers: {
-          'Accept': 'application/json, text/plain, */*',
-          'Content-Type': 'application/json'
-        }
-      })
-      .then(function(response) {
-        if (response.ok) { return response.json() }
-        else { throw response }
-      })
-      .then((data) => {
-        if (i===iterations-1) {
-          dispatch({type: types.DOWNLOAD, status: "success", data: data.entries})
-        } else {
-          dispatch({type: types.DOWNLOAD, status: "loading", data: data.entries})
-        }
-      })
-      .catch(response => dispatch({ type: types.DOWNLOAD, status: "error" }));
-      start+=100;
-    }
+
+    // Job Dispatcher returns all results at once
+    await fetch(routes.jdJobResult(state.jobId), {
+      method: 'GET',
+      headers: {
+        'Accept': 'application/json'
+      }
+    })
+    .then(function(response) {
+      if (response.ok) { return response.json() }
+      else { throw response }
+    })
+    .then((jsonArray) => {
+      const data = parseJobDispatcherJsonResults(jsonArray, state.jobId);
+      dispatch({type: types.DOWNLOAD, status: "success", data: data.entries})
+    })
+    .catch(response => dispatch({ type: types.DOWNLOAD, status: "error" }));
   }
 }
 

@@ -2,6 +2,18 @@ let server = process.env.REACT_APP_SERVER ? process.env.REACT_APP_SERVER : 'http
 let ebiDevOrProd = process.env.REACT_APP_BRANCH === 'dev' ? 'wwwdev' : 'www';
 let r2dtServer =  `https://${ebiDevOrProd}.ebi.ac.uk/Tools/services/rest/r2dt`;
 
+// Job Dispatcher endpoint for nhmmer searches
+let jobDispatcherServer = 'http://test.jd.sdo.ebi.ac.uk:8180/Tools/services/rest/rnacentral_nhmmer';
+
+// EBI Search endpoint for facets
+let ebiSearchServer = `https://${ebiDevOrProd}.ebi.ac.uk/ebisearch/ws/rest/rnacentral`;
+
+// Facet fields to request from EBI Search
+const facetFields = 'length,rna_type,TAXONOMY,expert_db,qc_warning_found,has_go_annotations,has_conserved_structure,has_genomic_coordinates,popular_species';
+
+// Fields to request from EBI Search
+const ebiSearchFields = 'description,url,active,rna_type,expert_db,has_genomic_coordinates,length';
+
 module.exports = {
   rnacentralDatabases: () => `${server}/api/rnacentral-databases`,
   submitJob:           () => `${server}/api/submit-job`,
@@ -19,4 +31,12 @@ module.exports = {
   submitR2DTJob:       () => `${r2dtServer}/run`,
   r2dtJobStatus:       (jobId) => `${r2dtServer}/status/${jobId}`,
   r2dtThumbnail:       (jobId) => `${r2dtServer}/result/${jobId}/thumbnail`,
+  // Job Dispatcher endpoints
+  jdSubmitJob:         () => `${jobDispatcherServer}/run`,
+  jdJobStatus:         (jobId) => `${jobDispatcherServer}/status/${jobId}`,
+  jdJobResult:         (jobId) => `${jobDispatcherServer}/result/${jobId}/json`,
+  // EBI Search endpoint for facets (seqtoolresults)
+  ebiSearchFacets:     (jobId, query, start, size) => `${ebiSearchServer}/seqtoolresults?toolid=nhmmer&jobid=${jobId}&query=${encodeURIComponent(query || 'rna')}&format=json&fields=description&facetcount=100&facetfields=${facetFields}&start=${start}&size=${size}`,
+  // EBI Search endpoint for querying by RNAcentral IDs
+  ebiSearchByIds:      (idsQuery, extraQuery, start, size) => `${ebiSearchServer}?query=${encodeURIComponent(idsQuery)}${extraQuery ? '%20AND%20' + encodeURIComponent(extraQuery) : ''}&format=json&fields=${ebiSearchFields}&facetcount=100&facetfields=${facetFields}&start=${start}&size=${size}`,
 };
