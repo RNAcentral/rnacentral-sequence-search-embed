@@ -856,7 +856,8 @@ export function fetchResults(jobId) {
           if (ebiData && ebiData.facets) {
             console.log('[DEBUG] fetchResults - received facets from EBI Search:', ebiData.facets.length);
             jdData.facets = parseFacets(ebiData.facets);
-            jdData.hitCount = ebiData.hitCount || jdData.entries.length;
+            // Keep the original hitCount from Job Dispatcher, don't overwrite with EBI Search count
+            // EBI Search only queries a subset of IDs so its count would be incorrect
           }
           return jdData;
         })
@@ -933,7 +934,9 @@ function parseJobDispatcherJsonResults(jsonData, jobId) {
   // Job Dispatcher returns an array directly with all the fields we need
   const hitArray = Array.isArray(jsonData) ? jsonData : (jsonData.hits || jsonData.results || []);
 
-  console.log('[DEBUG] parseJobDispatcherJsonResults - processing hits:', hitArray.length);
+  // Store the total hit count before any filtering
+  const totalHitCount = hitArray.length;
+  console.log('[DEBUG] parseJobDispatcherJsonResults - total hits from Job Dispatcher:', totalHitCount);
 
   const entries = hitArray.map((hit, index) => ({
     id: hit.result_id || index,
@@ -958,14 +961,17 @@ function parseJobDispatcherJsonResults(jsonData, jobId) {
     alignment_stop: parseFloat(hit.alignment_stop || 0),
   }));
 
-  console.log('[DEBUG] parseJobDispatcherJsonResults - processed entries:', entries.length);
+  // Filter out entries without valid rnacentral_id
+  const validEntries = entries.filter(entry => entry.rnacentral_id);
+  console.log('[DEBUG] parseJobDispatcherJsonResults - valid entries after filtering:', validEntries.length);
 
   return {
     job_id: jobId,
-    entries: entries,
-    hitCount: entries.length,
+    entries: validEntries,
+    hitCount: totalHitCount, // Use the original total count, not filtered count
     facets: [], // Facets would need to come from EBI Search - TODO
-    textSearchError: false
+    textSearchError: false,
+    sequenceSearchStatus: "success" // Job Dispatcher always returns success if we got here
   };
 }
 
