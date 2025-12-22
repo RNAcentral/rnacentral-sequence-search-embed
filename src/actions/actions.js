@@ -33,6 +33,8 @@ export function updateStatus() {
 }
 
 export function onSubmit(sequence, databases, r2dt= false) {
+  console.log('[DEBUG] onSubmit - called with r2dt:', r2dt);
+
   // Format sequence for Job Dispatcher - needs FASTA format
   let fastaSequence = sequence;
   if (!/^>/.test(sequence)) {
@@ -40,11 +42,12 @@ export function onSubmit(sequence, databases, r2dt= false) {
   }
 
   // Build the form data for Job Dispatcher
-  // Format: email=rnacentral%40ebi.ac.uk&database=rfam-0&sequence=<fasta>
+  // Format: email=rnacentral%40ebi.ac.uk&database=rfam-0&sequence=<fasta>&alphabet=rna
   const formData = new URLSearchParams();
   formData.append('email', 'rnacentral@ebi.ac.uk');
   formData.append('database', databases[0] || 'rfam-0'); // Use first database or default
   formData.append('sequence', fastaSequence);
+  formData.append('alphabet', 'rna');
 
   console.log('[DEBUG] onSubmit - submitting job to Job Dispatcher');
   console.log('[DEBUG] onSubmit - URL:', routes.jdSubmitJob());
@@ -69,7 +72,14 @@ export function onSubmit(sequence, databases, r2dt= false) {
         console.log('[DEBUG] onSubmit - received job ID:', jobId);
         // Job Dispatcher returns plain text job ID
         dispatch({type: types.SUBMIT_JOB, status: 'success', data: { job_id: jobId.trim() }});
-        dispatch(fetchStatus(jobId.trim(), r2dt));
+        dispatch(fetchStatus(jobId.trim(), false)); // Don't pass r2dt flag - we'll handle it here
+
+        // Submit R2DT job directly with the sequence we have
+        if (r2dt) {
+          console.log('[DEBUG] onSubmit - submitting R2DT job');
+          dispatch(r2dtSubmit(fastaSequence));
+        }
+
         // Infernal search is not available with Job Dispatcher - skip it
         // dispatch(fetchInfernalStatus(jobId.trim()));
     })
@@ -94,6 +104,10 @@ export function r2dtSubmit(sequence) {
   if (/^>/.test(sequence)) { query = sequence }
   else { query = ">description\n" + sequence }
 
+  console.log('[DEBUG] r2dtSubmit - submitting sequence to R2DT');
+  console.log('[DEBUG] r2dtSubmit - URL:', routes.submitR2DTJob());
+  console.log('[DEBUG] r2dtSubmit - sequence:', query);
+
   return function(dispatch) {
     fetch(routes.submitR2DTJob(), {
       method: 'POST',
@@ -101,17 +115,22 @@ export function r2dtSubmit(sequence) {
         'Accept': 'text/plain',
         'Content-Type': 'application/x-www-form-urlencoded'
       },
-      body: `email=rnacentral%40gmail.com&sequence=${query}`
+      body: `email=rnacentral%40gmail.com&sequence=${encodeURIComponent(query)}`
     })
     .then(function (response) {
+      console.log('[DEBUG] r2dtSubmit - response status:', response.status);
       if (response.ok) { return response.text() }
       else { throw response }
     })
     .then(data => {
+        console.log('[DEBUG] r2dtSubmit - received job ID:', data);
         dispatch({type: types.SUBMIT_R2DT_JOB, status: 'success', data: data});
         dispatch(fetchR2DTStatus(data, true));
     })
-    .catch(error => dispatch({type: types.SUBMIT_R2DT_JOB, status: 'error', response: error}));
+    .catch(error => {
+        console.error('[DEBUG] r2dtSubmit - error:', error);
+        dispatch({type: types.SUBMIT_R2DT_JOB, status: 'error', response: error});
+    });
   }
 }
 
@@ -185,12 +204,19 @@ export function updateSequence(sequence) {
   return {type: types.UPDATE_SEQUENCE, data: sequence}
 }
 
-export function updateJobId(jobId, r2dt= false) {
+export function updateJobId(jobId, r2dt = false) {
+  console.log('[DEBUG] updateJobId - called with jobId:', jobId, 'r2dt:', r2dt);
   return function(dispatch) {
     dispatch({type: types.UPDATE_JOB_ID, data: jobId});
-    dispatch(fetchStatus(jobId, r2dt));
+    dispatch(fetchStatus(jobId));
     // Infernal search is not available with Job Dispatcher - skip it
     // dispatch(fetchInfernalStatus(jobId));
+
+    // Note: R2DT submission for existing job IDs requires the original sequence
+    // which we don't have here. R2DT will only work for new submissions.
+    if (r2dt) {
+      console.log('[DEBUG] updateJobId - R2DT requested but sequence not available for existing job');
+    }
   }
 }
 
@@ -206,9 +232,7 @@ export function invalidSequence() {
   return {type: types.INVALID_SEQUENCE}
 }
 
-export function fetchStatus(jobId, r2dt= false) {
-  let state = store.getState();
-
+export function fetchStatus(jobId) {
   console.log('[DEBUG] fetchStatus - checking status for job:', jobId);
   console.log('[DEBUG] fetchStatus - URL:', routes.jdJobStatus(jobId));
 
@@ -228,13 +252,6 @@ export function fetchStatus(jobId, r2dt= false) {
       const status = statusText.trim();
       console.log('[DEBUG] fetchStatus - job status:', status);
 
-      // Handle r2dt if enabled (submit r2dt job when nhmmer is running)
-      if (r2dt && !state.r2dt_id) {
-        // For Job Dispatcher, we don't have the query in the status response
-        // We'll need to handle r2dt submission differently or skip for now
-        console.log('[DEBUG] fetchStatus - r2dt enabled but Job Dispatcher does not return query in status');
-      }
-
       // Job Dispatcher status values: QUEUED, RUNNING, FINISHED, FAILURE, NOT_FOUND, ERROR
       if (status === 'RUNNING' || status === 'QUEUED') {
         console.log('[DEBUG] fetchStatus - job still in progress, will check again');
@@ -252,7 +269,7 @@ export function fetchStatus(jobId, r2dt= false) {
         dispatch({type: types.SEARCH_PROGRESS, data: newSearchInProgress });
 
         // Wait a little bit and check it again
-        let statusTimeout = setTimeout(() => store.dispatch(fetchStatus(jobId, r2dt)), 2000);
+        let statusTimeout = setTimeout(() => store.dispatch(fetchStatus(jobId)), 2000);
         dispatch({type: types.SET_STATUS_TIMEOUT, timeout: statusTimeout});
       } else if (status === 'FINISHED') {
         console.log('[DEBUG] fetchStatus - job FINISHED, fetching results');
@@ -275,34 +292,46 @@ export function fetchStatus(jobId, r2dt= false) {
 export function fetchR2DTStatus(jobId, saveR2DTId = false) {
   let state = store.getState();
 
+  console.log('[DEBUG] fetchR2DTStatus - checking status for job:', jobId);
+
   return function(dispatch) {
     fetch(routes.r2dtJobStatus(jobId), {
       method: 'GET',
       headers: { 'Accept': 'text/plain' }
     })
     .then(function(response) {
+      console.log('[DEBUG] fetchR2DTStatus - response status:', response.status);
       if (response.ok) { return response.text() }
       else { throw response }
     })
     .then((data) => {
-      if (data === 'RUNNING' || data === 'QUEUED') {
+      const status = data.trim();
+      console.log('[DEBUG] fetchR2DTStatus - R2DT job status:', status);
+
+      if (status === 'RUNNING' || status === 'QUEUED') {
         let statusTimeout = setTimeout(() => store.dispatch(fetchR2DTStatus(jobId, saveR2DTId)), 2000);
         dispatch({type: types.SET_STATUS_TIMEOUT, timeout: statusTimeout});
-      } else if (data === 'FINISHED') {
+      } else if (status === 'FINISHED') {
+        console.log('[DEBUG] fetchR2DTStatus - R2DT job FINISHED, fetching thumbnail');
         // Wait another second to change the status. This will allow the SVG resultType to work correctly.
         let statusTimeout = setTimeout(() => dispatch({type: types.FETCH_R2DT_STATUS, status: 'FINISHED'}), 1000);
         dispatch({type: types.SET_STATUS_TIMEOUT, timeout: statusTimeout});
         dispatch(fetchR2DTThumbnail(jobId));
-        if (saveR2DTId) { dispatch(onSaveR2DTId(state.jobId, jobId)) }
-      } else if (data === 'NOT_FOUND') {
+        // Skip saving R2DT ID to old API since we're not using it
+        // if (saveR2DTId) { dispatch(onSaveR2DTId(state.jobId, jobId)) }
+      } else if (status === 'NOT_FOUND') {
+        console.log('[DEBUG] fetchR2DTStatus - R2DT job NOT_FOUND');
         dispatch({type: types.FETCH_R2DT_STATUS, status: 'NOT_FOUND'})
-      } else if (data === 'FAILURE') {
+      } else if (status === 'FAILURE') {
+        console.log('[DEBUG] fetchR2DTStatus - R2DT job FAILURE');
         dispatch({type: types.FETCH_R2DT_STATUS, status: 'FAILURE'})
-      } else if (data === 'ERROR') {
+      } else if (status === 'ERROR') {
+        console.log('[DEBUG] fetchR2DTStatus - R2DT job ERROR');
         dispatch({type: types.FETCH_R2DT_STATUS, status: 'ERROR'})
       }
     })
     .catch(error => {
+      console.error('[DEBUG] fetchR2DTStatus - error:', error);
       if (store.getState().hasOwnProperty('statusTimeout')) {
         clearTimeout(store.getState().statusTimeout); // clear status timeout
       }
