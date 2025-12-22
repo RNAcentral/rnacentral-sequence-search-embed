@@ -22,8 +22,9 @@ class SearchForm extends React.Component {
 
   exampleSequence(sequence) {
     const r2dt = !!this.props.r2dt;  // true if exists, otherwise false
+    const rfam = !!this.props.rfam;  // true if exists, otherwise false
     store.dispatch(actionCreators.onExampleSequence(sequence));
-    store.dispatch(actionCreators.onSubmit(sequence, this.props.databases, r2dt));
+    store.dispatch(actionCreators.onSubmit(sequence, this.props.databases, r2dt, rfam));
   }
 
   showExactMatch(linkColor){
@@ -65,6 +66,7 @@ class SearchForm extends React.Component {
     event.preventDefault();
     const state = store.getState();
     const r2dt = !!this.props.r2dt;  // true if exists, otherwise false
+    const rfam = !!this.props.rfam;  // true if exists, otherwise false
 
     // validate a single fasta sequence
     let invalidNucleotide
@@ -85,11 +87,11 @@ class SearchForm extends React.Component {
     } else if (state.sequence && state.sequence.match("^([0-9a-fA-F]{8})-(([0-9a-fA-F]{4}\\-){3})([0-9a-fA-F]{12})$")) {
       store.dispatch(actionCreators.updateJobId(state.sequence, r2dt));
     } else if (state.sequence && state.sequence.match("^URS[A-Fa-f0-9]{10}$")) {
-      store.dispatch(actionCreators.onSubmitUrs(state.sequence, this.props.databases, r2dt));
+      store.dispatch(actionCreators.onSubmitUrs(state.sequence, this.props.databases, r2dt, rfam));
     } else if (state.sequence && (state.sequence.length < 10 || state.sequence.length > 7000 || invalidNucleotide)) {
       store.dispatch(actionCreators.invalidSequence());
     } else if (state.sequence) {
-      store.dispatch(actionCreators.onSubmit(state.sequence, this.props.databases, r2dt));
+      store.dispatch(actionCreators.onSubmit(state.sequence, this.props.databases, r2dt, rfam));
     }
   }
 

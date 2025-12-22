@@ -32,8 +32,8 @@ export function updateStatus() {
   return {type: types.UPDATE_STATUS, data: "loading"}
 }
 
-export function onSubmit(sequence, databases, r2dt= false) {
-  console.log('[DEBUG] onSubmit - called with r2dt:', r2dt);
+export function onSubmit(sequence, databases, r2dt = false, rfam = false) {
+  console.log('[DEBUG] onSubmit - called with r2dt:', r2dt, 'rfam:', rfam);
 
   // Format sequence for Job Dispatcher - needs FASTA format
   let fastaSequence = sequence;
@@ -80,8 +80,11 @@ export function onSubmit(sequence, databases, r2dt= false) {
           dispatch(r2dtSubmit(fastaSequence));
         }
 
-        // Infernal search is not available with Job Dispatcher - skip it
-        // dispatch(fetchInfernalStatus(jobId.trim()));
+        // Submit Infernal cmscan job for Rfam classification
+        if (rfam) {
+          console.log('[DEBUG] onSubmit - submitting Infernal job for Rfam classification');
+          dispatch(infernalSubmit(fastaSequence));
+        }
     })
     .catch(async (error) => {
       console.error('[DEBUG] onSubmit - error:', error);
@@ -134,6 +137,437 @@ export function r2dtSubmit(sequence) {
   }
 }
 
+export function infernalSubmit(sequence) {
+  let query = "";
+  if (/^>/.test(sequence)) { query = sequence }
+  else { query = ">query\n" + sequence }
+
+  console.log('[DEBUG] infernalSubmit - submitting sequence to Infernal cmscan');
+  console.log('[DEBUG] infernalSubmit - URL:', routes.infernalSubmitJob());
+  console.log('[DEBUG] infernalSubmit - sequence:', query);
+
+  // Build form data for Infernal cmscan
+  const formData = new URLSearchParams();
+  formData.append('email', 'rnacentral@ebi.ac.uk');
+  formData.append('sequence', query);
+  formData.append('thresholdmodel', 'cut_ga'); // Use gathering cutoffs (default)
+
+  return function(dispatch) {
+    fetch(routes.infernalSubmitJob(), {
+      method: 'POST',
+      headers: {
+        'Accept': 'text/plain',
+        'Content-Type': 'application/x-www-form-urlencoded'
+      },
+      body: formData.toString()
+    })
+    .then(function (response) {
+      console.log('[DEBUG] infernalSubmit - response status:', response.status);
+      if (response.ok) { return response.text() }
+      else { throw response }
+    })
+    .then(jobId => {
+        console.log('[DEBUG] infernalSubmit - received job ID:', jobId);
+        dispatch({type: types.SUBMIT_INFERNAL_JOB, status: 'success', data: jobId.trim()});
+        dispatch(fetchInfernalJdStatus(jobId.trim()));
+    })
+    .catch(async (error) => {
+        console.error('[DEBUG] infernalSubmit - error:', error);
+        if (error.text) {
+          const errorText = await error.text();
+          console.error('[DEBUG] infernalSubmit - error response body:', errorText);
+        }
+        dispatch({type: types.SUBMIT_INFERNAL_JOB, status: 'error', response: error});
+    });
+  }
+}
+
+export function fetchInfernalJdStatus(jobId) {
+  console.log('[DEBUG] fetchInfernalJdStatus - checking status for job:', jobId);
+
+  return function(dispatch) {
+    fetch(routes.infernalJdJobStatus(jobId), {
+      method: 'GET',
+      headers: {
+        'Accept': 'text/plain'
+      }
+    })
+    .then(function(response) {
+      console.log('[DEBUG] fetchInfernalJdStatus - response status:', response.status);
+      if (response.ok) { return response.text() }
+      else { throw response }
+    })
+    .then(status => {
+      console.log('[DEBUG] fetchInfernalJdStatus - job status:', status.trim());
+      const statusText = status.trim();
+      if (statusText === 'RUNNING' || statusText === 'PENDING' || statusText === 'QUEUED') {
+        let statusTimeout = setTimeout(() => store.dispatch(fetchInfernalJdStatus(jobId)), 2000);
+        dispatch({type: types.SET_INFERNAL_STATUS_TIMEOUT, timeout: statusTimeout});
+      } else if (statusText === 'FINISHED') {
+        console.log('[DEBUG] fetchInfernalJdStatus - job FINISHED, fetching results');
+        dispatch(fetchInfernalJdResults(jobId));
+      } else if (statusText === 'NOT_FOUND') {
+        console.log('[DEBUG] fetchInfernalJdStatus - job NOT_FOUND');
+        dispatch({type: types.FETCH_INFERNAL_RESULTS, infernalStatus: 'does_not_exist'});
+      } else if (statusText === 'FAILURE' || statusText === 'ERROR') {
+        console.log('[DEBUG] fetchInfernalJdStatus - job FAILURE/ERROR');
+        dispatch({type: types.FETCH_INFERNAL_RESULTS, infernalStatus: 'error'});
+      }
+    })
+    .catch(error => {
+      console.error('[DEBUG] fetchInfernalJdStatus - error:', error);
+      dispatch({type: types.FETCH_INFERNAL_RESULTS, infernalStatus: 'error'});
+    });
+  }
+}
+
+export function fetchInfernalJdResults(jobId) {
+  console.log('[DEBUG] fetchInfernalJdResults - fetching results for job:', jobId);
+
+  return function(dispatch) {
+    // Try to fetch tblout format first (easier to parse)
+    fetch(routes.infernalJdJobTblout(jobId), {
+      method: 'GET',
+      headers: {
+        'Accept': 'text/plain'
+      }
+    })
+    .then(function(response) {
+      console.log('[DEBUG] fetchInfernalJdResults - tblout response status:', response.status);
+      if (response.ok) { return response.text() }
+      else { throw response }
+    })
+    .then(tbloutData => {
+      console.log('[DEBUG] fetchInfernalJdResults - tblout results:', tbloutData);
+      // Parse the tblout format
+      const parsedResults = parseInfernalTblout(tbloutData);
+      console.log('[DEBUG] fetchInfernalJdResults - parsed tblout results:', parsedResults);
+
+      if (parsedResults.length > 0) {
+        // Now fetch the full output to get alignments
+        return fetch(routes.infernalJdJobResult(jobId), {
+          method: 'GET',
+          headers: { 'Accept': 'text/plain' }
+        })
+        .then(response => response.ok ? response.text() : '')
+        .then(outData => {
+          // Parse alignments from the out file and merge with tblout results
+          const alignments = parseInfernalAlignments(outData);
+          console.log('[DEBUG] fetchInfernalJdResults - parsed alignments:', alignments);
+
+          // Merge alignments into results - try both target_name and accession_rfam as keys
+          parsedResults.forEach(result => {
+            // The alignment parser uses target_name (e.g., "U3") as key, not accession
+            if (alignments[result.target_name]) {
+              result.alignment = alignments[result.target_name];
+            } else if (alignments[result.accession_rfam]) {
+              result.alignment = alignments[result.accession_rfam];
+            }
+          });
+
+          dispatch({type: types.FETCH_INFERNAL_RESULTS, infernalStatus: 'success', data: parsedResults});
+        });
+      } else {
+        dispatch({type: types.FETCH_INFERNAL_RESULTS, infernalStatus: 'success', data: parsedResults});
+      }
+    })
+    .catch(error => {
+      console.error('[DEBUG] fetchInfernalJdResults - error:', error);
+      // Fallback to parsing the out file directly
+      fetch(routes.infernalJdJobResult(jobId), {
+        method: 'GET',
+        headers: { 'Accept': 'text/plain' }
+      })
+      .then(response => response.ok ? response.text() : '')
+      .then(outData => {
+        console.log('[DEBUG] fetchInfernalJdResults - fallback parsing out file');
+        const parsedResults = parseInfernalOutput(outData);
+        dispatch({type: types.FETCH_INFERNAL_RESULTS, infernalStatus: 'success', data: parsedResults});
+      })
+      .catch(err => {
+        console.error('[DEBUG] fetchInfernalJdResults - fallback error:', err);
+        dispatch({type: types.FETCH_INFERNAL_RESULTS, infernalStatus: 'error'});
+      });
+    });
+  }
+}
+
+// Parse Infernal cmscan tblout (tabular) format
+function parseInfernalTblout(output) {
+  const results = [];
+  const lines = output.split('\n');
+
+  for (const line of lines) {
+    // Skip empty lines and comments
+    if (!line.trim() || line.startsWith('#')) continue;
+
+    // Normalize whitespace and split
+    const parts = line.replace(/\s+/g, ' ').trim().split(' ');
+
+    // tblout format columns:
+    // 0: target_name (e.g., "U3")
+    // 1: accession_rfam (e.g., "RF00012")
+    // 2: query_name
+    // 3: accession_seq
+    // 4: mdl
+    // 5: mdl_from
+    // 6: mdl_to
+    // 7: seq_from
+    // 8: seq_to
+    // 9: strand
+    // 10: trunc
+    // 11: pipeline_pass
+    // 12: gc
+    // 13: bias
+    // 14: score
+    // 15: e_value
+    // 16: inc (! = included above GA threshold, ? = below threshold)
+    // 17+: description
+
+    if (parts.length >= 17) {
+      const inc = parts[16];
+
+      // Only include results that pass the gathering threshold (inc = '!')
+      // '?' means the hit is below the gathering threshold cutoff
+      if (inc !== '!') {
+        console.log('[DEBUG] parseInfernalTblout - skipping hit below GA threshold:', parts[0], parts[1]);
+        continue;
+      }
+
+      results.push({
+        target_name: parts[0],
+        accession_rfam: parts[1],
+        description: parts.slice(17).join(' ') || parts[0], // Use description if available, else target_name
+        seq_from: parseInt(parts[7], 10),
+        seq_to: parseInt(parts[8], 10),
+        strand: parts[9],
+        score: parseFloat(parts[14]),
+        e_value: parts[15],
+        alignment: '' // Will be filled from out file
+      });
+    }
+  }
+
+  // Filter overlapping hits - keep only the best scoring hit for each region
+  // Two hits overlap if their sequence ranges intersect
+  const filteredResults = [];
+  const sortedResults = results.sort((a, b) => b.score - a.score); // Sort by score descending
+
+  for (const hit of sortedResults) {
+    // Check if this hit overlaps with any already accepted hit
+    const overlaps = filteredResults.some(accepted => {
+      // Check if on same strand and regions overlap
+      if (accepted.strand !== hit.strand) return false;
+
+      const aStart = Math.min(accepted.seq_from, accepted.seq_to);
+      const aEnd = Math.max(accepted.seq_from, accepted.seq_to);
+      const bStart = Math.min(hit.seq_from, hit.seq_to);
+      const bEnd = Math.max(hit.seq_from, hit.seq_to);
+
+      // Check for overlap (ranges intersect if one starts before the other ends)
+      return aStart <= bEnd && bStart <= aEnd;
+    });
+
+    if (!overlaps) {
+      filteredResults.push(hit);
+      console.log('[DEBUG] parseInfernalTblout - keeping non-overlapping hit:', hit.target_name, hit.accession_rfam, 'score:', hit.score);
+    } else {
+      console.log('[DEBUG] parseInfernalTblout - filtering overlapping hit:', hit.target_name, hit.accession_rfam, 'score:', hit.score);
+    }
+  }
+
+  console.log('[DEBUG] parseInfernalTblout - final results count:', filteredResults.length);
+  return filteredResults;
+}
+
+// Parse alignments from Infernal cmscan out file
+function parseInfernalAlignments(output) {
+  const alignments = {};
+  const lines = output.split('\n');
+
+  let currentKey = null;
+  let currentAccession = null;
+  let alignmentStartIndex = -1;
+
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+
+    // Look for hit header: >> U3
+    // Format in out file is: >> family_name (not accession like in tblout)
+    if (line.startsWith('>>')) {
+      // Extract family name from header
+      const parts = line.substring(2).trim().split(/\s+/);
+      const familyName = parts[0]; // e.g., U3
+      currentKey = familyName;
+      currentAccession = familyName; // Keep for backward compatibility
+      console.log('[DEBUG] parseInfernalAlignments - found hit header, family:', familyName);
+      alignmentStartIndex = -1;
+      continue;
+    }
+
+    // Look for the NC (no cutoff) or alignment block start
+    // The alignment block starts after lines like:
+    //  (1) !  199.2  0.0  4e-49  ...
+    // and contains the actual alignment with structure annotations
+    if (currentAccession && line.match(/^\s+\(\d+\)\s+[!?]/)) {
+      // This is the hit details line, alignment comes after
+      // Skip a few lines to get to the actual alignment
+      alignmentStartIndex = i + 1;
+      continue;
+    }
+
+    // Capture alignment block - it typically has NC, CS lines and sequence lines
+    // Look for the pattern that indicates we're in an alignment block
+    if (currentAccession && alignmentStartIndex > 0 && i >= alignmentStartIndex) {
+      // Alignment blocks have a specific structure:
+      // - Empty line
+      // - NC line (optional)
+      // - CS line (consensus structure)
+      // - Model sequence line
+      // - Match line
+      // - Query sequence line
+      // - PP line (posterior probability)
+
+      // Collect lines until we hit an empty line followed by another >> or end
+      let alignmentLines = [];
+      let j = alignmentStartIndex;
+
+      // Skip any initial empty lines
+      while (j < lines.length && lines[j].trim() === '') {
+        j++;
+      }
+
+      // Collect alignment block lines
+      while (j < lines.length) {
+        const alignLine = lines[j];
+
+        // Stop if we hit another hit header or internal stats section
+        if (alignLine.startsWith('>>') || alignLine.startsWith('Internal')) {
+          break;
+        }
+
+        // Stop if we hit an empty line followed by non-alignment content
+        if (alignLine.trim() === '') {
+          // Look ahead to see if there's more alignment or we're done
+          let k = j + 1;
+          while (k < lines.length && lines[k].trim() === '') {
+            k++;
+          }
+          if (k < lines.length && (lines[k].startsWith('>>') || lines[k].startsWith('Internal') || lines[k].match(/^\s*$/))) {
+            break;
+          }
+        }
+
+        alignmentLines.push(alignLine);
+        j++;
+      }
+
+      if (alignmentLines.length > 0) {
+        alignments[currentAccession] = alignmentLines.join('\n').trim();
+      }
+
+      // Move to end of this alignment block
+      alignmentStartIndex = -1;
+    }
+  }
+
+  console.log('[DEBUG] parseInfernalAlignments - found alignments for:', Object.keys(alignments));
+  return alignments;
+}
+
+// Parse Infernal cmscan text output into structured data
+// The output is the verbose format from cmscan, not tblout
+function parseInfernalOutput(output) {
+  const results = [];
+  const lines = output.split('\n');
+
+  // Track current hit being parsed
+  let currentHit = null;
+  let inAlignmentBlock = false;
+  let alignmentLines = [];
+
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+
+    // Look for hit header: >> accession  family_name
+    // Example: >> RF00012  U3
+    if (line.startsWith('>>')) {
+      // Save previous hit if exists
+      if (currentHit && currentHit.accession_rfam) {
+        if (alignmentLines.length > 0) {
+          currentHit.alignment = alignmentLines.join('\n');
+        }
+        results.push(currentHit);
+      }
+
+      // Parse new hit header
+      const headerParts = line.substring(2).trim().split(/\s+/);
+      currentHit = {
+        accession_rfam: headerParts[0] || '',
+        target_name: headerParts[0] || '', // Use accession as target_name for link
+        description: headerParts.slice(1).join(' ') || headerParts[0] || '', // Family name
+        seq_from: '',
+        seq_to: '',
+        score: '',
+        e_value: '',
+        strand: '',
+        alignment: ''
+      };
+      alignmentLines = [];
+      inAlignmentBlock = false;
+      continue;
+    }
+
+    // Look for hit details line with rank, E-value, score, etc.
+    // Example:  (1) !   199.2   0.0   4e-49   4e-49     2   218     1   217      + cm    no    1.00 [-]
+    const hitDetailsMatch = line.match(/^\s+\(\d+\)\s+[!?]\s+([\d.]+)\s+([\d.]+)\s+([\d.e+-]+)\s+([\d.e+-]+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+([+-])/);
+    if (hitDetailsMatch && currentHit) {
+      currentHit.score = hitDetailsMatch[1];       // bit score
+      // hitDetailsMatch[2] is bias
+      currentHit.e_value = hitDetailsMatch[3];     // E-value
+      // hitDetailsMatch[4] is clan E-value
+      // hitDetailsMatch[5] is mdl_from
+      // hitDetailsMatch[6] is mdl_to
+      currentHit.seq_from = hitDetailsMatch[7];    // seq from
+      currentHit.seq_to = hitDetailsMatch[8];      // seq to
+      currentHit.strand = hitDetailsMatch[9];      // strand (+ or -)
+      continue;
+    }
+
+    // Check if we're starting an alignment section
+    // Alignment blocks start with a line like:  NC and start with accession
+    if (currentHit && (line.includes('CS') || line.match(/^\s+[A-Z]+\s/))) {
+      // We're in or near an alignment block - skip for now
+      // The actual alignment is complex multi-line format
+    }
+
+    // Capture alignment lines (lines that look like sequence alignment)
+    // These typically have the query name or accession followed by sequence
+    if (currentHit && line.trim().length > 0) {
+      // Check for alignment format lines - they typically have coordinates
+      const alignMatch = line.match(/^\s+(\S+)\s+\d+\s+([A-Za-z.-]+)\s+\d+$/);
+      if (alignMatch) {
+        alignmentLines.push(line);
+      }
+      // Also capture consensus/structure lines
+      else if (line.match(/^\s+[<>.:,_~-]+\s*$/) || line.match(/^\s+[\*:. ]+\s*$/)) {
+        alignmentLines.push(line);
+      }
+    }
+  }
+
+  // Don't forget the last hit
+  if (currentHit && currentHit.accession_rfam) {
+    if (alignmentLines.length > 0) {
+      currentHit.alignment = alignmentLines.join('\n');
+    }
+    results.push(currentHit);
+  }
+
+  console.log('[DEBUG] parseInfernalOutput - parsed results:', results);
+  return results;
+}
+
 export function onMultipleSubmit(sequence, databases) {
   let jobIds = [];
   let url = window.location.href;
@@ -180,7 +614,7 @@ export function onMultipleSubmit(sequence, databases) {
   }
 }
 
-export function onSubmitUrs(urs, database, r2dt) {
+export function onSubmitUrs(urs, database, r2dt, rfam = false) {
   return function(dispatch) {
     fetch(routes.rnacentralUrs(urs))
     .then(function(response) {
@@ -193,7 +627,7 @@ export function onSubmitUrs(urs, database, r2dt) {
         dispatch(invalidSequence())
       } else {
         dispatch(updateSequence(data.sequence));
-        dispatch(onSubmit(data.sequence, database, r2dt));
+        dispatch(onSubmit(data.sequence, database, r2dt, rfam));
       }
     })
     .catch(error => {dispatch({type: types.SUBMIT_URS, status: 'error', response: error})});

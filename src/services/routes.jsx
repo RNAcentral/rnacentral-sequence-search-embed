@@ -5,6 +5,9 @@ let r2dtServer =  `https://${ebiDevOrProd}.ebi.ac.uk/Tools/services/rest/r2dt`;
 // Job Dispatcher endpoint for nhmmer searches
 let jobDispatcherServer = 'http://test.jd.sdo.ebi.ac.uk:8180/Tools/services/rest/rnacentral_nhmmer';
 
+// Infernal cmscan endpoint for Rfam classification
+let infernalServer = `https://${ebiDevOrProd}.ebi.ac.uk/Tools/services/rest/infernal_cmscan`;
+
 // EBI Search endpoint for facets
 let ebiSearchServer = `https://${ebiDevOrProd}.ebi.ac.uk/ebisearch/ws/rest/rnacentral`;
 
@@ -25,6 +28,11 @@ module.exports = {
   consumersStatuses:   () => `${server}/api/consumers-statuses`,
   infernalJobStatus:   (jobId) => `${server}/api/infernal-status/${jobId}`,
   infernalJobResult:   (resultId) => `${server}/api/infernal-result/${resultId}`,
+  // Infernal cmscan Job Dispatcher endpoints
+  infernalSubmitJob:   () => `${infernalServer}/run`,
+  infernalJdJobStatus: (jobId) => `${infernalServer}/status/${jobId}`,
+  infernalJdJobResult: (jobId) => `${infernalServer}/result/${jobId}/out`,
+  infernalJdJobTblout: (jobId) => `${infernalServer}/result/${jobId}/tblout`,
   searchEndpoint:      (query) => `https://${ebiDevOrProd}.ebi.ac.uk/ebisearch/ws/rest/rnacentral?query=${query}&fields=description,url&format=json&sort=boost:descending`,
   rnacentralUrs:       (urs) => `https://rnacentral.org/api/v1/rna/${urs}`,
   saveR2DTId:          (jobId) => `${server}/api/r2dt/${jobId}`,
