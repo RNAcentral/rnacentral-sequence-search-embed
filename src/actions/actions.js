@@ -33,8 +33,6 @@ export function updateStatus() {
 }
 
 export function onSubmit(sequence, databases, r2dt = false, rfam = false) {
-  console.log('[DEBUG] onSubmit - called with r2dt:', r2dt, 'rfam:', rfam);
-
   // Format sequence for Job Dispatcher - needs FASTA format
   let fastaSequence = sequence;
   if (!/^>/.test(sequence)) {
@@ -42,17 +40,11 @@ export function onSubmit(sequence, databases, r2dt = false, rfam = false) {
   }
 
   // Build the form data for Job Dispatcher
-  // Format: email=rnacentral%40ebi.ac.uk&database=rfam-0&sequence=<fasta>&alphabet=rna
   const formData = new URLSearchParams();
   formData.append('email', 'rnacentral@ebi.ac.uk');
-  formData.append('database', databases[0] || 'rfam-0'); // Use first database or default
+  formData.append('database', databases[0] || 'rfam-0');
   formData.append('sequence', fastaSequence);
   formData.append('alphabet', 'rna');
-
-  console.log('[DEBUG] onSubmit - submitting job to Job Dispatcher');
-  console.log('[DEBUG] onSubmit - URL:', routes.jdSubmitJob());
-  console.log('[DEBUG] onSubmit - sequence:', fastaSequence);
-  console.log('[DEBUG] onSubmit - database:', databases[0] || 'rfam-0');
 
   return function(dispatch) {
     fetch(routes.jdSubmitJob(), {
@@ -64,35 +56,25 @@ export function onSubmit(sequence, databases, r2dt = false, rfam = false) {
       body: formData.toString()
     })
     .then(function (response) {
-      console.log('[DEBUG] onSubmit - response status:', response.status);
       if (response.ok) { return response.text() }
       else { throw response }
     })
     .then(jobId => {
-        console.log('[DEBUG] onSubmit - received job ID:', jobId);
         // Job Dispatcher returns plain text job ID
         dispatch({type: types.SUBMIT_JOB, status: 'success', data: { job_id: jobId.trim() }});
-        dispatch(fetchStatus(jobId.trim(), false)); // Don't pass r2dt flag - we'll handle it here
+        dispatch(fetchStatus(jobId.trim(), false));
 
         // Submit R2DT job directly with the sequence we have
         if (r2dt) {
-          console.log('[DEBUG] onSubmit - submitting R2DT job');
           dispatch(r2dtSubmit(fastaSequence));
         }
 
         // Submit Infernal cmscan job for Rfam classification
         if (rfam) {
-          console.log('[DEBUG] onSubmit - submitting Infernal job for Rfam classification');
           dispatch(infernalSubmit(fastaSequence));
         }
     })
     .catch(async (error) => {
-      console.error('[DEBUG] onSubmit - error:', error);
-      // Try to get more details from the error response
-      if (error.text) {
-        const errorText = await error.text();
-        console.error('[DEBUG] onSubmit - error response body:', errorText);
-      }
       if (error.statusText === undefined) {
         dispatch({type: types.SUBMIT_JOB, status: 'error', response: "The sequence search is temporarily unreachable. Please try again later."})
       } else {
@@ -107,10 +89,6 @@ export function r2dtSubmit(sequence) {
   if (/^>/.test(sequence)) { query = sequence }
   else { query = ">description\n" + sequence }
 
-  console.log('[DEBUG] r2dtSubmit - submitting sequence to R2DT');
-  console.log('[DEBUG] r2dtSubmit - URL:', routes.submitR2DTJob());
-  console.log('[DEBUG] r2dtSubmit - sequence:', query);
-
   return function(dispatch) {
     fetch(routes.submitR2DTJob(), {
       method: 'POST',
@@ -121,17 +99,14 @@ export function r2dtSubmit(sequence) {
       body: `email=rnacentral%40gmail.com&sequence=${encodeURIComponent(query)}`
     })
     .then(function (response) {
-      console.log('[DEBUG] r2dtSubmit - response status:', response.status);
       if (response.ok) { return response.text() }
       else { throw response }
     })
     .then(data => {
-        console.log('[DEBUG] r2dtSubmit - received job ID:', data);
         dispatch({type: types.SUBMIT_R2DT_JOB, status: 'success', data: data});
         dispatch(fetchR2DTStatus(data, true));
     })
     .catch(error => {
-        console.error('[DEBUG] r2dtSubmit - error:', error);
         dispatch({type: types.SUBMIT_R2DT_JOB, status: 'error', response: error});
     });
   }
@@ -142,15 +117,11 @@ export function infernalSubmit(sequence) {
   if (/^>/.test(sequence)) { query = sequence }
   else { query = ">query\n" + sequence }
 
-  console.log('[DEBUG] infernalSubmit - submitting sequence to Infernal cmscan');
-  console.log('[DEBUG] infernalSubmit - URL:', routes.infernalSubmitJob());
-  console.log('[DEBUG] infernalSubmit - sequence:', query);
-
   // Build form data for Infernal cmscan
   const formData = new URLSearchParams();
   formData.append('email', 'rnacentral@ebi.ac.uk');
   formData.append('sequence', query);
-  formData.append('thresholdmodel', 'cut_ga'); // Use gathering cutoffs (default)
+  formData.append('thresholdmodel', 'cut_ga');
 
   return function(dispatch) {
     fetch(routes.infernalSubmitJob(), {
@@ -162,29 +133,20 @@ export function infernalSubmit(sequence) {
       body: formData.toString()
     })
     .then(function (response) {
-      console.log('[DEBUG] infernalSubmit - response status:', response.status);
       if (response.ok) { return response.text() }
       else { throw response }
     })
     .then(jobId => {
-        console.log('[DEBUG] infernalSubmit - received job ID:', jobId);
         dispatch({type: types.SUBMIT_INFERNAL_JOB, status: 'success', data: jobId.trim()});
         dispatch(fetchInfernalJdStatus(jobId.trim()));
     })
     .catch(async (error) => {
-        console.error('[DEBUG] infernalSubmit - error:', error);
-        if (error.text) {
-          const errorText = await error.text();
-          console.error('[DEBUG] infernalSubmit - error response body:', errorText);
-        }
         dispatch({type: types.SUBMIT_INFERNAL_JOB, status: 'error', response: error});
     });
   }
 }
 
 export function fetchInfernalJdStatus(jobId) {
-  console.log('[DEBUG] fetchInfernalJdStatus - checking status for job:', jobId);
-
   return function(dispatch) {
     fetch(routes.infernalJdJobStatus(jobId), {
       method: 'GET',
@@ -193,37 +155,29 @@ export function fetchInfernalJdStatus(jobId) {
       }
     })
     .then(function(response) {
-      console.log('[DEBUG] fetchInfernalJdStatus - response status:', response.status);
       if (response.ok) { return response.text() }
       else { throw response }
     })
     .then(status => {
-      console.log('[DEBUG] fetchInfernalJdStatus - job status:', status.trim());
       const statusText = status.trim();
       if (statusText === 'RUNNING' || statusText === 'PENDING' || statusText === 'QUEUED') {
         let statusTimeout = setTimeout(() => store.dispatch(fetchInfernalJdStatus(jobId)), 2000);
         dispatch({type: types.SET_INFERNAL_STATUS_TIMEOUT, timeout: statusTimeout});
       } else if (statusText === 'FINISHED') {
-        console.log('[DEBUG] fetchInfernalJdStatus - job FINISHED, fetching results');
         dispatch(fetchInfernalJdResults(jobId));
       } else if (statusText === 'NOT_FOUND') {
-        console.log('[DEBUG] fetchInfernalJdStatus - job NOT_FOUND');
         dispatch({type: types.FETCH_INFERNAL_RESULTS, infernalStatus: 'does_not_exist'});
       } else if (statusText === 'FAILURE' || statusText === 'ERROR') {
-        console.log('[DEBUG] fetchInfernalJdStatus - job FAILURE/ERROR');
         dispatch({type: types.FETCH_INFERNAL_RESULTS, infernalStatus: 'error'});
       }
     })
     .catch(error => {
-      console.error('[DEBUG] fetchInfernalJdStatus - error:', error);
       dispatch({type: types.FETCH_INFERNAL_RESULTS, infernalStatus: 'error'});
     });
   }
 }
 
 export function fetchInfernalJdResults(jobId) {
-  console.log('[DEBUG] fetchInfernalJdResults - fetching results for job:', jobId);
-
   return function(dispatch) {
     // Try to fetch tblout format first (easier to parse)
     fetch(routes.infernalJdJobTblout(jobId), {
@@ -233,15 +187,12 @@ export function fetchInfernalJdResults(jobId) {
       }
     })
     .then(function(response) {
-      console.log('[DEBUG] fetchInfernalJdResults - tblout response status:', response.status);
       if (response.ok) { return response.text() }
       else { throw response }
     })
     .then(tbloutData => {
-      console.log('[DEBUG] fetchInfernalJdResults - tblout results:', tbloutData);
       // Parse the tblout format
       const parsedResults = parseInfernalTblout(tbloutData);
-      console.log('[DEBUG] fetchInfernalJdResults - parsed tblout results:', parsedResults);
 
       if (parsedResults.length > 0) {
         // Now fetch the full output to get alignments
@@ -253,11 +204,9 @@ export function fetchInfernalJdResults(jobId) {
         .then(outData => {
           // Parse alignments from the out file and merge with tblout results
           const alignments = parseInfernalAlignments(outData);
-          console.log('[DEBUG] fetchInfernalJdResults - parsed alignments:', alignments);
 
           // Merge alignments into results - try both target_name and accession_rfam as keys
           parsedResults.forEach(result => {
-            // The alignment parser uses target_name (e.g., "U3") as key, not accession
             if (alignments[result.target_name]) {
               result.alignment = alignments[result.target_name];
             } else if (alignments[result.accession_rfam]) {
@@ -272,7 +221,6 @@ export function fetchInfernalJdResults(jobId) {
       }
     })
     .catch(error => {
-      console.error('[DEBUG] fetchInfernalJdResults - error:', error);
       // Fallback to parsing the out file directly
       fetch(routes.infernalJdJobResult(jobId), {
         method: 'GET',
@@ -280,12 +228,10 @@ export function fetchInfernalJdResults(jobId) {
       })
       .then(response => response.ok ? response.text() : '')
       .then(outData => {
-        console.log('[DEBUG] fetchInfernalJdResults - fallback parsing out file');
         const parsedResults = parseInfernalOutput(outData);
         dispatch({type: types.FETCH_INFERNAL_RESULTS, infernalStatus: 'success', data: parsedResults});
       })
       .catch(err => {
-        console.error('[DEBUG] fetchInfernalJdResults - fallback error:', err);
         dispatch({type: types.FETCH_INFERNAL_RESULTS, infernalStatus: 'error'});
       });
     });
@@ -330,7 +276,6 @@ function parseInfernalTblout(output) {
       // Only include results that pass the gathering threshold (inc = '!')
       // '?' means the hit is below the gathering threshold cutoff
       if (inc !== '!') {
-        console.log('[DEBUG] parseInfernalTblout - skipping hit below GA threshold:', parts[0], parts[1]);
         continue;
       }
 
@@ -370,13 +315,9 @@ function parseInfernalTblout(output) {
 
     if (!overlaps) {
       filteredResults.push(hit);
-      console.log('[DEBUG] parseInfernalTblout - keeping non-overlapping hit:', hit.target_name, hit.accession_rfam, 'score:', hit.score);
-    } else {
-      console.log('[DEBUG] parseInfernalTblout - filtering overlapping hit:', hit.target_name, hit.accession_rfam, 'score:', hit.score);
     }
   }
 
-  console.log('[DEBUG] parseInfernalTblout - final results count:', filteredResults.length);
   return filteredResults;
 }
 
@@ -399,8 +340,7 @@ function parseInfernalAlignments(output) {
       const parts = line.substring(2).trim().split(/\s+/);
       const familyName = parts[0]; // e.g., U3
       currentKey = familyName;
-      currentAccession = familyName; // Keep for backward compatibility
-      console.log('[DEBUG] parseInfernalAlignments - found hit header, family:', familyName);
+      currentAccession = familyName;
       alignmentStartIndex = -1;
       continue;
     }
@@ -471,7 +411,6 @@ function parseInfernalAlignments(output) {
     }
   }
 
-  console.log('[DEBUG] parseInfernalAlignments - found alignments for:', Object.keys(alignments));
   return alignments;
 }
 
@@ -564,7 +503,6 @@ function parseInfernalOutput(output) {
     results.push(currentHit);
   }
 
-  console.log('[DEBUG] parseInfernalOutput - parsed results:', results);
   return results;
 }
 
@@ -639,18 +577,9 @@ export function updateSequence(sequence) {
 }
 
 export function updateJobId(jobId, r2dt = false) {
-  console.log('[DEBUG] updateJobId - called with jobId:', jobId, 'r2dt:', r2dt);
   return function(dispatch) {
     dispatch({type: types.UPDATE_JOB_ID, data: jobId});
     dispatch(fetchStatus(jobId));
-    // Infernal search is not available with Job Dispatcher - skip it
-    // dispatch(fetchInfernalStatus(jobId));
-
-    // Note: R2DT submission for existing job IDs requires the original sequence
-    // which we don't have here. R2DT will only work for new submissions.
-    if (r2dt) {
-      console.log('[DEBUG] updateJobId - R2DT requested but sequence not available for existing job');
-    }
   }
 }
 
@@ -667,9 +596,6 @@ export function invalidSequence() {
 }
 
 export function fetchStatus(jobId) {
-  console.log('[DEBUG] fetchStatus - checking status for job:', jobId);
-  console.log('[DEBUG] fetchStatus - URL:', routes.jdJobStatus(jobId));
-
   return function(dispatch) {
     fetch(routes.jdJobStatus(jobId), {
       method: 'GET',
@@ -678,45 +604,36 @@ export function fetchStatus(jobId) {
       }
     })
     .then(function(response) {
-      console.log('[DEBUG] fetchStatus - response status:', response.status);
       if (response.ok) { return response.text() }
       else { throw response }
     })
     .then((statusText) => {
       const status = statusText.trim();
-      console.log('[DEBUG] fetchStatus - job status:', status);
 
       // Job Dispatcher status values: QUEUED, RUNNING, FINISHED, FAILURE, NOT_FOUND, ERROR
       if (status === 'RUNNING' || status === 'QUEUED') {
-        console.log('[DEBUG] fetchStatus - job still in progress, will check again');
-
         // Update the search progress (simplified for Job Dispatcher)
         let currentState = store.getState();
         let newSearchInProgress = [...currentState.searchInProgress];
         let foundJobId = newSearchInProgress.find(el => el.jobId === jobId);
         if (foundJobId){
-          // Increment progress slightly for UX feedback
           foundJobId['finishedChunk'] = Math.min(foundJobId['finishedChunk'] + 5, 90);
         } else {
           newSearchInProgress.push({jobId: jobId, finishedChunk: 10});
         }
         dispatch({type: types.SEARCH_PROGRESS, data: newSearchInProgress });
 
-        // Wait a little bit and check it again
         let statusTimeout = setTimeout(() => store.dispatch(fetchStatus(jobId)), 2000);
         dispatch({type: types.SET_STATUS_TIMEOUT, timeout: statusTimeout});
       } else if (status === 'FINISHED') {
-        console.log('[DEBUG] fetchStatus - job FINISHED, fetching results');
         dispatch(fetchResults(jobId));
       } else if (status === 'ERROR' || status === 'FAILURE' || status === 'NOT_FOUND') {
-        console.error('[DEBUG] fetchStatus - job failed with status:', status);
         dispatch(failedFetchResults({ status: 500 }));
       }
     })
     .catch(error => {
-      console.error('[DEBUG] fetchStatus - error:', error);
       if (store.getState().hasOwnProperty('statusTimeout')) {
-        clearTimeout(store.getState().statusTimeout); // clear status timeout
+        clearTimeout(store.getState().statusTimeout);
       }
       dispatch(failedFetchResults(error))
     });
@@ -724,50 +641,36 @@ export function fetchStatus(jobId) {
 }
 
 export function fetchR2DTStatus(jobId, saveR2DTId = false) {
-  let state = store.getState();
-
-  console.log('[DEBUG] fetchR2DTStatus - checking status for job:', jobId);
-
   return function(dispatch) {
     fetch(routes.r2dtJobStatus(jobId), {
       method: 'GET',
       headers: { 'Accept': 'text/plain' }
     })
     .then(function(response) {
-      console.log('[DEBUG] fetchR2DTStatus - response status:', response.status);
       if (response.ok) { return response.text() }
       else { throw response }
     })
     .then((data) => {
       const status = data.trim();
-      console.log('[DEBUG] fetchR2DTStatus - R2DT job status:', status);
 
       if (status === 'RUNNING' || status === 'QUEUED') {
         let statusTimeout = setTimeout(() => store.dispatch(fetchR2DTStatus(jobId, saveR2DTId)), 2000);
         dispatch({type: types.SET_STATUS_TIMEOUT, timeout: statusTimeout});
       } else if (status === 'FINISHED') {
-        console.log('[DEBUG] fetchR2DTStatus - R2DT job FINISHED, fetching thumbnail');
-        // Wait another second to change the status. This will allow the SVG resultType to work correctly.
         let statusTimeout = setTimeout(() => dispatch({type: types.FETCH_R2DT_STATUS, status: 'FINISHED'}), 1000);
         dispatch({type: types.SET_STATUS_TIMEOUT, timeout: statusTimeout});
         dispatch(fetchR2DTThumbnail(jobId));
-        // Skip saving R2DT ID to old API since we're not using it
-        // if (saveR2DTId) { dispatch(onSaveR2DTId(state.jobId, jobId)) }
       } else if (status === 'NOT_FOUND') {
-        console.log('[DEBUG] fetchR2DTStatus - R2DT job NOT_FOUND');
         dispatch({type: types.FETCH_R2DT_STATUS, status: 'NOT_FOUND'})
       } else if (status === 'FAILURE') {
-        console.log('[DEBUG] fetchR2DTStatus - R2DT job FAILURE');
         dispatch({type: types.FETCH_R2DT_STATUS, status: 'FAILURE'})
       } else if (status === 'ERROR') {
-        console.log('[DEBUG] fetchR2DTStatus - R2DT job ERROR');
         dispatch({type: types.FETCH_R2DT_STATUS, status: 'ERROR'})
       }
     })
     .catch(error => {
-      console.error('[DEBUG] fetchR2DTStatus - error:', error);
       if (store.getState().hasOwnProperty('statusTimeout')) {
-        clearTimeout(store.getState().statusTimeout); // clear status timeout
+        clearTimeout(store.getState().statusTimeout);
       }
       dispatch({type: types.FETCH_R2DT_STATUS, status: 'error'})
     });
@@ -810,74 +713,127 @@ export function fetchResults(jobId) {
   let state = store.getState();
   const extraQuery = buildQuery(state.selectedFacets);
 
-  console.log('[DEBUG] fetchResults - fetching results for job:', jobId);
-  console.log('[DEBUG] fetchResults - Job Dispatcher URL:', routes.jdJobResult(jobId));
+  return async function(dispatch) {
+    try {
+      // Step 1: Fetch results from Job Dispatcher
+      const response = await fetch(routes.jdJobResult(jobId), {
+        method: 'GET',
+        headers: { 'Accept': 'application/json' }
+      });
 
-  return function(dispatch) {
-    // Step 1: Fetch results from Job Dispatcher
-    fetch(routes.jdJobResult(jobId), {
-      method: 'GET',
-      headers: {
-        'Accept': 'application/json'
+      if (!response.ok) {
+        throw response;
       }
-    })
-    .then(function(response) {
-      console.log('[DEBUG] fetchResults - Job Dispatcher response status:', response.status);
-      if (response.ok) { return response.json() }
-      else { throw response }
-    })
-    .then(jsonArray => {
-      console.log('[DEBUG] fetchResults - received', jsonArray.length, 'results from Job Dispatcher');
 
-      // Transform Job Dispatcher results to the format expected by the app
+      const jsonArray = await response.json();
       const jdData = parseJobDispatcherJsonResults(jsonArray, jobId);
 
-      // Step 2: Build query with RNAcentral IDs to fetch facets from EBI Search
+      // Step 2: Fetch facets from EBI Search in batches for all results
       if (jdData.entries.length > 0) {
-        // Build an OR query with all RNAcentral IDs (limit to first 100 for URL length)
-        const idsToQuery = jdData.entries.slice(0, 100).map(e => e.rnacentral_id);
-        const idsQuery = idsToQuery.map(id => `entry_type:Sequence AND id:"${id}"`).join(' OR ');
-
-        console.log('[DEBUG] fetchResults - fetching facets from EBI Search for', idsToQuery.length, 'IDs');
-        console.log('[DEBUG] fetchResults - EBI Search URL:', routes.ebiSearchByIds(idsQuery, extraQuery, 0, 20));
-
-        return fetch(routes.ebiSearchByIds(idsQuery, extraQuery, 0, 20), {
-          method: 'GET',
-          headers: { 'Accept': 'application/json' }
-        })
-        .then(response => {
-          if (response.ok) { return response.json() }
-          else {
-            console.warn('[DEBUG] fetchResults - EBI Search failed, returning results without facets');
-            return null;
+        try {
+          const batchedFacets = await fetchFacetsInBatches(jdData.entries, extraQuery);
+          if (batchedFacets.length > 0) {
+            jdData.facets = parseFacets(batchedFacets);
           }
-        })
-        .then(ebiData => {
-          if (ebiData && ebiData.facets) {
-            console.log('[DEBUG] fetchResults - received facets from EBI Search:', ebiData.facets.length);
-            jdData.facets = parseFacets(ebiData.facets);
-            // Keep the original hitCount from Job Dispatcher, don't overwrite with EBI Search count
-            // EBI Search only queries a subset of IDs so its count would be incorrect
-          }
-          return jdData;
-        })
-        .catch(err => {
-          console.warn('[DEBUG] fetchResults - EBI Search error, returning results without facets:', err);
-          return jdData;
-        });
+        } catch (err) {
+          // Facet fetch failed, continue without facets
+        }
       }
-      return jdData;
-    })
-    .then(data => {
-      console.log('[DEBUG] fetchResults - final data:', data);
-      dispatch({type: types.FETCH_RESULTS, status: 'success', data: data});
+
+      dispatch({type: types.FETCH_RESULTS, status: 'success', data: jdData});
       dispatch(dataForDownload());
-    })
-    .catch(error => {
-      console.error('[DEBUG] fetchResults - error:', error);
+    } catch (error) {
       dispatch(failedFetchResults(error));
-    });
+    }
   }
+}
+
+// Fetch facets from EBI Search in batches and merge results
+// Use small batch size (50) to avoid URL length limits (EBI Search returns 400 for long URLs)
+async function fetchFacetsInBatches(entries, extraQuery, batchSize = 50) {
+  const allIds = entries.map(e => e.rnacentral_id).filter(Boolean);
+
+  if (allIds.length === 0) {
+    return [];
+  }
+
+  // Split IDs into batches
+  const batches = [];
+  for (let i = 0; i < allIds.length; i += batchSize) {
+    batches.push(allIds.slice(i, i + batchSize));
+  }
+
+  console.log(`[Facets] Fetching facets for ${allIds.length} IDs in ${batches.length} batches`);
+
+  // Fetch all batches in parallel
+  const batchPromises = batches.map((batchIds, index) => {
+    const idsQuery = batchIds.map(id => `id:"${id}"`).join(' OR ');
+    return fetch(routes.ebiSearchByIds(idsQuery, extraQuery, 0, 0), {
+      method: 'GET',
+      headers: { 'Accept': 'application/json' }
+    })
+    .then(response => {
+      if (response.ok) return response.json();
+      console.log(`[Facets] Batch ${index + 1} failed with status ${response.status}`);
+      return null;
+    })
+    .catch(err => {
+      console.log(`[Facets] Batch ${index + 1} error:`, err);
+      return null;
+    });
+  });
+
+  const results = await Promise.all(batchPromises);
+
+  // Log batch results
+  let totalHits = 0;
+  results.forEach((result, index) => {
+    if (result) {
+      totalHits += result.hitCount || 0;
+      console.log(`[Facets] Batch ${index + 1}: ${result.hitCount || 0} hits`);
+    }
+  });
+  console.log(`[Facets] Total hits across batches: ${totalHits}`);
+
+  // Merge facets from all batches
+  const mergedFacets = {};
+
+  for (const result of results) {
+    if (!result || !result.facets) continue;
+
+    for (const facet of result.facets) {
+      if (!mergedFacets[facet.id]) {
+        mergedFacets[facet.id] = {
+          id: facet.id,
+          label: facet.label,
+          total: 0,
+          facetValues: {}
+        };
+      }
+
+      // Merge facet values by summing counts
+      for (const fv of (facet.facetValues || [])) {
+        if (!mergedFacets[facet.id].facetValues[fv.value]) {
+          mergedFacets[facet.id].facetValues[fv.value] = {
+            label: fv.label,
+            value: fv.value,
+            count: 0
+          };
+        }
+        mergedFacets[facet.id].facetValues[fv.value].count += fv.count;
+      }
+    }
+  }
+
+  // Convert merged facets back to array format
+  const facetsArray = Object.values(mergedFacets).map(facet => ({
+    id: facet.id,
+    label: facet.label,
+    total: facet.total,
+    facetValues: Object.values(facet.facetValues).sort((a, b) => b.count - a.count)
+  }));
+
+  return facetsArray;
 }
 
 // Parse facets from EBI Search response
@@ -929,14 +885,11 @@ function parseFacets(ebiFacets) {
 
 // Helper function to parse Job Dispatcher JSON results into the app's expected format
 function parseJobDispatcherJsonResults(jsonData, jobId) {
-  console.log('[DEBUG] parseJobDispatcherJsonResults - parsing JSON data');
-
   // Job Dispatcher returns an array directly with all the fields we need
   const hitArray = Array.isArray(jsonData) ? jsonData : (jsonData.hits || jsonData.results || []);
 
   // Store the total hit count before any filtering
   const totalHitCount = hitArray.length;
-  console.log('[DEBUG] parseJobDispatcherJsonResults - total hits from Job Dispatcher:', totalHitCount);
 
   const entries = hitArray.map((hit, index) => ({
     id: hit.result_id || index,
@@ -963,7 +916,6 @@ function parseJobDispatcherJsonResults(jsonData, jobId) {
 
   // Filter out entries without valid rnacentral_id
   const validEntries = entries.filter(entry => entry.rnacentral_id);
-  console.log('[DEBUG] parseJobDispatcherJsonResults - valid entries after filtering:', validEntries.length);
 
   return {
     job_id: jobId,
@@ -977,8 +929,6 @@ function parseJobDispatcherJsonResults(jsonData, jobId) {
 
 // Helper function to parse EBI Search results into the app's expected format
 function parseEbiSearchResults(ebiData, jobId) {
-  console.log('[DEBUG] parseEbiSearchResults - parsing EBI Search response');
-
   const entries = [];
 
   if (ebiData.entries) {
@@ -1003,8 +953,6 @@ function parseEbiSearchResults(ebiData, jobId) {
     });
   }
 
-  console.log('[DEBUG] parseEbiSearchResults - parsed entries:', entries.length);
-
   // Parse facets
   const facets = [];
   if (ebiData.facets) {
@@ -1027,8 +975,6 @@ function parseEbiSearchResults(ebiData, jobId) {
     });
   }
 
-  console.log('[DEBUG] parseEbiSearchResults - parsed facets:', facets.length);
-
   return {
     job_id: jobId,
     entries: entries,
@@ -1040,11 +986,8 @@ function parseEbiSearchResults(ebiData, jobId) {
 
 // Helper function to parse Job Dispatcher XML results into the app's expected format
 function parseJobDispatcherResults(xmlDoc, jobId) {
-  console.log('[DEBUG] parseJobDispatcherResults - parsing XML document');
-
   const entries = [];
   const hits = xmlDoc.querySelectorAll('hit');
-  console.log('[DEBUG] parseJobDispatcherResults - found hits:', hits.length);
 
   hits.forEach((hit, index) => {
     const entry = {
@@ -1068,7 +1011,6 @@ function parseJobDispatcherResults(xmlDoc, jobId) {
 
   // Filter out entries without rnacentral_id
   const filteredEntries = entries.filter(entry => entry.rnacentral_id && !entry.rnacentral_id.startsWith('hit_'));
-  console.log('[DEBUG] parseJobDispatcherResults - filtered entries:', filteredEntries.length);
 
   return {
     job_id: jobId,
@@ -1121,7 +1063,6 @@ export function fetchInfernalResults(jobId) {
 }
 
 export function failedFetchResults(response) {
-  console.error('[DEBUG] failedFetchResults - response:', response);
   if (response && response.status === 404) {
     return { type: types.FAILED_FETCH_RESULTS, status: "does_not_exist", start: 0 };
   } else {
@@ -1142,54 +1083,60 @@ export function onFilterResult() {
   let state = store.getState();
   const extraQuery = buildQuery(state.selectedFacets);
 
-  console.log('[DEBUG] onFilterResult - fetching filtered results');
+  return async function(dispatch) {
+    try {
+      // First get all results from Job Dispatcher
+      const response = await fetch(routes.jdJobResult(state.jobId), {
+        method: 'GET',
+        headers: { 'Accept': 'application/json' }
+      });
 
-  return function(dispatch) {
-    // First get all results from Job Dispatcher
-    fetch(routes.jdJobResult(state.jobId), {
-      method: 'GET',
-      headers: { 'Accept': 'application/json' }
-    })
-    .then(response => response.ok ? response.json() : Promise.reject(response))
-    .then(jsonArray => {
+      if (!response.ok) {
+        throw response;
+      }
+
+      const jsonArray = await response.json();
       const jdData = parseJobDispatcherJsonResults(jsonArray, state.jobId);
 
-      // Then query EBI Search with facet filters
-      if (jdData.entries.length > 0) {
-        const idsToQuery = jdData.entries.slice(0, 100).map(e => e.rnacentral_id);
-        const idsQuery = idsToQuery.map(id => `entry_type:Sequence AND id:"${id}"`).join(' OR ');
+      // Fetch facets from EBI Search in batches for all results
+      try {
+        const batchedFacets = await fetchFacetsInBatches(jdData.entries, extraQuery);
+        if (batchedFacets.length > 0) {
+          jdData.facets = parseFacets(batchedFacets);
+        }
 
-        return fetch(routes.ebiSearchByIds(idsQuery, extraQuery, 0, state.size), {
-          method: 'GET',
-          headers: { 'Accept': 'application/json' }
-        })
-        .then(response => response.ok ? response.json() : null)
-        .then(ebiData => {
-          if (ebiData) {
-            jdData.facets = parseFacets(ebiData.facets);
-            // Filter entries based on EBI Search results if there's a filter
-            if (extraQuery && ebiData.entries) {
-              const matchingIds = new Set(ebiData.entries.map(e => e.id));
+        // If there's a filter, we need to filter entries based on matching IDs
+        if (extraQuery) {
+          // Fetch matching IDs from EBI Search
+          const allIds = jdData.entries.map(e => e.rnacentral_id).filter(Boolean);
+          const idsQuery = allIds.slice(0, 500).map(id => `id:"${id}"`).join(' OR ');
+          const filterResponse = await fetch(routes.ebiSearchByIds(idsQuery, extraQuery, 0, 1000), {
+            method: 'GET',
+            headers: { 'Accept': 'application/json' }
+          });
+          if (filterResponse.ok) {
+            const filterData = await filterResponse.json();
+            if (filterData.entries) {
+              const matchingIds = new Set(filterData.entries.map(e => e.id));
               jdData.entries = jdData.entries.filter(e => matchingIds.has(e.rnacentral_id));
-              jdData.hitCount = jdData.entries.length;
+              jdData.hitCount = filterData.hitCount || jdData.entries.length;
             }
           }
-          return jdData;
-        })
-        .catch(() => jdData);
+        }
+      } catch (err) {
+        // Facet fetch failed, continue without facets
       }
-      return jdData;
-    })
-    .then(data => {
-      dispatch({type: types.FETCH_RESULTS, status: 'success', data: data})
+
+      dispatch({type: types.FETCH_RESULTS, status: 'success', data: jdData});
       dispatch(dataForDownload());
-    })
-    .catch(error => {dispatch({type: types.FETCH_RESULTS, status: 'error'})});
+    } catch (error) {
+      dispatch({type: types.FETCH_RESULTS, status: 'error'});
+    }
   }
 }
 
 export function onToggleFacet(event, facet, facetValue) {
-  return function (dispatch) {
+  return async function (dispatch) {
     let state = store.getState();
 
     let selectedFacets = {...state.selectedFacets};
@@ -1210,55 +1157,61 @@ export function onToggleFacet(event, facet, facetValue) {
     dispatch({type: types.TOGGLE_FACET, id: facet.id, value: facetValue.value});
 
     const extraQuery = buildQuery(selectedFacets);
-    console.log('[DEBUG] onToggleFacet - fetching with updated facets, query:', extraQuery);
 
-    // First get all results from Job Dispatcher
-    return fetch(routes.jdJobResult(state.jobId), {
+    try {
+      // First get all results from Job Dispatcher
+      const response = await fetch(routes.jdJobResult(state.jobId), {
         method: 'GET',
         headers: { 'Accept': 'application/json' }
-      })
-      .then(response => response.ok ? response.json() : Promise.reject(response))
-      .then(jsonArray => {
-        const jdData = parseJobDispatcherJsonResults(jsonArray, state.jobId);
+      });
 
-        // Then query EBI Search with facet filters
-        if (jdData.entries.length > 0) {
-          const idsToQuery = jdData.entries.slice(0, 100).map(e => e.rnacentral_id);
-          const idsQuery = idsToQuery.map(id => `entry_type:Sequence AND id:"${id}"`).join(' OR ');
+      if (!response.ok) {
+        throw response;
+      }
 
-          return fetch(routes.ebiSearchByIds(idsQuery, extraQuery, 0, state.size), {
+      const jsonArray = await response.json();
+      const jdData = parseJobDispatcherJsonResults(jsonArray, state.jobId);
+
+      // Fetch facets from EBI Search in batches for all results
+      try {
+        const batchedFacets = await fetchFacetsInBatches(jdData.entries, extraQuery);
+        if (batchedFacets.length > 0) {
+          jdData.facets = parseFacets(batchedFacets);
+        }
+
+        // If there's a filter, we need to filter entries based on matching IDs
+        if (extraQuery) {
+          const allIds = jdData.entries.map(e => e.rnacentral_id).filter(Boolean);
+          const idsQuery = allIds.slice(0, 500).map(id => `id:"${id}"`).join(' OR ');
+          const filterResponse = await fetch(routes.ebiSearchByIds(idsQuery, extraQuery, 0, 1000), {
             method: 'GET',
             headers: { 'Accept': 'application/json' }
-          })
-          .then(response => response.ok ? response.json() : null)
-          .then(ebiData => {
-            if (ebiData) {
-              jdData.facets = parseFacets(ebiData.facets);
-              // Filter entries based on EBI Search results if there's a filter
-              if (extraQuery && ebiData.entries) {
-                const matchingIds = new Set(ebiData.entries.map(e => e.id));
-                jdData.entries = jdData.entries.filter(e => matchingIds.has(e.rnacentral_id));
-                jdData.hitCount = jdData.entries.length;
-              }
+          });
+          if (filterResponse.ok) {
+            const filterData = await filterResponse.json();
+            if (filterData.entries) {
+              const matchingIds = new Set(filterData.entries.map(e => e.id));
+              jdData.entries = jdData.entries.filter(e => matchingIds.has(e.rnacentral_id));
+              jdData.hitCount = filterData.hitCount || jdData.entries.length;
             }
-            return jdData;
-          })
-          .catch(() => jdData);
+          }
         }
-        return jdData;
-      })
-      .then(data => {
-        dispatch({
-          type: types.TOGGLE_FACET,
-          id: facet.id,
-          value: facetValue.value,
-          data: data,
-          status: 'success',
-          selectedFacets: selectedFacets
-        })
-        dispatch(dataForDownload());
-      })
-      .catch((response) => dispatch({ type: types.FAILED_FETCH_RESULTS, status: "error", start: 0 }));
+      } catch (err) {
+        // Facet fetch failed, continue without facets
+      }
+
+      dispatch({
+        type: types.TOGGLE_FACET,
+        id: facet.id,
+        value: facetValue.value,
+        data: jdData,
+        status: 'success',
+        selectedFacets: selectedFacets
+      });
+      dispatch(dataForDownload());
+    } catch (error) {
+      dispatch({ type: types.FAILED_FETCH_RESULTS, status: "error", start: 0 });
+    }
   }
 }
 
@@ -1271,8 +1224,6 @@ export function onLoadMore(event) {
 
   return function(dispatch) {
     dispatch({type: types.LOAD_MORE});
-
-    console.log('[DEBUG] onLoadMore - loading more results');
 
     // Job Dispatcher returns all results at once, so we just re-fetch
     // Client-side pagination would need to be implemented
@@ -1295,8 +1246,6 @@ export function onLoadMore(event) {
 export function onSort(event) {
   let ordering = event.target.value;
   let state = store.getState();
-
-  console.log('[DEBUG] onSort - sorting by:', ordering);
 
   return function(dispatch) {
     dispatch({type: types.SORT_RESULTS});
@@ -1407,8 +1356,6 @@ export function dataForDownload() {
   } else if (state.hitCount>900) {
     iterations = 10
   }
-
-  console.log('[DEBUG] dataForDownload - fetching all results for download');
 
   return async function(dispatch) {
     dispatch({type: types.DOWNLOAD, status: "clear"})

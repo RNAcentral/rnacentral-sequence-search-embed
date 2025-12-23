@@ -81,6 +81,22 @@ module.exports = function(env) {
       },
       compress: true,
       port: 8080,
+      proxy: [
+        {
+          context: ['/ebisearch'],
+          target: 'https://www.ebi.ac.uk',
+          changeOrigin: true,
+          pathRewrite: { '^/ebisearch': '/ebisearch/ws/rest/rnacentral' },
+          secure: true,
+        },
+        {
+          context: ['/ebisearch-dev'],
+          target: 'https://wwwdev.ebi.ac.uk',
+          changeOrigin: true,
+          pathRewrite: { '^/ebisearch-dev': '/ebisearch/ws/rest/rnacentral' },
+          secure: true,
+        },
+      ],
     },
     devtool: "source-map"
   };

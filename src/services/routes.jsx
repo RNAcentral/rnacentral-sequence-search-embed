@@ -9,7 +9,14 @@ let jobDispatcherServer = 'http://test.jd.sdo.ebi.ac.uk:8180/Tools/services/rest
 let infernalServer = `https://${ebiDevOrProd}.ebi.ac.uk/Tools/services/rest/infernal_cmscan`;
 
 // EBI Search endpoint for facets
-let ebiSearchServer = `https://${ebiDevOrProd}.ebi.ac.uk/ebisearch/ws/rest/rnacentral`;
+// Use proxy path for local development to avoid CORS issues
+function getEbiSearchServer() {
+  let isLocalDev = typeof window !== 'undefined' && window.location.hostname === 'localhost';
+  if (isLocalDev) {
+    return process.env.REACT_APP_BRANCH === 'dev' ? '/ebisearch-dev' : '/ebisearch';
+  }
+  return `https://${ebiDevOrProd}.ebi.ac.uk/ebisearch/ws/rest/rnacentral`;
+}
 
 // Facet fields to request from EBI Search
 const facetFields = 'length,rna_type,TAXONOMY,expert_db,qc_warning_found,has_go_annotations,has_conserved_structure,has_genomic_coordinates,popular_species';
@@ -44,7 +51,8 @@ module.exports = {
   jdJobStatus:         (jobId) => `${jobDispatcherServer}/status/${jobId}`,
   jdJobResult:         (jobId) => `${jobDispatcherServer}/result/${jobId}/json`,
   // EBI Search endpoint for facets (seqtoolresults)
-  ebiSearchFacets:     (jobId, query, start, size) => `${ebiSearchServer}/seqtoolresults?toolid=nhmmer&jobid=${jobId}&query=${encodeURIComponent(query || 'rna')}&format=json&fields=description&facetcount=100&facetfields=${facetFields}&start=${start}&size=${size}`,
+  // Note: toolid should match the Job Dispatcher tool name
+  ebiSearchFacets:     (jobId, query, start, size) => `${getEbiSearchServer()}/seqtoolresults?toolid=rnacentral_nhmmer&jobid=${jobId}&query=${encodeURIComponent(query || '*')}&format=json&fields=description&facetcount=100&facetfields=${facetFields}&start=${start}&size=${size}`,
   // EBI Search endpoint for querying by RNAcentral IDs
-  ebiSearchByIds:      (idsQuery, extraQuery, start, size) => `${ebiSearchServer}?query=${encodeURIComponent(idsQuery)}${extraQuery ? '%20AND%20' + encodeURIComponent(extraQuery) : ''}&format=json&fields=${ebiSearchFields}&facetcount=100&facetfields=${facetFields}&start=${start}&size=${size}`,
+  ebiSearchByIds:      (idsQuery, extraQuery, start, size) => `${getEbiSearchServer()}?query=${encodeURIComponent(idsQuery)}${extraQuery ? '%20AND%20' + encodeURIComponent(extraQuery) : ''}&format=json&fields=${ebiSearchFields}&facetcount=100&facetfields=${facetFields}&start=${start}&size=${size}`,
 };
