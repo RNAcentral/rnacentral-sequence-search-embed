@@ -764,8 +764,9 @@ async function fetchFacetsInBatches(entries, extraQuery, batchSize = 50) {
   }
 
   // Fetch all batches in parallel
-  const batchPromises = batches.map((batchIds, index) => {
-    const idsQuery = batchIds.map(id => `id:"${id}"`).join(' OR ');
+  const batchPromises = batches.map((batchIds) => {
+    // Wrap IDs in parentheses so the AND with extraQuery works correctly
+    const idsQuery = '(' + batchIds.map(id => `id:"${id}"`).join(' OR ') + ')';
     return fetch(routes.ebiSearchByIds(idsQuery, extraQuery, 0, 0), {
       method: 'GET',
       headers: { 'Accept': 'application/json' }
@@ -774,7 +775,7 @@ async function fetchFacetsInBatches(entries, extraQuery, batchSize = 50) {
       if (response.ok) return response.json();
       return null;
     })
-    .catch(err => {
+    .catch(() => {
       return null;
     });
   });
@@ -820,6 +821,62 @@ async function fetchFacetsInBatches(entries, extraQuery, batchSize = 50) {
   }));
 
   return facetsArray;
+}
+
+// Fetch matching IDs from EBI Search in batches when filtering by facets
+// Returns a Set of RNAcentral IDs that match the filter criteria
+async function fetchMatchingIdsInBatches(entries, filterQuery, batchSize = 50) {
+  const allIds = entries.map(e => e.rnacentral_id).filter(Boolean);
+
+  if (allIds.length === 0 || !filterQuery) {
+    return new Set(allIds); // No filter, return all IDs
+  }
+
+  // Split IDs into batches
+  const batches = [];
+  for (let i = 0; i < allIds.length; i += batchSize) {
+    batches.push(allIds.slice(i, i + batchSize));
+  }
+
+  console.log('[Filter] Filtering with query:', filterQuery);
+  console.log('[Filter] Fetching matching IDs for', allIds.length, 'entries in', batches.length, 'batches');
+
+  // Fetch all batches in parallel
+  const batchPromises = batches.map((batchIds, index) => {
+    // Wrap IDs in parentheses so the AND with filterQuery works correctly
+    const idsQuery = '(' + batchIds.map(id => `id:"${id}"`).join(' OR ') + ')';
+    const url = routes.ebiSearchByIds(idsQuery, filterQuery, 0, batchSize);
+    console.log('[Filter] Batch', index + 1, 'URL:', url);
+    return fetch(url, {
+      method: 'GET',
+      headers: { 'Accept': 'application/json' }
+    })
+    .then(response => {
+      if (response.ok) return response.json();
+      console.log('[Filter] Batch', index + 1, 'failed with status', response.status);
+      return null;
+    })
+    .catch((err) => {
+      console.log('[Filter] Batch', index + 1, 'error:', err);
+      return null;
+    });
+  });
+
+  const results = await Promise.all(batchPromises);
+
+  // Collect all matching IDs from all batches
+  const matchingIds = new Set();
+  for (const result of results) {
+    if (result && result.entries) {
+      for (const entry of result.entries) {
+        matchingIds.add(entry.id);
+      }
+    }
+  }
+
+  console.log('[Filter] Found', matchingIds.size, 'matching IDs');
+
+  return matchingIds;
 }
 
 // Parse facets from EBI Search response
@@ -1093,21 +1150,9 @@ export function onFilterResult() {
 
         // If there's a filter, we need to filter entries based on matching IDs
         if (extraQuery) {
-          // Fetch matching IDs from EBI Search
-          const allIds = jdData.entries.map(e => e.rnacentral_id).filter(Boolean);
-          const idsQuery = allIds.slice(0, 500).map(id => `id:"${id}"`).join(' OR ');
-          const filterResponse = await fetch(routes.ebiSearchByIds(idsQuery, extraQuery, 0, 1000), {
-            method: 'GET',
-            headers: { 'Accept': 'application/json' }
-          });
-          if (filterResponse.ok) {
-            const filterData = await filterResponse.json();
-            if (filterData.entries) {
-              const matchingIds = new Set(filterData.entries.map(e => e.id));
-              jdData.entries = jdData.entries.filter(e => matchingIds.has(e.rnacentral_id));
-              jdData.hitCount = filterData.hitCount || jdData.entries.length;
-            }
-          }
+          const matchingIds = await fetchMatchingIdsInBatches(jdData.entries, extraQuery);
+          jdData.entries = jdData.entries.filter(e => matchingIds.has(e.rnacentral_id));
+          jdData.hitCount = jdData.entries.length;
         }
       } catch (err) {
         // Facet fetch failed, continue without facets
@@ -1167,20 +1212,9 @@ export function onToggleFacet(event, facet, facetValue) {
 
         // If there's a filter, we need to filter entries based on matching IDs
         if (extraQuery) {
-          const allIds = jdData.entries.map(e => e.rnacentral_id).filter(Boolean);
-          const idsQuery = allIds.slice(0, 500).map(id => `id:"${id}"`).join(' OR ');
-          const filterResponse = await fetch(routes.ebiSearchByIds(idsQuery, extraQuery, 0, 1000), {
-            method: 'GET',
-            headers: { 'Accept': 'application/json' }
-          });
-          if (filterResponse.ok) {
-            const filterData = await filterResponse.json();
-            if (filterData.entries) {
-              const matchingIds = new Set(filterData.entries.map(e => e.id));
-              jdData.entries = jdData.entries.filter(e => matchingIds.has(e.rnacentral_id));
-              jdData.hitCount = filterData.hitCount || jdData.entries.length;
-            }
-          }
+          const matchingIds = await fetchMatchingIdsInBatches(jdData.entries, extraQuery);
+          jdData.entries = jdData.entries.filter(e => matchingIds.has(e.rnacentral_id));
+          jdData.hitCount = jdData.entries.length;
         }
       } catch (err) {
         // Facet fetch failed, continue without facets
