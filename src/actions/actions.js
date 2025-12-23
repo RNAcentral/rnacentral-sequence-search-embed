@@ -763,8 +763,6 @@ async function fetchFacetsInBatches(entries, extraQuery, batchSize = 50) {
     batches.push(allIds.slice(i, i + batchSize));
   }
 
-  console.log(`[Facets] Fetching facets for ${allIds.length} IDs in ${batches.length} batches`);
-
   // Fetch all batches in parallel
   const batchPromises = batches.map((batchIds, index) => {
     const idsQuery = batchIds.map(id => `id:"${id}"`).join(' OR ');
@@ -774,26 +772,14 @@ async function fetchFacetsInBatches(entries, extraQuery, batchSize = 50) {
     })
     .then(response => {
       if (response.ok) return response.json();
-      console.log(`[Facets] Batch ${index + 1} failed with status ${response.status}`);
       return null;
     })
     .catch(err => {
-      console.log(`[Facets] Batch ${index + 1} error:`, err);
       return null;
     });
   });
 
   const results = await Promise.all(batchPromises);
-
-  // Log batch results
-  let totalHits = 0;
-  results.forEach((result, index) => {
-    if (result) {
-      totalHits += result.hitCount || 0;
-      console.log(`[Facets] Batch ${index + 1}: ${result.hitCount || 0} hits`);
-    }
-  });
-  console.log(`[Facets] Total hits across batches: ${totalHits}`);
 
   // Merge facets from all batches
   const mergedFacets = {};
