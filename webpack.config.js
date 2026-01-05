@@ -83,6 +83,13 @@ module.exports = function(env) {
       port: 8080,
       proxy: [
         {
+          context: ['/proxy-api'],
+          target: 'http://localhost:8000',
+          changeOrigin: true,
+          pathRewrite: { '^/proxy-api': '/api' },
+          secure: false,
+        },
+        {
           context: ['/ebisearch'],
           target: 'https://www.ebi.ac.uk',
           changeOrigin: true,

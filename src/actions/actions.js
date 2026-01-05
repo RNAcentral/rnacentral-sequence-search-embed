@@ -4,65 +4,38 @@ import {store} from 'app.jsx';
 import md5 from 'md5';
 
 
-/**
- * Builds text query for sending to text search backend from this.state.selectedFacets
- * @returns {string | *}
- */
-let buildQuery = function (selectedFacets) {
-  let state = store.getState();
-  let outputText, outputClauses = [];
-
-  Object.keys(selectedFacets).map(facetId => {
-    let facetText, facetClauses = [];
-    selectedFacets[facetId].map(facetValueValue => facetClauses.push(`${facetId}:"${facetValueValue}"`));
-    facetText = facetClauses.join(" OR ");
-
-    if (facetText !== "") outputClauses.push("(" + facetText + ")");
-  });
-
-  if (state.filter) {
-    outputClauses.push("(" + state.filter + ")")
-  }
-
-  outputText = outputClauses.join(" AND ");
-  return outputText;
-};
-
 export function updateStatus() {
   return {type: types.UPDATE_STATUS, data: "loading"}
 }
 
 export function onSubmit(sequence, databases, r2dt = false, rfam = false) {
-  // Format sequence for Job Dispatcher - needs FASTA format
+  // Format sequence for R2DT/Infernal - needs FASTA format
   let fastaSequence = sequence;
   if (!/^>/.test(sequence)) {
     fastaSequence = ">query\n" + sequence;
   }
 
-  // Build the form data for Job Dispatcher
-  const formData = new URLSearchParams();
-  formData.append('email', 'rnacentral@ebi.ac.uk');
-  formData.append('database', databases[0] || 'rfam-0');
-  formData.append('sequence', fastaSequence);
-  formData.append('alphabet', 'rna');
-
   return function(dispatch) {
-    fetch(routes.jdSubmitJob(), {
+    // Submit to our proxy API which handles parallel submission to all databases
+    fetch(routes.proxySubmitJob(), {
       method: 'POST',
       headers: {
-        'Accept': 'text/plain',
-        'Content-Type': 'application/x-www-form-urlencoded'
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
       },
-      body: formData.toString()
+      body: JSON.stringify({
+        sequence: sequence,
+        databases: databases && databases.length > 0 ? databases : null
+      })
     })
     .then(function (response) {
-      if (response.ok) { return response.text() }
+      if (response.ok) { return response.json() }
       else { throw response }
     })
-    .then(jobId => {
-        // Job Dispatcher returns plain text job ID
-        dispatch({type: types.SUBMIT_JOB, status: 'success', data: { job_id: jobId.trim() }});
-        dispatch(fetchStatus(jobId.trim(), false));
+    .then(data => {
+        // Proxy API returns JSON with job_id
+        dispatch({type: types.SUBMIT_JOB, status: 'success', data: { job_id: data.job_id }});
+        dispatch(fetchStatus(data.job_id));
 
         // Submit R2DT job directly with the sequence we have
         if (r2dt) {
@@ -597,37 +570,38 @@ export function invalidSequence() {
 
 export function fetchStatus(jobId) {
   return function(dispatch) {
-    fetch(routes.jdJobStatus(jobId), {
+    fetch(routes.proxyJobStatus(jobId), {
       method: 'GET',
       headers: {
-        'Accept': 'text/plain'
+        'Accept': 'application/json'
       }
     })
     .then(function(response) {
-      if (response.ok) { return response.text() }
+      if (response.ok) { return response.json() }
       else { throw response }
     })
-    .then((statusText) => {
-      const status = statusText.trim();
+    .then((data) => {
+      const status = data.status;
 
-      // Job Dispatcher status values: QUEUED, RUNNING, FINISHED, FAILURE, NOT_FOUND, ERROR
-      if (status === 'RUNNING' || status === 'QUEUED') {
-        // Update the search progress (simplified for Job Dispatcher)
+      // Proxy API status values: running, finished, error, not_found
+      if (status === 'running') {
+        // Update the search progress using progress from the API
         let currentState = store.getState();
         let newSearchInProgress = [...currentState.searchInProgress];
         let foundJobId = newSearchInProgress.find(el => el.jobId === jobId);
+        const progress = data.progress || 0;
         if (foundJobId){
-          foundJobId['finishedChunk'] = Math.min(foundJobId['finishedChunk'] + 5, 90);
+          foundJobId['finishedChunk'] = Math.min(progress, 99);
         } else {
-          newSearchInProgress.push({jobId: jobId, finishedChunk: 10});
+          newSearchInProgress.push({jobId: jobId, finishedChunk: progress});
         }
         dispatch({type: types.SEARCH_PROGRESS, data: newSearchInProgress });
 
         let statusTimeout = setTimeout(() => store.dispatch(fetchStatus(jobId)), 2000);
         dispatch({type: types.SET_STATUS_TIMEOUT, timeout: statusTimeout});
-      } else if (status === 'FINISHED') {
+      } else if (status === 'finished') {
         dispatch(fetchResults(jobId));
-      } else if (status === 'ERROR' || status === 'FAILURE' || status === 'NOT_FOUND') {
+      } else if (status === 'error' || status === 'not_found') {
         dispatch(failedFetchResults({ status: 500 }));
       }
     })
@@ -710,13 +684,10 @@ export function fetchInfernalStatus(jobId) {
 }
 
 export function fetchResults(jobId) {
-  let state = store.getState();
-  const extraQuery = buildQuery(state.selectedFacets);
-
   return async function(dispatch) {
     try {
-      // Step 1: Fetch results from Job Dispatcher
-      const response = await fetch(routes.jdJobResult(jobId), {
+      // Fetch results from proxy API (includes facets)
+      const response = await fetch(routes.proxyJobResults(jobId), {
         method: 'GET',
         headers: { 'Accept': 'application/json' }
       });
@@ -725,22 +696,19 @@ export function fetchResults(jobId) {
         throw response;
       }
 
-      const jsonArray = await response.json();
-      const jdData = parseJobDispatcherJsonResults(jsonArray, jobId);
+      const data = await response.json();
 
-      // Step 2: Fetch facets from EBI Search in batches for all results
-      if (jdData.entries.length > 0) {
-        try {
-          const batchedFacets = await fetchFacetsInBatches(jdData.entries, extraQuery);
-          if (batchedFacets.length > 0) {
-            jdData.facets = parseFacets(batchedFacets);
-          }
-        } catch (err) {
-          // Facet fetch failed, continue without facets
-        }
-      }
+      // Transform proxy API response to match expected format
+      const results = {
+        job_id: data.job_id,
+        entries: data.entries || [],
+        hitCount: data.hit_count || 0,
+        facets: parseFacets(data.facets || []),
+        textSearchError: false,
+        sequenceSearchStatus: data.status === 'finished' ? 'success' : 'error'
+      };
 
-      dispatch({type: types.FETCH_RESULTS, status: 'success', data: jdData});
+      dispatch({type: types.FETCH_RESULTS, status: 'success', data: results});
       dispatch(dataForDownload());
     } catch (error) {
       dispatch(failedFetchResults(error));
@@ -748,138 +716,7 @@ export function fetchResults(jobId) {
   }
 }
 
-// Fetch facets from EBI Search in batches and merge results
-// Use small batch size (50) to avoid URL length limits (EBI Search returns 400 for long URLs)
-async function fetchFacetsInBatches(entries, extraQuery, batchSize = 50) {
-  const allIds = entries.map(e => e.rnacentral_id).filter(Boolean);
-
-  if (allIds.length === 0) {
-    return [];
-  }
-
-  // Split IDs into batches
-  const batches = [];
-  for (let i = 0; i < allIds.length; i += batchSize) {
-    batches.push(allIds.slice(i, i + batchSize));
-  }
-
-  // Fetch all batches in parallel
-  const batchPromises = batches.map((batchIds) => {
-    // Wrap IDs in parentheses so the AND with extraQuery works correctly
-    const idsQuery = '(' + batchIds.map(id => `id:"${id}"`).join(' OR ') + ')';
-    return fetch(routes.ebiSearchByIds(idsQuery, extraQuery, 0, 0), {
-      method: 'GET',
-      headers: { 'Accept': 'application/json' }
-    })
-    .then(response => {
-      if (response.ok) return response.json();
-      return null;
-    })
-    .catch(() => {
-      return null;
-    });
-  });
-
-  const results = await Promise.all(batchPromises);
-
-  // Merge facets from all batches
-  const mergedFacets = {};
-
-  for (const result of results) {
-    if (!result || !result.facets) continue;
-
-    for (const facet of result.facets) {
-      if (!mergedFacets[facet.id]) {
-        mergedFacets[facet.id] = {
-          id: facet.id,
-          label: facet.label,
-          total: 0,
-          facetValues: {}
-        };
-      }
-
-      // Merge facet values by summing counts
-      for (const fv of (facet.facetValues || [])) {
-        if (!mergedFacets[facet.id].facetValues[fv.value]) {
-          mergedFacets[facet.id].facetValues[fv.value] = {
-            label: fv.label,
-            value: fv.value,
-            count: 0
-          };
-        }
-        mergedFacets[facet.id].facetValues[fv.value].count += fv.count;
-      }
-    }
-  }
-
-  // Convert merged facets back to array format
-  const facetsArray = Object.values(mergedFacets).map(facet => ({
-    id: facet.id,
-    label: facet.label,
-    total: facet.total,
-    facetValues: Object.values(facet.facetValues).sort((a, b) => b.count - a.count)
-  }));
-
-  return facetsArray;
-}
-
-// Fetch matching IDs from EBI Search in batches when filtering by facets
-// Returns a Set of RNAcentral IDs that match the filter criteria
-async function fetchMatchingIdsInBatches(entries, filterQuery, batchSize = 50) {
-  const allIds = entries.map(e => e.rnacentral_id).filter(Boolean);
-
-  if (allIds.length === 0 || !filterQuery) {
-    return new Set(allIds); // No filter, return all IDs
-  }
-
-  // Split IDs into batches
-  const batches = [];
-  for (let i = 0; i < allIds.length; i += batchSize) {
-    batches.push(allIds.slice(i, i + batchSize));
-  }
-
-  console.log('[Filter] Filtering with query:', filterQuery);
-  console.log('[Filter] Fetching matching IDs for', allIds.length, 'entries in', batches.length, 'batches');
-
-  // Fetch all batches in parallel
-  const batchPromises = batches.map((batchIds, index) => {
-    // Wrap IDs in parentheses so the AND with filterQuery works correctly
-    const idsQuery = '(' + batchIds.map(id => `id:"${id}"`).join(' OR ') + ')';
-    const url = routes.ebiSearchByIds(idsQuery, filterQuery, 0, batchSize);
-    console.log('[Filter] Batch', index + 1, 'URL:', url);
-    return fetch(url, {
-      method: 'GET',
-      headers: { 'Accept': 'application/json' }
-    })
-    .then(response => {
-      if (response.ok) return response.json();
-      console.log('[Filter] Batch', index + 1, 'failed with status', response.status);
-      return null;
-    })
-    .catch((err) => {
-      console.log('[Filter] Batch', index + 1, 'error:', err);
-      return null;
-    });
-  });
-
-  const results = await Promise.all(batchPromises);
-
-  // Collect all matching IDs from all batches
-  const matchingIds = new Set();
-  for (const result of results) {
-    if (result && result.entries) {
-      for (const entry of result.entries) {
-        matchingIds.add(entry.id);
-      }
-    }
-  }
-
-  console.log('[Filter] Found', matchingIds.size, 'matching IDs');
-
-  return matchingIds;
-}
-
-// Parse facets from EBI Search response
+// Parse facets from proxy API response
 function parseFacets(ebiFacets) {
   if (!ebiFacets) return [];
 
@@ -924,144 +761,6 @@ function parseFacets(ebiFacets) {
   }
 
   return facets;
-}
-
-// Helper function to parse Job Dispatcher JSON results into the app's expected format
-function parseJobDispatcherJsonResults(jsonData, jobId) {
-  // Job Dispatcher returns an array directly with all the fields we need
-  const hitArray = Array.isArray(jsonData) ? jsonData : (jsonData.hits || jsonData.results || []);
-
-  // Store the total hit count before any filtering
-  const totalHitCount = hitArray.length;
-
-  const entries = hitArray.map((hit, index) => ({
-    id: hit.result_id || index,
-    rnacentral_id: hit.rnacentral_id,
-    description: hit.description || '',
-    score: parseFloat(hit.score || 0),
-    bias: parseFloat(hit.bias || 0),
-    e_value: parseFloat(hit.e_value || 0),
-    identity: parseFloat(hit.identity || 0),
-    query_coverage: parseFloat(hit.query_coverage || 0),
-    target_coverage: parseFloat(hit.target_coverage || 0),
-    alignment: hit.alignment || '',
-    alignment_length: parseInt(hit.alignment_length || 0),
-    target_length: parseInt(hit.target_length || 0),
-    query_length: parseInt(hit.query_length || 0),
-    gaps: parseFloat(hit.gaps || 0),
-    gap_count: parseInt(hit.gap_count || 0),
-    match_count: parseInt(hit.match_count || 0),
-    nts_count1: parseInt(hit.nts_count1 || 0),
-    nts_count2: parseInt(hit.nts_count2 || 0),
-    alignment_start: parseFloat(hit.alignment_start || 0),
-    alignment_stop: parseFloat(hit.alignment_stop || 0),
-  }));
-
-  // Filter out entries without valid rnacentral_id
-  const validEntries = entries.filter(entry => entry.rnacentral_id);
-
-  return {
-    job_id: jobId,
-    entries: validEntries,
-    hitCount: totalHitCount, // Use the original total count, not filtered count
-    facets: [], // Facets would need to come from EBI Search - TODO
-    textSearchError: false,
-    sequenceSearchStatus: "success" // Job Dispatcher always returns success if we got here
-  };
-}
-
-// Helper function to parse EBI Search results into the app's expected format
-function parseEbiSearchResults(ebiData, jobId) {
-  const entries = [];
-
-  if (ebiData.entries) {
-    ebiData.entries.forEach((entry, index) => {
-      const fields = entry.fields || {};
-      entries.push({
-        id: index,
-        rnacentral_id: entry.id,
-        description: Array.isArray(fields.description) ? fields.description[0] : (fields.description || ''),
-        score: parseFloat(entry.score || 0),
-        e_value: parseFloat(fields.e_value?.[0] || fields.evalue?.[0] || 0),
-        identity: parseFloat(fields.identity?.[0] || 0),
-        query_coverage: parseFloat(fields.query_coverage?.[0] || 0),
-        target_coverage: parseFloat(fields.target_coverage?.[0] || 0),
-        alignment: fields.alignment?.[0] || '',
-        alignment_length: parseInt(fields.alignment_length?.[0] || 0),
-        target_length: parseInt(fields.target_length?.[0] || 0),
-        nts_count1: parseInt(fields.nts_count1?.[0] || 0),
-        nts_count2: parseInt(fields.nts_count2?.[0] || 0),
-        gaps: parseInt(fields.gaps?.[0] || 0),
-      });
-    });
-  }
-
-  // Parse facets
-  const facets = [];
-  if (ebiData.facets) {
-    ebiData.facets.forEach(facet => {
-      const facetValues = [];
-      if (facet.facetValues) {
-        facet.facetValues.forEach(fv => {
-          facetValues.push({
-            label: fv.label,
-            value: fv.value,
-            count: fv.count
-          });
-        });
-      }
-      facets.push({
-        id: facet.id,
-        label: facet.label,
-        facetValues: facetValues
-      });
-    });
-  }
-
-  return {
-    job_id: jobId,
-    entries: entries,
-    hitCount: ebiData.hitCount || entries.length,
-    facets: facets,
-    textSearchError: false
-  };
-}
-
-// Helper function to parse Job Dispatcher XML results into the app's expected format
-function parseJobDispatcherResults(xmlDoc, jobId) {
-  const entries = [];
-  const hits = xmlDoc.querySelectorAll('hit');
-
-  hits.forEach((hit, index) => {
-    const entry = {
-      id: index,
-      rnacentral_id: hit.getAttribute('id') || hit.querySelector('id')?.textContent || `hit_${index}`,
-      description: hit.querySelector('description')?.textContent || hit.getAttribute('description') || '',
-      score: parseFloat(hit.querySelector('score')?.textContent || hit.getAttribute('score') || 0),
-      e_value: parseFloat(hit.querySelector('evalue')?.textContent || hit.querySelector('e_value')?.textContent || hit.getAttribute('evalue') || 0),
-      identity: parseFloat(hit.querySelector('identity')?.textContent || hit.getAttribute('identity') || 0),
-      query_coverage: parseFloat(hit.querySelector('query_coverage')?.textContent || hit.getAttribute('query_coverage') || 0),
-      target_coverage: parseFloat(hit.querySelector('target_coverage')?.textContent || hit.getAttribute('target_coverage') || 0),
-      alignment: hit.querySelector('alignment')?.textContent || '',
-      alignment_length: parseInt(hit.querySelector('alignment_length')?.textContent || hit.getAttribute('alignment_length') || 0),
-      target_length: parseInt(hit.querySelector('target_length')?.textContent || hit.getAttribute('target_length') || 0),
-      nts_count1: parseInt(hit.querySelector('nts_count1')?.textContent || 0),
-      nts_count2: parseInt(hit.querySelector('nts_count2')?.textContent || 0),
-      gaps: parseInt(hit.querySelector('gaps')?.textContent || hit.getAttribute('gaps') || 0),
-    };
-    entries.push(entry);
-  });
-
-  // Filter out entries without rnacentral_id
-  const filteredEntries = entries.filter(entry => entry.rnacentral_id && !entry.rnacentral_id.startsWith('hit_'));
-
-  return {
-    job_id: jobId,
-    entries: filteredEntries,
-    hitCount: filteredEntries.length,
-    facets: [],
-    textSearchError: false
-  };
 }
 
 export function fetchR2DTThumbnail(jobId) {
@@ -1124,41 +823,38 @@ export function failedFetchInfernalResults(response) {
 
 export function onFilterResult() {
   let state = store.getState();
-  const extraQuery = buildQuery(state.selectedFacets);
 
   return async function(dispatch) {
     try {
-      // First get all results from Job Dispatcher
-      const response = await fetch(routes.jdJobResult(state.jobId), {
-        method: 'GET',
-        headers: { 'Accept': 'application/json' }
+      // Use proxy API filter endpoint
+      const response = await fetch(routes.proxyFilterResults(state.jobId), {
+        method: 'POST',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          selected_facets: state.selectedFacets,
+          text_filter: state.filter || null
+        })
       });
 
       if (!response.ok) {
         throw response;
       }
 
-      const jsonArray = await response.json();
-      const jdData = parseJobDispatcherJsonResults(jsonArray, state.jobId);
+      const data = await response.json();
 
-      // Fetch facets from EBI Search in batches for all results
-      try {
-        const batchedFacets = await fetchFacetsInBatches(jdData.entries, extraQuery);
-        if (batchedFacets.length > 0) {
-          jdData.facets = parseFacets(batchedFacets);
-        }
+      // Transform proxy API response to match expected format
+      const results = {
+        job_id: data.job_id,
+        entries: data.entries || [],
+        hitCount: data.hit_count || 0,
+        facets: parseFacets(data.facets || []),
+        textSearchError: false
+      };
 
-        // If there's a filter, we need to filter entries based on matching IDs
-        if (extraQuery) {
-          const matchingIds = await fetchMatchingIdsInBatches(jdData.entries, extraQuery);
-          jdData.entries = jdData.entries.filter(e => matchingIds.has(e.rnacentral_id));
-          jdData.hitCount = jdData.entries.length;
-        }
-      } catch (err) {
-        // Facet fetch failed, continue without facets
-      }
-
-      dispatch({type: types.FETCH_RESULTS, status: 'success', data: jdData});
+      dispatch({type: types.FETCH_RESULTS, status: 'success', data: results});
       dispatch(dataForDownload());
     } catch (error) {
       dispatch({type: types.FETCH_RESULTS, status: 'error'});
@@ -1187,44 +883,43 @@ export function onToggleFacet(event, facet, facetValue) {
 
     dispatch({type: types.TOGGLE_FACET, id: facet.id, value: facetValue.value});
 
-    const extraQuery = buildQuery(selectedFacets);
+    // Build text filter from the filter input
+    const textFilter = state.filter || null;
 
     try {
-      // First get all results from Job Dispatcher
-      const response = await fetch(routes.jdJobResult(state.jobId), {
-        method: 'GET',
-        headers: { 'Accept': 'application/json' }
+      // Use proxy API filter endpoint
+      const response = await fetch(routes.proxyFilterResults(state.jobId), {
+        method: 'POST',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          selected_facets: selectedFacets,
+          text_filter: textFilter
+        })
       });
 
       if (!response.ok) {
         throw response;
       }
 
-      const jsonArray = await response.json();
-      const jdData = parseJobDispatcherJsonResults(jsonArray, state.jobId);
+      const data = await response.json();
 
-      // Fetch facets from EBI Search in batches for all results
-      try {
-        const batchedFacets = await fetchFacetsInBatches(jdData.entries, extraQuery);
-        if (batchedFacets.length > 0) {
-          jdData.facets = parseFacets(batchedFacets);
-        }
-
-        // If there's a filter, we need to filter entries based on matching IDs
-        if (extraQuery) {
-          const matchingIds = await fetchMatchingIdsInBatches(jdData.entries, extraQuery);
-          jdData.entries = jdData.entries.filter(e => matchingIds.has(e.rnacentral_id));
-          jdData.hitCount = jdData.entries.length;
-        }
-      } catch (err) {
-        // Facet fetch failed, continue without facets
-      }
+      // Transform proxy API response to match expected format
+      const results = {
+        job_id: data.job_id,
+        entries: data.entries || [],
+        hitCount: data.hit_count || 0,
+        facets: parseFacets(data.facets || []),
+        textSearchError: false
+      };
 
       dispatch({
         type: types.TOGGLE_FACET,
         id: facet.id,
         value: facetValue.value,
-        data: jdData,
+        data: results,
         status: 'success',
         selectedFacets: selectedFacets
       });
@@ -1245,9 +940,9 @@ export function onLoadMore(event) {
   return function(dispatch) {
     dispatch({type: types.LOAD_MORE});
 
-    // Job Dispatcher returns all results at once, so we just re-fetch
-    // Client-side pagination would need to be implemented
-    return fetch(routes.jdJobResult(state.jobId), {
+    // Proxy API returns all results at once
+    // Client-side pagination is handled by the component
+    return fetch(routes.proxyJobResults(state.jobId), {
         method: 'GET',
         headers: { 'Accept': 'application/json' }
       })
@@ -1255,9 +950,15 @@ export function onLoadMore(event) {
         if (response.ok) { return response.json(); }
         else { throw response; }
       })
-      .then(jsonArray => {
-        const data = parseJobDispatcherJsonResults(jsonArray, state.jobId);
-        dispatch({type: types.LOAD_MORE, data: data})
+      .then(data => {
+        const results = {
+          job_id: data.job_id,
+          entries: data.entries || [],
+          hitCount: data.hit_count || 0,
+          facets: parseFacets(data.facets || []),
+          textSearchError: false
+        };
+        dispatch({type: types.LOAD_MORE, data: results})
       })
       .catch(response => dispatch({ type: types.FAILED_FETCH_RESULTS, status: "error", start: 0 }))
   }
@@ -1271,7 +972,7 @@ export function onSort(event) {
     dispatch({type: types.SORT_RESULTS});
 
     // Re-fetch and sort client-side
-    return fetch(routes.jdJobResult(state.jobId), {
+    return fetch(routes.proxyJobResults(state.jobId), {
         method: 'GET',
         headers: { 'Accept': 'application/json' }
       })
@@ -1279,9 +980,15 @@ export function onSort(event) {
         if (response.ok) { return response.json(); }
         else { throw response; }
       })
-      .then(jsonArray => {
-        const data = parseJobDispatcherJsonResults(jsonArray, state.jobId);
-        dispatch({type: types.SORT_RESULTS, data: data, ordering: ordering});
+      .then(data => {
+        const results = {
+          job_id: data.job_id,
+          entries: data.entries || [],
+          hitCount: data.hit_count || 0,
+          facets: parseFacets(data.facets || []),
+          textSearchError: false
+        };
+        dispatch({type: types.SORT_RESULTS, data: results, ordering: ordering});
         dispatch(dataForDownload());
       })
       .catch(response => dispatch({ type: types.FAILED_FETCH_RESULTS, status: "error", start: 0 }));
@@ -1355,33 +1062,12 @@ export function onFileUpload (event) {
 
 export function dataForDownload() {
   let state = store.getState();
-  let iterations = 1;
-
-  if (state.hitCount>100 && state.hitCount<=200) {
-    iterations = 2
-  } else if (state.hitCount>200 && state.hitCount<=300) {
-    iterations = 3
-  } else if (state.hitCount>300 && state.hitCount<=400) {
-    iterations = 4
-  } else if (state.hitCount>400 && state.hitCount<=500) {
-    iterations = 5
-  } else if (state.hitCount>500 && state.hitCount<=600) {
-    iterations = 6
-  } else if (state.hitCount>600 && state.hitCount<=700) {
-    iterations = 7
-  } else if (state.hitCount>700 && state.hitCount<=800) {
-    iterations = 8
-  } else if (state.hitCount>800 && state.hitCount<=900) {
-    iterations = 9
-  } else if (state.hitCount>900) {
-    iterations = 10
-  }
 
   return async function(dispatch) {
     dispatch({type: types.DOWNLOAD, status: "clear"})
 
-    // Job Dispatcher returns all results at once
-    await fetch(routes.jdJobResult(state.jobId), {
+    // Proxy API returns all results at once
+    await fetch(routes.proxyJobResults(state.jobId), {
       method: 'GET',
       headers: {
         'Accept': 'application/json'
@@ -1391,9 +1077,8 @@ export function dataForDownload() {
       if (response.ok) { return response.json() }
       else { throw response }
     })
-    .then((jsonArray) => {
-      const data = parseJobDispatcherJsonResults(jsonArray, state.jobId);
-      dispatch({type: types.DOWNLOAD, status: "success", data: data.entries})
+    .then((data) => {
+      dispatch({type: types.DOWNLOAD, status: "success", data: data.entries || []})
     })
     .catch(response => dispatch({ type: types.DOWNLOAD, status: "error" }));
   }

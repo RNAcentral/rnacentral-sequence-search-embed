@@ -2,57 +2,48 @@ let server = process.env.REACT_APP_SERVER ? process.env.REACT_APP_SERVER : 'http
 let ebiDevOrProd = process.env.REACT_APP_BRANCH === 'dev' ? 'wwwdev' : 'www';
 let r2dtServer =  `https://${ebiDevOrProd}.ebi.ac.uk/Tools/services/rest/r2dt`;
 
-// Job Dispatcher endpoint for nhmmer searches
-let jobDispatcherServer = 'http://test.jd.sdo.ebi.ac.uk:8180/Tools/services/rest/rnacentral_nhmmer';
+// Sequence Search Proxy API - handles Job Dispatcher and EBI Search on the backend
+// Use proxy path for local development
+function getProxyApiServer() {
+  let isLocalDev = typeof window !== 'undefined' && window.location.hostname === 'localhost';
+  if (isLocalDev) {
+    return '/proxy-api';
+  }
+  // Production URL - update when deployed
+  return process.env.REACT_APP_PROXY_API || 'https://search.rnacentral.org/proxy-api';
+}
 
 // Infernal cmscan endpoint for Rfam classification
 let infernalServer = `https://${ebiDevOrProd}.ebi.ac.uk/Tools/services/rest/infernal_cmscan`;
 
-// EBI Search endpoint for facets
-// Use proxy path for local development to avoid CORS issues
-function getEbiSearchServer() {
-  let isLocalDev = typeof window !== 'undefined' && window.location.hostname === 'localhost';
-  if (isLocalDev) {
-    return process.env.REACT_APP_BRANCH === 'dev' ? '/ebisearch-dev' : '/ebisearch';
-  }
-  return `https://${ebiDevOrProd}.ebi.ac.uk/ebisearch/ws/rest/rnacentral`;
-}
-
-// Facet fields to request from EBI Search
-const facetFields = 'length,rna_type,TAXONOMY,expert_db,qc_warning_found,has_go_annotations,has_conserved_structure,has_genomic_coordinates,popular_species';
-
-// Fields to request from EBI Search
-const ebiSearchFields = 'description,url,active,rna_type,expert_db,has_genomic_coordinates,length';
-
 module.exports = {
+  // Legacy endpoints (kept for backwards compatibility)
   rnacentralDatabases: () => `${server}/api/rnacentral-databases`,
-  submitJob:           () => `${server}/api/submit-job`,
-  jobStatus:           (jobId) => `${server}/api/job-status/${jobId}`,
   jobsStatuses:        () => `${server}/api/jobs-statuses`,
-  jobResult:           (resultId) => `${server}/api/job-result/${resultId}`,
-  facets:              (resultId) => `${server}/api/facets/${resultId}`,
-  facetsSearch:        (resultId, query, start, size, ordering) => `${server}/api/facets-search/${resultId}?query=${query}&start=${start}&size=${size}&ordering=${ordering}`,
   consumersStatuses:   () => `${server}/api/consumers-statuses`,
   infernalJobStatus:   (jobId) => `${server}/api/infernal-status/${jobId}`,
   infernalJobResult:   (resultId) => `${server}/api/infernal-result/${resultId}`,
+
   // Infernal cmscan Job Dispatcher endpoints
   infernalSubmitJob:   () => `${infernalServer}/run`,
   infernalJdJobStatus: (jobId) => `${infernalServer}/status/${jobId}`,
   infernalJdJobResult: (jobId) => `${infernalServer}/result/${jobId}/out`,
   infernalJdJobTblout: (jobId) => `${infernalServer}/result/${jobId}/tblout`,
+
+  // EBI Search for exact match lookup
   searchEndpoint:      (query) => `https://${ebiDevOrProd}.ebi.ac.uk/ebisearch/ws/rest/rnacentral?query=${query}&fields=description,url&format=json&sort=boost:descending`,
   rnacentralUrs:       (urs) => `https://rnacentral.org/api/v1/rna/${urs}`,
   saveR2DTId:          (jobId) => `${server}/api/r2dt/${jobId}`,
+
+  // R2DT endpoints
   submitR2DTJob:       () => `${r2dtServer}/run`,
   r2dtJobStatus:       (jobId) => `${r2dtServer}/status/${jobId}`,
   r2dtThumbnail:       (jobId) => `${r2dtServer}/result/${jobId}/thumbnail`,
-  // Job Dispatcher endpoints
-  jdSubmitJob:         () => `${jobDispatcherServer}/run`,
-  jdJobStatus:         (jobId) => `${jobDispatcherServer}/status/${jobId}`,
-  jdJobResult:         (jobId) => `${jobDispatcherServer}/result/${jobId}/json`,
-  // EBI Search endpoint for facets (seqtoolresults)
-  // Note: toolid should match the Job Dispatcher tool name
-  ebiSearchFacets:     (jobId, query, start, size) => `${getEbiSearchServer()}/seqtoolresults?toolid=rnacentral_nhmmer&jobid=${jobId}&query=${encodeURIComponent(query || '*')}&format=json&fields=description&facetcount=100&facetfields=${facetFields}&start=${start}&size=${size}`,
-  // EBI Search endpoint for querying by RNAcentral IDs
-  ebiSearchByIds:      (idsQuery, extraQuery, start, size) => `${getEbiSearchServer()}?query=${encodeURIComponent(idsQuery)}${extraQuery ? '%20AND%20' + encodeURIComponent(extraQuery) : ''}&format=json&fields=${ebiSearchFields}&facetcount=100&facetfields=${facetFields}&start=${start}&size=${size}`,
+
+  // NEW: Proxy API endpoints - handles Job Dispatcher + EBI Search on backend
+  proxySubmitJob:      () => `${getProxyApiServer()}/submit-job`,
+  proxyJobStatus:      (jobId) => `${getProxyApiServer()}/job-status/${jobId}`,
+  proxyJobResults:     (jobId) => `${getProxyApiServer()}/job-results/${jobId}`,
+  proxyFilterResults:  (jobId) => `${getProxyApiServer()}/job-results/${jobId}/filter`,
+  proxyDatabases:      () => `${getProxyApiServer()}/databases`,
 };
