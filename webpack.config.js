@@ -84,7 +84,7 @@ module.exports = function(env) {
       proxy: [
         {
           context: ['/proxy-api'],
-          target: 'http://localhost:8000',
+          target: 'http://hh-rke-wp-webadmin-63-worker-8.caas.ebi.ac.uk:30086',
           changeOrigin: true,
           pathRewrite: { '^/proxy-api': '/api' },
           secure: false,

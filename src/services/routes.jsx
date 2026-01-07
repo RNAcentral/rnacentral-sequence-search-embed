@@ -9,8 +9,8 @@ function getProxyApiServer() {
   if (isLocalDev) {
     return '/proxy-api';
   }
-  // Production URL - update when deployed
-  return process.env.REACT_APP_PROXY_API || 'https://search.rnacentral.org/proxy-api';
+  // Production URL - K8s cluster deployment
+  return process.env.REACT_APP_PROXY_API || 'http://hh-rke-wp-webadmin-63-worker-8.caas.ebi.ac.uk:30086/api';
 }
 
 // Infernal cmscan endpoint for Rfam classification
