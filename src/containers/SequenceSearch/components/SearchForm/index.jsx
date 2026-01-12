@@ -29,7 +29,7 @@ class SearchForm extends React.Component {
 
   showExactMatch(linkColor){
     const exactMatch = this.props.exactMatch;
-    let database = this.props.databases.length !== 0 ? this.props.databases[0].toLowerCase() : "";
+    let database = this.props.databases && this.props.databases.length !== 0 ? this.props.databases[0].toLowerCase() : "";
     // there isn’t always a relationship between the DB name and the url.
     if (database === "snodb") {
       database = "scottgroup";
@@ -137,17 +137,6 @@ class SearchForm extends React.Component {
               {this.props.examples ? <div id="examples"><ul className="text-muted">Examples: {this.showExamples(linkColor)}</ul></div> : ""}
             </div>
           </div>
-          {
-            !this.props.databases && (
-              <div className="row">
-                <div className="col-sm-9">
-                  <div className="alert alert-danger">
-                    You must specify the database that will be used to search sequences
-                  </div>
-                </div>
-              </div>
-            )
-          }
           {
             this.props.submissionError && (
               <div className="row">

@@ -627,7 +627,7 @@ export function fetchR2DTStatus(jobId, saveR2DTId = false) {
     .then((data) => {
       const status = data.trim();
 
-      if (status === 'RUNNING' || status === 'QUEUED') {
+      if (status === 'RUNNING' || status === 'QUEUED' || status === 'PENDING') {
         let statusTimeout = setTimeout(() => store.dispatch(fetchR2DTStatus(jobId, saveR2DTId)), 2000);
         dispatch({type: types.SET_STATUS_TIMEOUT, timeout: statusTimeout});
       } else if (status === 'FINISHED') {
@@ -639,6 +639,9 @@ export function fetchR2DTStatus(jobId, saveR2DTId = false) {
       } else if (status === 'FAILURE') {
         dispatch({type: types.FETCH_R2DT_STATUS, status: 'FAILURE'})
       } else if (status === 'ERROR') {
+        dispatch({type: types.FETCH_R2DT_STATUS, status: 'ERROR'})
+      } else {
+        // Handle any unexpected status as an error
         dispatch({type: types.FETCH_R2DT_STATUS, status: 'ERROR'})
       }
     })
@@ -851,7 +854,8 @@ export function onFilterResult() {
         entries: data.entries || [],
         hitCount: data.hit_count || 0,
         facets: parseFacets(data.facets || []),
-        textSearchError: false
+        textSearchError: false,
+        sequenceSearchStatus: 'success'
       };
 
       dispatch({type: types.FETCH_RESULTS, status: 'success', data: results});
@@ -912,7 +916,8 @@ export function onToggleFacet(event, facet, facetValue) {
         entries: data.entries || [],
         hitCount: data.hit_count || 0,
         facets: parseFacets(data.facets || []),
-        textSearchError: false
+        textSearchError: false,
+        sequenceSearchStatus: 'success'
       };
 
       dispatch({
@@ -956,7 +961,8 @@ export function onLoadMore(event) {
           entries: data.entries || [],
           hitCount: data.hit_count || 0,
           facets: parseFacets(data.facets || []),
-          textSearchError: false
+          textSearchError: false,
+          sequenceSearchStatus: 'success'
         };
         dispatch({type: types.LOAD_MORE, data: results})
       })
@@ -986,7 +992,8 @@ export function onSort(event) {
           entries: data.entries || [],
           hitCount: data.hit_count || 0,
           facets: parseFacets(data.facets || []),
-          textSearchError: false
+          textSearchError: false,
+          sequenceSearchStatus: 'success'
         };
         dispatch({type: types.SORT_RESULTS, data: results, ordering: ordering});
         dispatch(dataForDownload());

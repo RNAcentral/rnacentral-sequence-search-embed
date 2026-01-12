@@ -1,17 +1,8 @@
-let server = process.env.REACT_APP_SERVER ? process.env.REACT_APP_SERVER : 'https://search.rnacentral.org';
-let ebiDevOrProd = process.env.REACT_APP_BRANCH === 'dev' ? 'wwwdev' : 'www';
+let branch = process.env.REACT_APP_BRANCH;
+let isDevBranch = branch === 'dev' || branch === 'migrate-to-job-dispatcher';
+let server = process.env.REACT_APP_SERVER || (isDevBranch ? 'https://sequence-search-test.rnacentral.org' : 'https://sequence-search.rnacentral.org');
+let ebiDevOrProd = isDevBranch ? 'wwwdev' : 'www';
 let r2dtServer =  `https://${ebiDevOrProd}.ebi.ac.uk/Tools/services/rest/r2dt`;
-
-// Sequence Search Proxy API - handles Job Dispatcher and EBI Search on the backend
-// Use proxy path for local development
-function getProxyApiServer() {
-  let isLocalDev = typeof window !== 'undefined' && window.location.hostname === 'localhost';
-  if (isLocalDev) {
-    return '/proxy-api';
-  }
-  // Production URL - K8s cluster deployment
-  return process.env.REACT_APP_PROXY_API || 'http://hh-rke-wp-webadmin-63-worker-8.caas.ebi.ac.uk:30086/api';
-}
 
 // Infernal cmscan endpoint for Rfam classification
 let infernalServer = `https://${ebiDevOrProd}.ebi.ac.uk/Tools/services/rest/infernal_cmscan`;
@@ -40,10 +31,10 @@ module.exports = {
   r2dtJobStatus:       (jobId) => `${r2dtServer}/status/${jobId}`,
   r2dtThumbnail:       (jobId) => `${r2dtServer}/result/${jobId}/thumbnail`,
 
-  // NEW: Proxy API endpoints - handles Job Dispatcher + EBI Search on backend
-  proxySubmitJob:      () => `${getProxyApiServer()}/submit-job`,
-  proxyJobStatus:      (jobId) => `${getProxyApiServer()}/job-status/${jobId}`,
-  proxyJobResults:     (jobId) => `${getProxyApiServer()}/job-results/${jobId}`,
-  proxyFilterResults:  (jobId) => `${getProxyApiServer()}/job-results/${jobId}/filter`,
-  proxyDatabases:      () => `${getProxyApiServer()}/databases`,
+  // Proxy API endpoints - handles Job Dispatcher + EBI Search on backend
+  proxySubmitJob:      () => `${server}/api/submit-job`,
+  proxyJobStatus:      (jobId) => `${server}/api/job-status/${jobId}`,
+  proxyJobResults:     (jobId) => `${server}/api/job-results/${jobId}`,
+  proxyFilterResults:  (jobId) => `${server}/api/job-results/${jobId}/filter`,
+  proxyDatabases:      () => `${server}/api/databases`,
 };

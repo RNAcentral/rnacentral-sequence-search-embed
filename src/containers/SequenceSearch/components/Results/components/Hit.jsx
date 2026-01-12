@@ -26,8 +26,8 @@ class Hit extends React.Component {
     const showExpertDb = info.filter(({name}) => newExpertDb.includes(name));
     const exactMatchUrsId = this.props.exactMatchUrsId.indexOf(this.props.entry.rnacentral_id) > -1 ? <FaCheckCircle style={{color: '#3c763d', verticalAlign: '-1px'}}/> : '';
 
-    // check database used. Empty array means RNAcentral
-    let database = this.props.databases.length !== 0 ? this.props.databases[0].toLowerCase() : "";
+    // check database used. Empty array or null means RNAcentral
+    let database = this.props.databases && this.props.databases.length !== 0 ? this.props.databases[0].toLowerCase() : "";
     // there isn’t always a relationship between the DB name and the url.
     if (database === "snodb") {
       database = "scottgroup";

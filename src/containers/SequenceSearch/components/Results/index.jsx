@@ -170,7 +170,7 @@ class Results extends React.Component {
               <div className="col-sm-12 mt-3 mb-3">
                 <span style={h3Style}>{similarSeqText} </span>{ this.props.status === "loading" ? <div className={`spinner-border ${fixCss ? '' : 'spinner-border-sm'} mb-1`} role="status" /> : <span style={h3Style}><small className="text-muted" style={{fontSize: "65%"}}>{ this.props.hitCount }</small>{ this.props.hits > 1000 ? <small className="text-muted" style={{fontSize: "65%"}}> of { this.props.hits } <a className="text-muted" style={{verticalAlign: "10%"}} href="https://rnacentral.org/help/sequence-search#number" target="_blank"> <MdHelpOutline /></a></small> : ''}</span> }
               </div>
-              { this.props.databases.length === 0 ? this.showSearchInProgress() : '' }
+              { !this.props.databases || this.props.databases.length === 0 ? this.showSearchInProgress() : '' }
               <div>
                 {
                   this.props.entries && this.props.entries.length || this.props.filter ? <Filter databases={this.props.databases} customStyle={ this.props.customStyle }/> : ""
@@ -205,7 +205,7 @@ class Results extends React.Component {
                         {this.props.status === "loading" ? <div className="spinner-border" role="status" /> : (this.props.status === "success" || this.props.status === "partial_success") && (this.props.entries.length < this.props.hitCount) && (<button className="btn btn-secondary" onClick={this.props.onLoadMore} style={{background: loadMoreButtonColor, borderColor: loadMoreButtonColor, fontSize: fixCss, height: fixCssBtn}}>Load more</button>)}
                       </section>
                     </div>
-                  </div> : this.props.status === "loading" ? '' : this.props.filter ? <div className="mt-3">No results. Try a different search or press the Clear button to view all results.</div> : this.props.rnacentral || this.props.databases.length === 0 ? <div className="mt-1">No results at <img src={'https://rnacentral.org/static/img/logo/rnacentral-logo.png'} alt="RNAcentral logo" style={{width: "1%", verticalAlign: "sub"}}/> RNAcentral.</div> : <div className="mt-1">The query sequence did not match any {this.props.databases} sequences. You can <a className="custom-link" style={{color: linkColor}} href="#" onClick={this.submitToRnacentral}>try to search against RNAcentral</a>.</div>
+                  </div> : this.props.status === "loading" ? '' : this.props.filter ? <div className="mt-3">No results. Try a different search or press the Clear button to view all results.</div> : this.props.rnacentral || !this.props.databases || this.props.databases.length === 0 ? <div className="mt-1">No results at <img src={'https://rnacentral.org/static/img/logo/rnacentral-logo.png'} alt="RNAcentral logo" style={{width: "1%", verticalAlign: "sub"}}/> RNAcentral.</div> : <div className="mt-1">The query sequence did not match any {this.props.databases} sequences. You can <a className="custom-link" style={{color: linkColor}} href="#" onClick={this.submitToRnacentral}>try to search against RNAcentral</a>.</div>
                 }
               </div>
             </div>
