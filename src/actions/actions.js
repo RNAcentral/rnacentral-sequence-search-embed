@@ -583,8 +583,8 @@ export function fetchStatus(jobId) {
     .then((data) => {
       const status = data.status;
 
-      // Proxy API status values: running, finished, error, not_found
-      if (status === 'running') {
+      // Proxy API status values: running, pending, finished, error, not_found
+      if (status === 'running' || status === 'pending') {
         // Update the search progress using progress from the API
         let currentState = store.getState();
         let newSearchInProgress = [...currentState.searchInProgress];
