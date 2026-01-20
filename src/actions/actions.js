@@ -15,8 +15,13 @@ export function onSubmit(sequence, databases, r2dt = false, rfam = false) {
     fastaSequence = ">query\n" + sequence;
   }
 
+  console.log('[onSubmit] Submitting job with sequence length:', sequence.length);
+  console.log('[onSubmit] Databases:', databases);
+  console.log('[onSubmit] r2dt:', r2dt, 'rfam:', rfam);
+
   return function(dispatch) {
     // Submit to our proxy API which handles parallel submission to all databases
+    console.log('[onSubmit] Posting to:', routes.proxySubmitJob());
     fetch(routes.proxySubmitJob(), {
       method: 'POST',
       headers: {
@@ -29,25 +34,31 @@ export function onSubmit(sequence, databases, r2dt = false, rfam = false) {
       })
     })
     .then(function (response) {
+      console.log('[onSubmit] Response received, ok:', response.ok, 'status:', response.status);
       if (response.ok) { return response.json() }
       else { throw response }
     })
     .then(data => {
+        console.log('[onSubmit] Job submitted successfully, job_id:', data.job_id);
         // Proxy API returns JSON with job_id
         dispatch({type: types.SUBMIT_JOB, status: 'success', data: { job_id: data.job_id }});
+        console.log('[onSubmit] Dispatching fetchStatus for job_id:', data.job_id);
         dispatch(fetchStatus(data.job_id));
 
         // Submit R2DT job directly with the sequence we have
         if (r2dt) {
+          console.log('[onSubmit] Submitting R2DT job');
           dispatch(r2dtSubmit(fastaSequence));
         }
 
         // Submit Infernal cmscan job for Rfam classification
         if (rfam) {
+          console.log('[onSubmit] Submitting Infernal job');
           dispatch(infernalSubmit(fastaSequence));
         }
     })
     .catch(async (error) => {
+      console.error('[onSubmit] Error caught:', error);
       if (error.statusText === undefined) {
         dispatch({type: types.SUBMIT_JOB, status: 'error', response: "The sequence search is temporarily unreachable. Please try again later."})
       } else {
@@ -570,6 +581,9 @@ export function invalidSequence() {
 
 export function fetchStatus(jobId) {
   return function(dispatch) {
+    console.log('[fetchStatus] Starting status check for jobId:', jobId);
+    console.log('[fetchStatus] Fetching URL:', routes.proxyJobStatus(jobId));
+
     fetch(routes.proxyJobStatus(jobId), {
       method: 'GET',
       headers: {
@@ -577,19 +591,24 @@ export function fetchStatus(jobId) {
       }
     })
     .then(function(response) {
+      console.log('[fetchStatus] Response received, ok:', response.ok, 'status:', response.status);
       if (response.ok) { return response.json() }
       else { throw response }
     })
     .then((data) => {
+      console.log('[fetchStatus] Parsed data:', JSON.stringify(data));
       const status = data.status;
+      console.log('[fetchStatus] Job status:', status);
 
       // Proxy API status values: running, pending, finished, error, not_found
       if (status === 'running' || status === 'pending') {
+        console.log('[fetchStatus] Status is running/pending, scheduling next poll in 2s');
         // Update the search progress using progress from the API
         let currentState = store.getState();
         let newSearchInProgress = [...currentState.searchInProgress];
         let foundJobId = newSearchInProgress.find(el => el.jobId === jobId);
         const progress = data.progress || 0;
+        console.log('[fetchStatus] Progress:', progress);
         if (foundJobId){
           foundJobId['finishedChunk'] = Math.min(progress, 99);
         } else {
@@ -597,15 +616,24 @@ export function fetchStatus(jobId) {
         }
         dispatch({type: types.SEARCH_PROGRESS, data: newSearchInProgress });
 
-        let statusTimeout = setTimeout(() => store.dispatch(fetchStatus(jobId)), 2000);
-        dispatch({type: types.SET_STATUS_TIMEOUT, timeout: statusTimeout});
+        let statusTimeout = setTimeout(() => {
+          console.log('[fetchStatus] Timeout fired, dispatching fetchStatus again for jobId:', jobId);
+          store.dispatch(fetchStatus(jobId));
+        }, 2000);
+        console.log('[fetchStatus] Created timeout ID:', statusTimeout);
+        dispatch({type: types.SET_STATUS_TIMEOUT, statusTimeout: statusTimeout});
       } else if (status === 'finished') {
+        console.log('[fetchStatus] Job finished, fetching results');
         dispatch(fetchResults(jobId));
       } else if (status === 'error' || status === 'not_found') {
+        console.log('[fetchStatus] Job error or not_found, failing');
         dispatch(failedFetchResults({ status: 500 }));
+      } else {
+        console.log('[fetchStatus] Unexpected status value:', status, '- no action taken');
       }
     })
     .catch(error => {
+      console.error('[fetchStatus] Error caught:', error);
       if (store.getState().hasOwnProperty('statusTimeout')) {
         clearTimeout(store.getState().statusTimeout);
       }
