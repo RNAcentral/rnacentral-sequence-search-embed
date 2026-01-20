@@ -173,23 +173,32 @@ class Results extends React.Component {
               { this.showSearchInProgress() }
               <div>
                 {
-                  this.props.entries && this.props.entries.length || this.props.filter ? <Filter databases={this.props.databases} customStyle={ this.props.customStyle }/> : ""
+                  /* Only show filter when facets are available (results < 50k) */
+                  (this.props.entries && this.props.entries.length || this.props.filter) && this.props.hits <= 50000 ? <Filter databases={this.props.databases} customStyle={ this.props.customStyle }/> : ""
                 }
                 {
                   this.props.entries && this.props.entries.length ? <div className="row mt-3">
-                    <div className="col-sm-3">
-                      <Facets
-                         facets={ this.props.facets }
-                         selectedFacets={ this.props.selectedFacets }
-                         toggleFacet={ this.toggleFacet }
-                         ordering={ this.props.ordering }
-                         textSearchError={ this.props.textSearchError }
-                         hideFacet={ this.props.hideFacet}
-                         customStyle={ this.props.customStyle }
-                         databases={this.props.databases}
-                      />
-                    </div>
-                    <div className="col-sm-9">
+                    {/* Only show facets if available (results < 50k) */}
+                    { this.props.facets && this.props.facets.length > 0 && (
+                      <div className="col-sm-3">
+                        <Facets
+                           facets={ this.props.facets }
+                           selectedFacets={ this.props.selectedFacets }
+                           toggleFacet={ this.toggleFacet }
+                           ordering={ this.props.ordering }
+                           textSearchError={ this.props.textSearchError }
+                           hideFacet={ this.props.hideFacet}
+                           customStyle={ this.props.customStyle }
+                           databases={this.props.databases}
+                        />
+                      </div>
+                    )}
+                    <div className={this.props.facets && this.props.facets.length > 0 ? "col-sm-9" : "col-sm-12"}>
+                      { this.props.hits > 50000 && (!this.props.facets || this.props.facets.length === 0) && (
+                        <div className="alert alert-info mb-3">
+                          <small>Facet filtering is disabled for searches with more than 50,000 results.</small>
+                        </div>
+                      )}
                       <section>
                         { this.props.entries.map((entry, index) => (
                         <ul className="list-unstyled" key={`${entry}_${index}`}>
