@@ -207,6 +207,20 @@ You will need to run the `git pull` command whenever there are updates.
 
 4. `npm run build` to generate a new distribution
 
+### Build configuration
+
+By default, the component uses the production API server (`https://sequence-search.rnacentral.org`).
+
+To build with the test server, set the `REACT_APP_SERVER` environment variable:
+
+```bash
+REACT_APP_SERVER=https://sequence-search-test.rnacentral.org npm run build
+```
+
+| Environment Variable | Default | Description |
+|---------------------|---------|-------------|
+| `REACT_APP_SERVER` | `https://sequence-search.rnacentral.org` | API server URL |
+
 ### Notes
 
 This embed is implemented as a Web Component, wrapping a piece of code in React/Redux.
