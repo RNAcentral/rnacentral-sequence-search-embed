@@ -733,6 +733,7 @@ export function fetchResults(jobId) {
       const results = {
         job_id: data.job_id,
         entries: data.entries || [],
+        hits: data.hits || data.hit_count || 0,
         hitCount: data.hit_count || 0,
         facets: parseFacets(data.facets || []),
         textSearchError: false,
@@ -880,6 +881,7 @@ export function onFilterResult() {
       const results = {
         job_id: data.job_id,
         entries: data.entries || [],
+        hits: data.hits || data.hit_count || 0,
         hitCount: data.hit_count || 0,
         facets: parseFacets(data.facets || []),
         textSearchError: false,
@@ -942,6 +944,7 @@ export function onToggleFacet(event, facet, facetValue) {
       const results = {
         job_id: data.job_id,
         entries: data.entries || [],
+        hits: data.hits || data.hit_count || 0,
         hitCount: data.hit_count || 0,
         facets: parseFacets(data.facets || []),
         textSearchError: false,
@@ -987,6 +990,7 @@ export function onLoadMore(event) {
         const results = {
           job_id: data.job_id,
           entries: data.entries || [],
+          hits: data.hits || data.hit_count || 0,
           hitCount: data.hit_count || 0,
           facets: parseFacets(data.facets || []),
           textSearchError: false,
@@ -1018,6 +1022,7 @@ export function onSort(event) {
         const results = {
           job_id: data.job_id,
           entries: data.entries || [],
+          hits: data.hits || data.hit_count || 0,
           hitCount: data.hit_count || 0,
           facets: parseFacets(data.facets || []),
           textSearchError: false,
