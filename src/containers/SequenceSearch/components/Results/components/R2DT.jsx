@@ -4,14 +4,15 @@ import { MdHelpOutline } from "react-icons/md"
 
 
 class R2DT extends Component {
-  rnacentralServer(link) {
-    let rnacentralLink = "";
-    if (link.includes("wwwdev")) {
-      rnacentralLink = `https://test.rnacentral.org/r2dt?jobid=${this.props.r2dtJobId}`
-    } else {
-      rnacentralLink = `https://rnacentral.org/r2dt?jobid=${this.props.r2dtJobId}`
+  getR2dtResultsUrl() {
+    // If there's an exact match, link to the RNAcentral RNA page which has pre-computed secondary structure
+    const exactMatch = this.props.exactMatch;
+    if (exactMatch && exactMatch.hitCount > 0 && exactMatch.entries && exactMatch.entries[0]) {
+      const exactMatchId = exactMatch.entries[0].id;
+      return `https://rnacentral.org/rna/${exactMatchId}`;
     }
-    return rnacentralLink
+    // No exact match - no reliable link available
+    return null;
   }
 
   render() {
@@ -55,13 +56,19 @@ class R2DT extends Component {
           {
             this.props.r2dtStatus === "FINISHED" && this.props.r2dtThumbnail && (
               <div className="media mt-3">
-                <a href={this.rnacentralServer(this.props.r2dtThumbnail)} target="_blank">
+                {this.getR2dtResultsUrl() ? (
+                  <a href={this.getR2dtResultsUrl()} target="_blank">
+                    <img className="img-thumbnail mb-3" width="140" height="120" alt="R2DT thumbnail" src={this.props.r2dtThumbnail} />
+                  </a>
+                ) : (
                   <img className="img-thumbnail mb-3" width="140" height="120" alt="R2DT thumbnail" src={this.props.r2dtThumbnail} />
-                </a>
+                )}
                 <div className="media-body">
                   <p style={titleStyle} className="ml-3">R2DT</p>
                   <p className="ml-3">Visualise RNA secondary structure in standard orientations using RNA 2D Templates.</p>
-                  <div className="ml-3"><a href={this.rnacentralServer(this.props.r2dtThumbnail)} className="btn btn-outline-secondary" style={{fontSize: fixCss}} target="_blank">View</a></div>
+                  {this.getR2dtResultsUrl() && (
+                    <div className="ml-3"><a href={this.getR2dtResultsUrl()} className="btn btn-outline-secondary" style={{fontSize: fixCss}} target="_blank">View</a></div>
+                  )}
                 </div>
               </div>
             )
@@ -85,6 +92,7 @@ function mapStateToProps(state) {
     r2dtStatus: state.r2dtStatus,
     r2dtSubmissionError: state.r2dtSubmissionError,
     r2dtThumbnail: state.r2dtThumbnail,
+    exactMatch: state.exactMatch,
   };
 }
 

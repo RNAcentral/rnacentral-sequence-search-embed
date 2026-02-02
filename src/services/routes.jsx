@@ -1,7 +1,6 @@
-let branch = process.env.REACT_APP_BRANCH;
-let isDevBranch = branch === 'dev' || branch === 'migrate-to-job-dispatcher';
 let server = process.env.REACT_APP_SERVER || 'https://sequence-search.rnacentral.org';
-let ebiDevOrProd = isDevBranch ? 'wwwdev' : 'www';
+let isTestServer = server.includes('sequence-search-test');
+let ebiDevOrProd = isTestServer ? 'wwwdev' : 'www';
 let r2dtServer =  `https://${ebiDevOrProd}.ebi.ac.uk/Tools/services/rest/r2dt`;
 
 // Infernal cmscan endpoint for Rfam classification

@@ -173,8 +173,8 @@ class Results extends React.Component {
               { this.showSearchInProgress() }
               <div>
                 {
-                  /* Only show filter when facets are available (results < 50k) */
-                  (this.props.entries && this.props.entries.length || this.props.filter) && this.props.hits <= 50000 ? <Filter databases={this.props.databases} customStyle={ this.props.customStyle }/> : ""
+                  /* Show filter bar when there are entries or an active filter */
+                  (this.props.entries && this.props.entries.length || this.props.filter) ? <Filter databases={this.props.databases} customStyle={ this.props.customStyle }/> : ""
                 }
                 {
                   this.props.entries && this.props.entries.length ? <div className="row mt-3">

@@ -103,7 +103,7 @@ export function infernalSubmit(sequence) {
 
   // Build form data for Infernal cmscan
   const formData = new URLSearchParams();
-  formData.append('email', 'rnacentral@ebi.ac.uk');
+  formData.append('email', 'rnacentral@gmail.com');
   formData.append('sequence', query);
   formData.append('thresholdmodel', 'cut_ga');
 
