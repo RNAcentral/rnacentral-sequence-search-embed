@@ -35,7 +35,9 @@ const rootReducer = function (state = initialState, action) {
       } else if (action.status === 'success') {
         return Object.assign({}, state, { r2dtThumbnail: action.thumbnail});
       } else if (action.status === 'error') {
-        return Object.assign({}, state, { r2dtStatus: 'error' });
+        // Thumbnail fetch failed (likely 404 - no template matched)
+        // Don't set r2dtStatus to error, just set thumbnail to null
+        return Object.assign({}, state, { r2dtThumbnail: null });
       } else {
         return Object.assign({}, state, {});
       }
@@ -53,18 +55,18 @@ const rootReducer = function (state = initialState, action) {
       }
 
     case actions.FAILED_FETCH_RESULTS:
-      if ('does not exist') {
+      if (action.status === 'does_not_exist') {
         return Object.assign({}, state, {status: "does_not_exist", start: 0});
-      } else if ('error') {
+      } else if (action.status === 'error') {
         return Object.assign({}, state, {status: "error", start: 0});
       } else {
         return Object.assign({}, state, {});
       }
 
     case actions.FAILED_FETCH_INFERNAL_RESULTS:
-      if ('does not exist') {
+      if (action.status === 'does_not_exist') {
         return Object.assign({}, state, {infernalStatus: "does_not_exist"});
-      } else if ('error') {
+      } else if (action.status === 'error') {
         return Object.assign({}, state, {infernalStatus: "error"});
       } else {
         return Object.assign({}, state, {});

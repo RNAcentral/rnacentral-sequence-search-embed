@@ -4,63 +4,61 @@ import {store} from 'app.jsx';
 import md5 from 'md5';
 
 
-/**
- * Builds text query for sending to text search backend from this.state.selectedFacets
- * @returns {string | *}
- */
-let buildQuery = function (selectedFacets) {
-  let state = store.getState();
-  let outputText, outputClauses = [];
-
-  Object.keys(selectedFacets).map(facetId => {
-    let facetText, facetClauses = [];
-    selectedFacets[facetId].map(facetValueValue => facetClauses.push(`${facetId}:"${facetValueValue}"`));
-    facetText = facetClauses.join(" OR ");
-
-    if (facetText !== "") outputClauses.push("(" + facetText + ")");
-  });
-
-  if (state.filter) {
-    outputClauses.push("(" + state.filter + ")")
-  }
-
-  outputText = outputClauses.join(" AND ");
-  return outputText;
-};
-
 export function updateStatus() {
   return {type: types.UPDATE_STATUS, data: "loading"}
 }
 
-export function onSubmit(sequence, databases, r2dt= false) {
-  let url = window.location.href;
+export function onSubmit(sequence, databases, r2dt = false, rfam = false) {
+  // Format sequence for R2DT/Infernal - needs FASTA format
+  let fastaSequence = sequence;
+  if (!/^>/.test(sequence)) {
+    fastaSequence = ">query\n" + sequence;
+  }
+
+  console.log('[onSubmit] Submitting job with sequence length:', sequence.length);
+  console.log('[onSubmit] Databases:', databases);
+  console.log('[onSubmit] r2dt:', r2dt, 'rfam:', rfam);
 
   return function(dispatch) {
-    fetch(routes.submitJob(), {
+    // Submit to our proxy API which handles parallel submission to all databases
+    console.log('[onSubmit] Posting to:', routes.proxySubmitJob());
+    fetch(routes.proxySubmitJob(), {
       method: 'POST',
-      mode: 'cors',
-      credentials: 'include',
       headers: {
-        'Accept': 'application/json, text/plain, */*',
+        'Accept': 'application/json',
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        query: sequence,
-        databases: databases,
-        url: url,
-        priority: 'high'
+        sequence: sequence,
+        databases: databases && databases.length > 0 ? databases : null
       })
     })
     .then(function (response) {
+      console.log('[onSubmit] Response received, ok:', response.ok, 'status:', response.status);
       if (response.ok) { return response.json() }
       else { throw response }
     })
     .then(data => {
-        dispatch({type: types.SUBMIT_JOB, status: 'success', data: data});
-        dispatch(fetchStatus(data.job_id, r2dt));
-        dispatch(fetchInfernalStatus(data.job_id));
+        console.log('[onSubmit] Job submitted successfully, job_id:', data.job_id);
+        // Proxy API returns JSON with job_id
+        dispatch({type: types.SUBMIT_JOB, status: 'success', data: { job_id: data.job_id }});
+        console.log('[onSubmit] Dispatching fetchStatus for job_id:', data.job_id);
+        dispatch(fetchStatus(data.job_id));
+
+        // Submit R2DT job directly with the sequence we have
+        if (r2dt) {
+          console.log('[onSubmit] Submitting R2DT job');
+          dispatch(r2dtSubmit(fastaSequence));
+        }
+
+        // Submit Infernal cmscan job for Rfam classification
+        if (rfam) {
+          console.log('[onSubmit] Submitting Infernal job');
+          dispatch(infernalSubmit(fastaSequence));
+        }
     })
-    .catch(error => {
+    .catch(async (error) => {
+      console.error('[onSubmit] Error caught:', error);
       if (error.statusText === undefined) {
         dispatch({type: types.SUBMIT_JOB, status: 'error', response: "The sequence search is temporarily unreachable. Please try again later."})
       } else {
@@ -82,7 +80,7 @@ export function r2dtSubmit(sequence) {
         'Accept': 'text/plain',
         'Content-Type': 'application/x-www-form-urlencoded'
       },
-      body: `email=rnacentral%40gmail.com&sequence=${query}`
+      body: `email=rnacentral%40gmail.com&sequence=${encodeURIComponent(query)}`
     })
     .then(function (response) {
       if (response.ok) { return response.text() }
@@ -92,8 +90,404 @@ export function r2dtSubmit(sequence) {
         dispatch({type: types.SUBMIT_R2DT_JOB, status: 'success', data: data});
         dispatch(fetchR2DTStatus(data, true));
     })
-    .catch(error => dispatch({type: types.SUBMIT_R2DT_JOB, status: 'error', response: error}));
+    .catch(error => {
+        dispatch({type: types.SUBMIT_R2DT_JOB, status: 'error', response: error});
+    });
   }
+}
+
+export function infernalSubmit(sequence) {
+  let query = "";
+  if (/^>/.test(sequence)) { query = sequence }
+  else { query = ">query\n" + sequence }
+
+  // Build form data for Infernal cmscan
+  const formData = new URLSearchParams();
+  formData.append('email', 'rnacentral@gmail.com');
+  formData.append('sequence', query);
+  formData.append('thresholdmodel', 'cut_ga');
+
+  return function(dispatch) {
+    fetch(routes.infernalSubmitJob(), {
+      method: 'POST',
+      headers: {
+        'Accept': 'text/plain',
+        'Content-Type': 'application/x-www-form-urlencoded'
+      },
+      body: formData.toString()
+    })
+    .then(function (response) {
+      if (response.ok) { return response.text() }
+      else { throw response }
+    })
+    .then(jobId => {
+        dispatch({type: types.SUBMIT_INFERNAL_JOB, status: 'success', data: jobId.trim()});
+        dispatch(fetchInfernalJdStatus(jobId.trim()));
+    })
+    .catch(async (error) => {
+        dispatch({type: types.SUBMIT_INFERNAL_JOB, status: 'error', response: error});
+    });
+  }
+}
+
+export function fetchInfernalJdStatus(jobId) {
+  return function(dispatch) {
+    fetch(routes.infernalJdJobStatus(jobId), {
+      method: 'GET',
+      headers: {
+        'Accept': 'text/plain'
+      }
+    })
+    .then(function(response) {
+      if (response.ok) { return response.text() }
+      else { throw response }
+    })
+    .then(status => {
+      const statusText = status.trim();
+      if (statusText === 'RUNNING' || statusText === 'PENDING' || statusText === 'QUEUED') {
+        let statusTimeout = setTimeout(() => store.dispatch(fetchInfernalJdStatus(jobId)), 2000);
+        dispatch({type: types.SET_INFERNAL_STATUS_TIMEOUT, timeout: statusTimeout});
+      } else if (statusText === 'FINISHED') {
+        dispatch(fetchInfernalJdResults(jobId));
+      } else if (statusText === 'NOT_FOUND') {
+        dispatch({type: types.FETCH_INFERNAL_RESULTS, infernalStatus: 'does_not_exist'});
+      } else if (statusText === 'FAILURE' || statusText === 'ERROR') {
+        dispatch({type: types.FETCH_INFERNAL_RESULTS, infernalStatus: 'error'});
+      }
+    })
+    .catch(error => {
+      dispatch({type: types.FETCH_INFERNAL_RESULTS, infernalStatus: 'error'});
+    });
+  }
+}
+
+export function fetchInfernalJdResults(jobId) {
+  return function(dispatch) {
+    // Try to fetch tblout format first (easier to parse)
+    fetch(routes.infernalJdJobTblout(jobId), {
+      method: 'GET',
+      headers: {
+        'Accept': 'text/plain'
+      }
+    })
+    .then(function(response) {
+      if (response.ok) { return response.text() }
+      else { throw response }
+    })
+    .then(tbloutData => {
+      // Parse the tblout format
+      const parsedResults = parseInfernalTblout(tbloutData);
+
+      if (parsedResults.length > 0) {
+        // Now fetch the full output to get alignments
+        return fetch(routes.infernalJdJobResult(jobId), {
+          method: 'GET',
+          headers: { 'Accept': 'text/plain' }
+        })
+        .then(response => response.ok ? response.text() : '')
+        .then(outData => {
+          // Parse alignments from the out file and merge with tblout results
+          const alignments = parseInfernalAlignments(outData);
+
+          // Merge alignments into results - try both target_name and accession_rfam as keys
+          parsedResults.forEach(result => {
+            if (alignments[result.target_name]) {
+              result.alignment = alignments[result.target_name];
+            } else if (alignments[result.accession_rfam]) {
+              result.alignment = alignments[result.accession_rfam];
+            }
+          });
+
+          dispatch({type: types.FETCH_INFERNAL_RESULTS, infernalStatus: 'success', data: parsedResults});
+        });
+      } else {
+        dispatch({type: types.FETCH_INFERNAL_RESULTS, infernalStatus: 'success', data: parsedResults});
+      }
+    })
+    .catch(error => {
+      // Fallback to parsing the out file directly
+      fetch(routes.infernalJdJobResult(jobId), {
+        method: 'GET',
+        headers: { 'Accept': 'text/plain' }
+      })
+      .then(response => response.ok ? response.text() : '')
+      .then(outData => {
+        const parsedResults = parseInfernalOutput(outData);
+        dispatch({type: types.FETCH_INFERNAL_RESULTS, infernalStatus: 'success', data: parsedResults});
+      })
+      .catch(err => {
+        dispatch({type: types.FETCH_INFERNAL_RESULTS, infernalStatus: 'error'});
+      });
+    });
+  }
+}
+
+// Parse Infernal cmscan tblout (tabular) format
+function parseInfernalTblout(output) {
+  const results = [];
+  const lines = output.split('\n');
+
+  for (const line of lines) {
+    // Skip empty lines and comments
+    if (!line.trim() || line.startsWith('#')) continue;
+
+    // Normalize whitespace and split
+    const parts = line.replace(/\s+/g, ' ').trim().split(' ');
+
+    // tblout format columns:
+    // 0: target_name (e.g., "U3")
+    // 1: accession_rfam (e.g., "RF00012")
+    // 2: query_name
+    // 3: accession_seq
+    // 4: mdl
+    // 5: mdl_from
+    // 6: mdl_to
+    // 7: seq_from
+    // 8: seq_to
+    // 9: strand
+    // 10: trunc
+    // 11: pipeline_pass
+    // 12: gc
+    // 13: bias
+    // 14: score
+    // 15: e_value
+    // 16: inc (! = included above GA threshold, ? = below threshold)
+    // 17+: description
+
+    if (parts.length >= 17) {
+      const inc = parts[16];
+
+      // Only include results that pass the gathering threshold (inc = '!')
+      // '?' means the hit is below the gathering threshold cutoff
+      if (inc !== '!') {
+        continue;
+      }
+
+      results.push({
+        target_name: parts[0],
+        accession_rfam: parts[1],
+        description: parts.slice(17).join(' ') || parts[0], // Use description if available, else target_name
+        seq_from: parseInt(parts[7], 10),
+        seq_to: parseInt(parts[8], 10),
+        strand: parts[9],
+        score: parseFloat(parts[14]),
+        e_value: parts[15],
+        alignment: '' // Will be filled from out file
+      });
+    }
+  }
+
+  // Filter overlapping hits - keep only the best scoring hit for each region
+  // Two hits overlap if their sequence ranges intersect
+  const filteredResults = [];
+  const sortedResults = results.sort((a, b) => b.score - a.score); // Sort by score descending
+
+  for (const hit of sortedResults) {
+    // Check if this hit overlaps with any already accepted hit
+    const overlaps = filteredResults.some(accepted => {
+      // Check if on same strand and regions overlap
+      if (accepted.strand !== hit.strand) return false;
+
+      const aStart = Math.min(accepted.seq_from, accepted.seq_to);
+      const aEnd = Math.max(accepted.seq_from, accepted.seq_to);
+      const bStart = Math.min(hit.seq_from, hit.seq_to);
+      const bEnd = Math.max(hit.seq_from, hit.seq_to);
+
+      // Check for overlap (ranges intersect if one starts before the other ends)
+      return aStart <= bEnd && bStart <= aEnd;
+    });
+
+    if (!overlaps) {
+      filteredResults.push(hit);
+    }
+  }
+
+  return filteredResults;
+}
+
+// Parse alignments from Infernal cmscan out file
+function parseInfernalAlignments(output) {
+  const alignments = {};
+  const lines = output.split('\n');
+
+  let currentKey = null;
+  let currentAccession = null;
+  let alignmentStartIndex = -1;
+
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+
+    // Look for hit header: >> U3
+    // Format in out file is: >> family_name (not accession like in tblout)
+    if (line.startsWith('>>')) {
+      // Extract family name from header
+      const parts = line.substring(2).trim().split(/\s+/);
+      const familyName = parts[0]; // e.g., U3
+      currentKey = familyName;
+      currentAccession = familyName;
+      alignmentStartIndex = -1;
+      continue;
+    }
+
+    // Look for the NC (no cutoff) or alignment block start
+    // The alignment block starts after lines like:
+    //  (1) !  199.2  0.0  4e-49  ...
+    // and contains the actual alignment with structure annotations
+    if (currentAccession && line.match(/^\s+\(\d+\)\s+[!?]/)) {
+      // This is the hit details line, alignment comes after
+      // Skip a few lines to get to the actual alignment
+      alignmentStartIndex = i + 1;
+      continue;
+    }
+
+    // Capture alignment block - it typically has NC, CS lines and sequence lines
+    // Look for the pattern that indicates we're in an alignment block
+    if (currentAccession && alignmentStartIndex > 0 && i >= alignmentStartIndex) {
+      // Alignment blocks have a specific structure:
+      // - Empty line
+      // - NC line (optional)
+      // - CS line (consensus structure)
+      // - Model sequence line
+      // - Match line
+      // - Query sequence line
+      // - PP line (posterior probability)
+
+      // Collect lines until we hit an empty line followed by another >> or end
+      let alignmentLines = [];
+      let j = alignmentStartIndex;
+
+      // Skip any initial empty lines
+      while (j < lines.length && lines[j].trim() === '') {
+        j++;
+      }
+
+      // Collect alignment block lines
+      while (j < lines.length) {
+        const alignLine = lines[j];
+
+        // Stop if we hit another hit header or internal stats section
+        if (alignLine.startsWith('>>') || alignLine.startsWith('Internal')) {
+          break;
+        }
+
+        // Stop if we hit an empty line followed by non-alignment content
+        if (alignLine.trim() === '') {
+          // Look ahead to see if there's more alignment or we're done
+          let k = j + 1;
+          while (k < lines.length && lines[k].trim() === '') {
+            k++;
+          }
+          if (k < lines.length && (lines[k].startsWith('>>') || lines[k].startsWith('Internal') || lines[k].match(/^\s*$/))) {
+            break;
+          }
+        }
+
+        alignmentLines.push(alignLine);
+        j++;
+      }
+
+      if (alignmentLines.length > 0) {
+        alignments[currentAccession] = alignmentLines.join('\n').trim();
+      }
+
+      // Move to end of this alignment block
+      alignmentStartIndex = -1;
+    }
+  }
+
+  return alignments;
+}
+
+// Parse Infernal cmscan text output into structured data
+// The output is the verbose format from cmscan, not tblout
+function parseInfernalOutput(output) {
+  const results = [];
+  const lines = output.split('\n');
+
+  // Track current hit being parsed
+  let currentHit = null;
+  let inAlignmentBlock = false;
+  let alignmentLines = [];
+
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+
+    // Look for hit header: >> accession  family_name
+    // Example: >> RF00012  U3
+    if (line.startsWith('>>')) {
+      // Save previous hit if exists
+      if (currentHit && currentHit.accession_rfam) {
+        if (alignmentLines.length > 0) {
+          currentHit.alignment = alignmentLines.join('\n');
+        }
+        results.push(currentHit);
+      }
+
+      // Parse new hit header
+      const headerParts = line.substring(2).trim().split(/\s+/);
+      currentHit = {
+        accession_rfam: headerParts[0] || '',
+        target_name: headerParts[0] || '', // Use accession as target_name for link
+        description: headerParts.slice(1).join(' ') || headerParts[0] || '', // Family name
+        seq_from: '',
+        seq_to: '',
+        score: '',
+        e_value: '',
+        strand: '',
+        alignment: ''
+      };
+      alignmentLines = [];
+      inAlignmentBlock = false;
+      continue;
+    }
+
+    // Look for hit details line with rank, E-value, score, etc.
+    // Example:  (1) !   199.2   0.0   4e-49   4e-49     2   218     1   217      + cm    no    1.00 [-]
+    const hitDetailsMatch = line.match(/^\s+\(\d+\)\s+[!?]\s+([\d.]+)\s+([\d.]+)\s+([\d.e+-]+)\s+([\d.e+-]+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+([+-])/);
+    if (hitDetailsMatch && currentHit) {
+      currentHit.score = hitDetailsMatch[1];       // bit score
+      // hitDetailsMatch[2] is bias
+      currentHit.e_value = hitDetailsMatch[3];     // E-value
+      // hitDetailsMatch[4] is clan E-value
+      // hitDetailsMatch[5] is mdl_from
+      // hitDetailsMatch[6] is mdl_to
+      currentHit.seq_from = hitDetailsMatch[7];    // seq from
+      currentHit.seq_to = hitDetailsMatch[8];      // seq to
+      currentHit.strand = hitDetailsMatch[9];      // strand (+ or -)
+      continue;
+    }
+
+    // Check if we're starting an alignment section
+    // Alignment blocks start with a line like:  NC and start with accession
+    if (currentHit && (line.includes('CS') || line.match(/^\s+[A-Z]+\s/))) {
+      // We're in or near an alignment block - skip for now
+      // The actual alignment is complex multi-line format
+    }
+
+    // Capture alignment lines (lines that look like sequence alignment)
+    // These typically have the query name or accession followed by sequence
+    if (currentHit && line.trim().length > 0) {
+      // Check for alignment format lines - they typically have coordinates
+      const alignMatch = line.match(/^\s+(\S+)\s+\d+\s+([A-Za-z.-]+)\s+\d+$/);
+      if (alignMatch) {
+        alignmentLines.push(line);
+      }
+      // Also capture consensus/structure lines
+      else if (line.match(/^\s+[<>.:,_~-]+\s*$/) || line.match(/^\s+[\*:. ]+\s*$/)) {
+        alignmentLines.push(line);
+      }
+    }
+  }
+
+  // Don't forget the last hit
+  if (currentHit && currentHit.accession_rfam) {
+    if (alignmentLines.length > 0) {
+      currentHit.alignment = alignmentLines.join('\n');
+    }
+    results.push(currentHit);
+  }
+
+  return results;
 }
 
 export function onMultipleSubmit(sequence, databases) {
@@ -142,7 +536,7 @@ export function onMultipleSubmit(sequence, databases) {
   }
 }
 
-export function onSubmitUrs(urs, database, r2dt) {
+export function onSubmitUrs(urs, database, r2dt, rfam = false) {
   return function(dispatch) {
     fetch(routes.rnacentralUrs(urs))
     .then(function(response) {
@@ -155,7 +549,7 @@ export function onSubmitUrs(urs, database, r2dt) {
         dispatch(invalidSequence())
       } else {
         dispatch(updateSequence(data.sequence));
-        dispatch(onSubmit(data.sequence, database, r2dt));
+        dispatch(onSubmit(data.sequence, database, r2dt, rfam));
       }
     })
     .catch(error => {dispatch({type: types.SUBMIT_URS, status: 'error', response: error})});
@@ -166,11 +560,10 @@ export function updateSequence(sequence) {
   return {type: types.UPDATE_SEQUENCE, data: sequence}
 }
 
-export function updateJobId(jobId, r2dt= false) {
+export function updateJobId(jobId, r2dt = false) {
   return function(dispatch) {
     dispatch({type: types.UPDATE_JOB_ID, data: jobId});
-    dispatch(fetchStatus(jobId, r2dt));
-    dispatch(fetchInfernalStatus(jobId));
+    dispatch(fetchStatus(jobId));
   }
 }
 
@@ -186,70 +579,63 @@ export function invalidSequence() {
   return {type: types.INVALID_SEQUENCE}
 }
 
-export function fetchStatus(jobId, r2dt= false) {
-  let state = store.getState();
-
+export function fetchStatus(jobId) {
   return function(dispatch) {
-    fetch(routes.jobStatus(jobId), {
+    console.log('[fetchStatus] Starting status check for jobId:', jobId);
+    console.log('[fetchStatus] Fetching URL:', routes.proxyJobStatus(jobId));
+
+    fetch(routes.proxyJobStatus(jobId), {
       method: 'GET',
-      mode: 'cors',
-      credentials: 'include',
       headers: {
-        'Accept': 'application/json, text/plain, */*',
-        'Content-Type': 'application/json'
+        'Accept': 'application/json'
       }
     })
     .then(function(response) {
+      console.log('[fetchStatus] Response received, ok:', response.ok, 'status:', response.status);
       if (response.ok) { return response.json() }
       else { throw response }
     })
     .then((data) => {
-      // used if r2dt is enable
-      if (r2dt) {
-        let timeLimit = 603000 // 6 days, 23 hours and 30 minutes
-        if (!state.r2dt_id && data.r2dt_id && data.r2dt_date && data.r2dt_date < timeLimit) {
-          // use r2dt_id
-          dispatch({type: types.SUBMIT_R2DT_JOB, status: 'success', data: data.r2dt_id});
-          dispatch(fetchR2DTStatus(data.r2dt_id));
-        } else if (!state.r2dt_id) {
-          // submit a new r2dt job
-          if (data.description){ dispatch(r2dtSubmit(">" + data.description + "\n" + data.query)) }
-          else {dispatch(r2dtSubmit(">description\n" + data.query))}
-        }
-        r2dt = false;
-      }
+      console.log('[fetchStatus] Parsed data:', JSON.stringify(data));
+      const status = data.status;
+      console.log('[fetchStatus] Job status:', status);
 
-      // check the status
-      if (data.status === 'started' || data.status === 'pending' || data.status === 'running') {
-        // Given jobChunks from jobStatus route, estimates the search progress.
-        let finishedChunk = 0;
-        data.chunks.map(item => {
-          if (item.status === 'success' || item.status === 'timeout' || item.status === 'error'){
-            finishedChunk = finishedChunk + 1
-          }
-        });
-
-        // Update the search progress
-        let state = store.getState();
-        let newSearchInProgress = [...state.searchInProgress];
-        let foundJobId = newSearchInProgress.find(el => el.jobId === data.job_id);
+      // Proxy API status values: running, pending, finished, error, not_found
+      if (status === 'running' || status === 'pending') {
+        console.log('[fetchStatus] Status is running/pending, scheduling next poll in 2s');
+        // Update the search progress using progress from the API
+        let currentState = store.getState();
+        let newSearchInProgress = [...currentState.searchInProgress];
+        let foundJobId = newSearchInProgress.find(el => el.jobId === jobId);
+        const progress = data.progress || 0;
+        console.log('[fetchStatus] Progress:', progress);
         if (foundJobId){
-          foundJobId['finishedChunk'] = finishedChunk * 100 / data.chunks.length;
+          foundJobId['finishedChunk'] = Math.min(progress, 99);
         } else {
-          newSearchInProgress.push({jobId: data.job_id, finishedChunk: finishedChunk * 100 / data.chunks.length});
+          newSearchInProgress.push({jobId: jobId, finishedChunk: progress});
         }
         dispatch({type: types.SEARCH_PROGRESS, data: newSearchInProgress });
 
-        // Wait a little bit and check it again
-        let statusTimeout = setTimeout(() => store.dispatch(fetchStatus(jobId, r2dt)), 2000);
-        dispatch({type: types.SET_STATUS_TIMEOUT, timeout: statusTimeout});
-      } else if (data.status === 'success' || data.status === 'partial_success') {
+        let statusTimeout = setTimeout(() => {
+          console.log('[fetchStatus] Timeout fired, dispatching fetchStatus again for jobId:', jobId);
+          store.dispatch(fetchStatus(jobId));
+        }, 2000);
+        console.log('[fetchStatus] Created timeout ID:', statusTimeout);
+        dispatch({type: types.SET_STATUS_TIMEOUT, statusTimeout: statusTimeout});
+      } else if (status === 'finished') {
+        console.log('[fetchStatus] Job finished, fetching results');
         dispatch(fetchResults(jobId));
+      } else if (status === 'error' || status === 'not_found') {
+        console.log('[fetchStatus] Job error or not_found, failing');
+        dispatch(failedFetchResults({ status: 500 }));
+      } else {
+        console.log('[fetchStatus] Unexpected status value:', status, '- no action taken');
       }
     })
     .catch(error => {
+      console.error('[fetchStatus] Error caught:', error);
       if (store.getState().hasOwnProperty('statusTimeout')) {
-        clearTimeout(store.getState().statusTimeout); // clear status timeout
+        clearTimeout(store.getState().statusTimeout);
       }
       dispatch(failedFetchResults(error))
     });
@@ -257,8 +643,6 @@ export function fetchStatus(jobId, r2dt= false) {
 }
 
 export function fetchR2DTStatus(jobId, saveR2DTId = false) {
-  let state = store.getState();
-
   return function(dispatch) {
     fetch(routes.r2dtJobStatus(jobId), {
       method: 'GET',
@@ -269,26 +653,29 @@ export function fetchR2DTStatus(jobId, saveR2DTId = false) {
       else { throw response }
     })
     .then((data) => {
-      if (data === 'RUNNING' || data === 'QUEUED') {
+      const status = data.trim();
+
+      if (status === 'RUNNING' || status === 'QUEUED' || status === 'PENDING') {
         let statusTimeout = setTimeout(() => store.dispatch(fetchR2DTStatus(jobId, saveR2DTId)), 2000);
         dispatch({type: types.SET_STATUS_TIMEOUT, timeout: statusTimeout});
-      } else if (data === 'FINISHED') {
-        // Wait another second to change the status. This will allow the SVG resultType to work correctly.
+      } else if (status === 'FINISHED') {
         let statusTimeout = setTimeout(() => dispatch({type: types.FETCH_R2DT_STATUS, status: 'FINISHED'}), 1000);
         dispatch({type: types.SET_STATUS_TIMEOUT, timeout: statusTimeout});
         dispatch(fetchR2DTThumbnail(jobId));
-        if (saveR2DTId) { dispatch(onSaveR2DTId(state.jobId, jobId)) }
-      } else if (data === 'NOT_FOUND') {
+      } else if (status === 'NOT_FOUND') {
         dispatch({type: types.FETCH_R2DT_STATUS, status: 'NOT_FOUND'})
-      } else if (data === 'FAILURE') {
+      } else if (status === 'FAILURE') {
         dispatch({type: types.FETCH_R2DT_STATUS, status: 'FAILURE'})
-      } else if (data === 'ERROR') {
+      } else if (status === 'ERROR') {
+        dispatch({type: types.FETCH_R2DT_STATUS, status: 'ERROR'})
+      } else {
+        // Handle any unexpected status as an error
         dispatch({type: types.FETCH_R2DT_STATUS, status: 'ERROR'})
       }
     })
     .catch(error => {
       if (store.getState().hasOwnProperty('statusTimeout')) {
-        clearTimeout(store.getState().statusTimeout); // clear status timeout
+        clearTimeout(store.getState().statusTimeout);
       }
       dispatch({type: types.FETCH_R2DT_STATUS, status: 'error'})
     });
@@ -328,28 +715,84 @@ export function fetchInfernalStatus(jobId) {
 }
 
 export function fetchResults(jobId) {
-  let state = store.getState();
+  return async function(dispatch) {
+    try {
+      // Fetch results from proxy API (includes facets)
+      const response = await fetch(routes.proxyJobResults(jobId), {
+        method: 'GET',
+        headers: { 'Accept': 'application/json' }
+      });
 
-  return function(dispatch) {
-    fetch(routes.facetsSearch(jobId, buildQuery(state.selectedFacets), 0, 20, 'e_value'), {
-      method: 'GET',
-      mode: 'cors',
-      credentials: 'include',
-      headers: {
-        'Accept': 'application/json, text/plain, */*',
-        'Content-Type': 'application/json'
+      if (!response.ok) {
+        throw response;
       }
-    })
-    .then(function(response) {
-      if (response.ok) { return response.json() }
-      else { throw response }
-    })
-    .then(data => {
-      dispatch({type: types.FETCH_RESULTS, status: 'success', data: data});
+
+      const data = await response.json();
+
+      // Transform proxy API response to match expected format
+      const results = {
+        job_id: data.job_id,
+        entries: data.entries || [],
+        hits: data.hits || data.hit_count || 0,
+        hitCount: data.hit_count || 0,
+        facets: parseFacets(data.facets || []),
+        textSearchError: false,
+        sequenceSearchStatus: data.status === 'finished' ? 'success' : 'error'
+      };
+
+      dispatch({type: types.FETCH_RESULTS, status: 'success', data: results});
       dispatch(dataForDownload());
-    })
-    .catch(error => dispatch(failedFetchResults(error)));
+    } catch (error) {
+      dispatch(failedFetchResults(error));
+    }
   }
+}
+
+// Parse facets from proxy API response
+function parseFacets(ebiFacets) {
+  if (!ebiFacets) return [];
+
+  const facetOrder = ['rna_type', 'TAXONOMY', 'expert_db', 'qc_warning_found', 'has_go_annotations', 'has_conserved_structure', 'has_genomic_coordinates', 'popular_species', 'length'];
+
+  const facets = ebiFacets.map(facet => ({
+    id: facet.id,
+    label: facet.label,
+    total: facet.total,
+    facetValues: (facet.facetValues || []).map(fv => ({
+      label: fv.label,
+      value: fv.value,
+      count: fv.count
+    }))
+  }));
+
+  // Sort facets according to predefined order
+  facets.sort((a, b) => {
+    const aIndex = facetOrder.indexOf(a.id);
+    const bIndex = facetOrder.indexOf(b.id);
+    if (aIndex === -1 && bIndex === -1) return 0;
+    if (aIndex === -1) return 1;
+    if (bIndex === -1) return -1;
+    return aIndex - bIndex;
+  });
+
+  // Merge popular_species into TAXONOMY
+  const popularSpeciesIndex = facets.findIndex(f => f.id === 'popular_species');
+  const taxonomyIndex = facets.findIndex(f => f.id === 'TAXONOMY');
+
+  if (popularSpeciesIndex !== -1 && taxonomyIndex !== -1) {
+    const popularSpecies = facets[popularSpeciesIndex];
+    const taxonomy = facets[taxonomyIndex];
+
+    // Prepend popular species to taxonomy, avoiding duplicates
+    const existingValues = new Set(taxonomy.facetValues.map(fv => fv.value));
+    const newFacetValues = [...popularSpecies.facetValues.filter(fv => !existingValues.has(fv.value)), ...taxonomy.facetValues];
+    taxonomy.facetValues = newFacetValues;
+
+    // Remove popular_species facet
+    facets.splice(popularSpeciesIndex, 1);
+  }
+
+  return facets;
 }
 
 export function fetchR2DTThumbnail(jobId) {
@@ -394,9 +837,10 @@ export function fetchInfernalResults(jobId) {
 }
 
 export function failedFetchResults(response) {
-  if (response.status === 404) {
+  if (response && response.status === 404) {
     return { type: types.FAILED_FETCH_RESULTS, status: "does_not_exist", start: 0 };
-  } else if (response.status === 500) {
+  } else {
+    // Default to error for any other status or missing response
     return { type: types.FAILED_FETCH_RESULTS, status: "error", start: 0 };
   }
 }
@@ -412,30 +856,48 @@ export function failedFetchInfernalResults(response) {
 export function onFilterResult() {
   let state = store.getState();
 
-  return function(dispatch) {
-    fetch(routes.facetsSearch(state.jobId, buildQuery(state.selectedFacets), 0, state.size, state.ordering), {
-      method: 'GET',
-      mode: 'cors',
-      credentials: 'include',
-      headers: {
-        'Accept': 'application/json, text/plain, */*',
-        'Content-Type': 'application/json'
+  return async function(dispatch) {
+    try {
+      // Use proxy API filter endpoint
+      const response = await fetch(routes.proxyFilterResults(state.jobId), {
+        method: 'POST',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          selected_facets: state.selectedFacets,
+          text_filter: state.filter || null
+        })
+      });
+
+      if (!response.ok) {
+        throw response;
       }
-    })
-    .then(function(response) {
-      if (response.ok) { return response.json() }
-      else { throw response }
-    })
-    .then(data => {
-      dispatch({type: types.FETCH_RESULTS, status: 'success', data: data})
+
+      const data = await response.json();
+
+      // Transform proxy API response to match expected format
+      const results = {
+        job_id: data.job_id,
+        entries: data.entries || [],
+        hits: data.hits || data.hit_count || 0,
+        hitCount: data.hit_count || 0,
+        facets: parseFacets(data.facets || []),
+        textSearchError: false,
+        sequenceSearchStatus: 'success'
+      };
+
+      dispatch({type: types.FETCH_RESULTS, status: 'success', data: results});
       dispatch(dataForDownload());
-    })
-    .catch(error => {dispatch({type: types.FETCH_RESULTS, status: 'error'})});
+    } catch (error) {
+      dispatch({type: types.FETCH_RESULTS, status: 'error'});
+    }
   }
 }
 
 export function onToggleFacet(event, facet, facetValue) {
-  return function (dispatch) {
+  return async function (dispatch) {
     let state = store.getState();
 
     let selectedFacets = {...state.selectedFacets};
@@ -455,24 +917,52 @@ export function onToggleFacet(event, facet, facetValue) {
 
     dispatch({type: types.TOGGLE_FACET, id: facet.id, value: facetValue.value});
 
-    // start loading from the first page again
-    return fetch(routes.facetsSearch(state.jobId, buildQuery(selectedFacets), 0, state.size, state.ordering))
-      .then((response) => {
-        if (response.ok) { return response.json(); }
-        else { throw response; }
-      })
-      .then(data => {
-        dispatch({
-          type: types.TOGGLE_FACET,
-          id: facet.id,
-          value: facetValue.value,
-          data: data,
-          status: 'success',
-          selectedFacets: selectedFacets
+    // Build text filter from the filter input
+    const textFilter = state.filter || null;
+
+    try {
+      // Use proxy API filter endpoint
+      const response = await fetch(routes.proxyFilterResults(state.jobId), {
+        method: 'POST',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          selected_facets: selectedFacets,
+          text_filter: textFilter
         })
-        dispatch(dataForDownload());
-      })
-      .catch((response) => dispatch({ type: types.FAILED_FETCH_RESULTS, status: "error", start: 0 }));
+      });
+
+      if (!response.ok) {
+        throw response;
+      }
+
+      const data = await response.json();
+
+      // Transform proxy API response to match expected format
+      const results = {
+        job_id: data.job_id,
+        entries: data.entries || [],
+        hits: data.hits || data.hit_count || 0,
+        hitCount: data.hit_count || 0,
+        facets: parseFacets(data.facets || []),
+        textSearchError: false,
+        sequenceSearchStatus: 'success'
+      };
+
+      dispatch({
+        type: types.TOGGLE_FACET,
+        id: facet.id,
+        value: facetValue.value,
+        data: results,
+        status: 'success',
+        selectedFacets: selectedFacets
+      });
+      dispatch(dataForDownload());
+    } catch (error) {
+      dispatch({ type: types.FAILED_FETCH_RESULTS, status: "error", start: 0 });
+    }
   }
 }
 
@@ -486,14 +976,28 @@ export function onLoadMore(event) {
   return function(dispatch) {
     dispatch({type: types.LOAD_MORE});
 
-    let size = state.entries.length + state.size < state.hitCount ? state.size: state.hitCount - state.entries.length;
-
-    return fetch(routes.facetsSearch(state.jobId, buildQuery(state.selectedFacets), state.start, size, state.ordering))
+    // Proxy API returns all results at once
+    // Client-side pagination is handled by the component
+    return fetch(routes.proxyJobResults(state.jobId), {
+        method: 'GET',
+        headers: { 'Accept': 'application/json' }
+      })
       .then(response => {
         if (response.ok) { return response.json(); }
         else { throw response; }
       })
-      .then(data => dispatch({type: types.LOAD_MORE, data: data}))
+      .then(data => {
+        const results = {
+          job_id: data.job_id,
+          entries: data.entries || [],
+          hits: data.hits || data.hit_count || 0,
+          hitCount: data.hit_count || 0,
+          facets: parseFacets(data.facets || []),
+          textSearchError: false,
+          sequenceSearchStatus: 'success'
+        };
+        dispatch({type: types.LOAD_MORE, data: results})
+      })
       .catch(response => dispatch({ type: types.FAILED_FETCH_RESULTS, status: "error", start: 0 }))
   }
 }
@@ -505,13 +1009,26 @@ export function onSort(event) {
   return function(dispatch) {
     dispatch({type: types.SORT_RESULTS});
 
-    return fetch(routes.facetsSearch(state.jobId, buildQuery(state.selectedFacets), 0, state.size, ordering))
+    // Re-fetch and sort client-side
+    return fetch(routes.proxyJobResults(state.jobId), {
+        method: 'GET',
+        headers: { 'Accept': 'application/json' }
+      })
       .then((response) => {
         if (response.ok) { return response.json(); }
         else { throw response; }
       })
       .then(data => {
-        dispatch({type: types.SORT_RESULTS, data: data, ordering: ordering});
+        const results = {
+          job_id: data.job_id,
+          entries: data.entries || [],
+          hits: data.hits || data.hit_count || 0,
+          hitCount: data.hit_count || 0,
+          facets: parseFacets(data.facets || []),
+          textSearchError: false,
+          sequenceSearchStatus: 'success'
+        };
+        dispatch({type: types.SORT_RESULTS, data: results, ordering: ordering});
         dispatch(dataForDownload());
       })
       .catch(response => dispatch({ type: types.FAILED_FETCH_RESULTS, status: "error", start: 0 }));
@@ -585,55 +1102,25 @@ export function onFileUpload (event) {
 
 export function dataForDownload() {
   let state = store.getState();
-  let iterations = 1;
-
-  if (state.hitCount>100 && state.hitCount<=200) {
-    iterations = 2
-  } else if (state.hitCount>200 && state.hitCount<=300) {
-    iterations = 3
-  } else if (state.hitCount>300 && state.hitCount<=400) {
-    iterations = 4
-  } else if (state.hitCount>400 && state.hitCount<=500) {
-    iterations = 5
-  } else if (state.hitCount>500 && state.hitCount<=600) {
-    iterations = 6
-  } else if (state.hitCount>600 && state.hitCount<=700) {
-    iterations = 7
-  } else if (state.hitCount>700 && state.hitCount<=800) {
-    iterations = 8
-  } else if (state.hitCount>800 && state.hitCount<=900) {
-    iterations = 9
-  } else if (state.hitCount>900) {
-    iterations = 10
-  }
 
   return async function(dispatch) {
     dispatch({type: types.DOWNLOAD, status: "clear"})
-    let start = 0;
-    for (let i=0; i<iterations; i++) {
-      await fetch(routes.facetsSearch(state.jobId, buildQuery(state.selectedFacets), start, 100, state.ordering), {
-        method: 'GET',
-        mode: 'cors',
-        credentials: 'include',
-        headers: {
-          'Accept': 'application/json, text/plain, */*',
-          'Content-Type': 'application/json'
-        }
-      })
-      .then(function(response) {
-        if (response.ok) { return response.json() }
-        else { throw response }
-      })
-      .then((data) => {
-        if (i===iterations-1) {
-          dispatch({type: types.DOWNLOAD, status: "success", data: data.entries})
-        } else {
-          dispatch({type: types.DOWNLOAD, status: "loading", data: data.entries})
-        }
-      })
-      .catch(response => dispatch({ type: types.DOWNLOAD, status: "error" }));
-      start+=100;
-    }
+
+    // Proxy API returns all results at once
+    await fetch(routes.proxyJobResults(state.jobId), {
+      method: 'GET',
+      headers: {
+        'Accept': 'application/json'
+      }
+    })
+    .then(function(response) {
+      if (response.ok) { return response.json() }
+      else { throw response }
+    })
+    .then((data) => {
+      dispatch({type: types.DOWNLOAD, status: "success", data: data.entries || []})
+    })
+    .catch(response => dispatch({ type: types.DOWNLOAD, status: "error" }));
   }
 }
 

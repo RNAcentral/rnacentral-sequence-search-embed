@@ -8,8 +8,17 @@ import configureStore from 'store/configureStore.js';
 import bootstrap from 'styles/bootstrap.css';
 import sequenceSearchStyles from 'styles/sequence-search.scss';
 
+// Global error handler to catch uncaught errors
+window.addEventListener('error', (event) => {
+  console.error('[RNAcentralSequenceSearch] Uncaught error:', event.error);
+});
+window.addEventListener('unhandledrejection', (event) => {
+  console.error('[RNAcentralSequenceSearch] Unhandled promise rejection:', event.reason);
+});
+
 // Prepare data
 export const store = configureStore();
+console.log('[RNAcentralSequenceSearch] Store initialized');
 
 
 class RNAcentralSequenceSearch extends HTMLElement {
@@ -60,11 +69,15 @@ class RNAcentralSequenceSearch extends HTMLElement {
   }
 
   connectedCallback() {
+    console.log('[RNAcentralSequenceSearch] connectedCallback fired - component connected to DOM');
   }
 
   disconnectedCallback() {
+    console.log('[RNAcentralSequenceSearch] disconnectedCallback fired - component disconnected from DOM');
     let state = store.getState();
+    console.log('[RNAcentralSequenceSearch] Current statusTimeout in state:', state.statusTimeout);
     if (state.statusTimeout) {
+      console.log('[RNAcentralSequenceSearch] Clearing statusTimeout');
       clearTimeout(state.statusTimeout);
     }
   }

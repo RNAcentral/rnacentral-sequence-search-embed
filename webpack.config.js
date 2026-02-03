@@ -81,6 +81,29 @@ module.exports = function(env) {
       },
       compress: true,
       port: 8080,
+      proxy: [
+        {
+          context: ['/proxy-api'],
+          target: 'http://hh-rke-wp-webadmin-63-worker-8.caas.ebi.ac.uk:30086',
+          changeOrigin: true,
+          pathRewrite: { '^/proxy-api': '/api' },
+          secure: false,
+        },
+        {
+          context: ['/ebisearch'],
+          target: 'https://www.ebi.ac.uk',
+          changeOrigin: true,
+          pathRewrite: { '^/ebisearch': '/ebisearch/ws/rest/rnacentral' },
+          secure: true,
+        },
+        {
+          context: ['/ebisearch-dev'],
+          target: 'https://wwwdev.ebi.ac.uk',
+          changeOrigin: true,
+          pathRewrite: { '^/ebisearch-dev': '/ebisearch/ws/rest/rnacentral' },
+          secure: true,
+        },
+      ],
     },
     devtool: "source-map"
   };
