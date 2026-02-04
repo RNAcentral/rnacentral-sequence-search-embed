@@ -30,7 +30,7 @@ module.exports = function(env) {
         filename: environment === 'production' ? path.join(__dirname, "index.html") : "index.html"
       }),
       new webpack.ProvidePlugin({ $: 'jquery', jQuery: 'jquery', jquery: 'jquery' }),
-      new dotenv()
+      new dotenv({ systemvars: true })
     ],
     module: {
       rules: [
