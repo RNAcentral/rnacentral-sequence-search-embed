@@ -30,7 +30,8 @@ export function onSubmit(sequence, databases, r2dt = false, rfam = false) {
       },
       body: JSON.stringify({
         sequence: sequence,
-        databases: databases && databases.length > 0 ? databases : null
+        databases: databases && databases.length > 0 ? databases : null,
+        url: window.location.href
       })
     })
     .then(function (response) {
