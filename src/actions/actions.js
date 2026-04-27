@@ -31,7 +31,8 @@ export function onSubmit(sequence, databases, r2dt = false, rfam = false) {
       body: JSON.stringify({
         sequence: sequence,
         databases: databases && databases.length > 0 ? databases : null,
-        url: window.location.href
+        url: window.location.href,
+        file_upload: store.getState().fileUpload || false,
       })
     })
     .then(function (response) {
@@ -499,19 +500,17 @@ export function onMultipleSubmit(sequence, databases) {
     dispatch({type: types.BATCH_SEARCH, data: true});
     for (let i = 0; i < sequence.length; i++) {
       let newQuery = sequence[i];
-      newQuery && await fetch(routes.submitJob(), {
+      newQuery && await fetch(routes.proxySubmitJob(), {
         method: 'POST',
-        mode: 'cors',
-        credentials: 'include',
         headers: {
-          'Accept': 'application/json, text/plain, */*',
+          'Accept': 'application/json',
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          query: newQuery,
-          databases: databases,
+          sequence: newQuery,
+          databases: databases && databases.length > 0 ? databases : null,
           url: url,
-          priority: 'low'
+          file_upload: true,
         })
       })
       .then(function (response) {
@@ -616,6 +615,11 @@ export function fetchStatus(jobId) {
           newSearchInProgress.push({jobId: jobId, finishedChunk: progress});
         }
         dispatch({type: types.SEARCH_PROGRESS, data: newSearchInProgress });
+
+        const elapsed = Date.now() - store.getState().searchStartTime;
+        if (elapsed > 30 * 60 * 1000) {
+          dispatch({type: types.SEARCH_SLOW});
+        }
 
         let statusTimeout = setTimeout(() => {
           console.log('[fetchStatus] Timeout fired, dispatching fetchStatus again for jobId:', jobId);
