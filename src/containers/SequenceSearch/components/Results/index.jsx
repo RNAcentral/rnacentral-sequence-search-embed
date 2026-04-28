@@ -19,12 +19,12 @@ class Results extends React.Component {
     super(props);
   }
 
-  onSeeResults(e, r2dt) {
+  onSeeResults(e, r2dt, rfam) {
     if (e.target.value === '{}' || JSON.parse(e.target.value).description === "Error submitting sequence. Check your fasta file and try again later."){
       store.dispatch(actionCreators.onClearJobId());
     } else {
       store.dispatch(actionCreators.onClearResult());
-      store.dispatch(actionCreators.updateJobId(JSON.parse(e.target.value).jobid, r2dt));
+      store.dispatch(actionCreators.updateJobId(JSON.parse(e.target.value).jobid, r2dt, rfam));
     }
   }
 
@@ -78,7 +78,8 @@ class Results extends React.Component {
     // batch queries
     const sequences = this.props.jobList;
     const sequenceError = sequences.filter(sequence => sequence.description === "Error submitting sequence. Check your fasta file and try again later.")
-    const r2dt = !!this.props.r2dt;  // true if exists, otherwise false
+    const r2dt = !!this.props.r2dt;
+    const rfam = !!this.props.rfam;
     const headers = [
       { label: "Job ID", key: "jobid" },
       { label: "Description", key: "description" },
@@ -107,7 +108,7 @@ class Results extends React.Component {
                       <span> for future reference.</span>
                     </label>
                   </div>
-                  <select className="form-select mb-3" style={{fontSize: fixCss}} id="selectJobId" onChange={(e) => this.onSeeResults(e, r2dt)}>
+                  <select className="form-select mb-3" style={{fontSize: fixCss}} id="selectJobId" onChange={(e) => this.onSeeResults(e, r2dt, rfam)}>
                     <option key={'no-job-selected'} value={JSON.stringify({})}>Select an Id to check the results</option>
                     {this.props.jobList.map((item, index) => <option key={`${index}_${item.jobid}`} value={JSON.stringify(item)}>{item.description}</option>)}
                   </select>
