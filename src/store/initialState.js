@@ -16,6 +16,9 @@ let initialState = {
   exactMatch: null,
   rnacentral: false,
 
+  searchSlow: false,
+  searchStartTime: null,
+
   // nhmmer search
   status: statusChoices.notSubmitted,
   entries: [],

@@ -19,12 +19,12 @@ class Results extends React.Component {
     super(props);
   }
 
-  onSeeResults(e, r2dt) {
+  onSeeResults(e, r2dt, rfam) {
     if (e.target.value === '{}' || JSON.parse(e.target.value).description === "Error submitting sequence. Check your fasta file and try again later."){
       store.dispatch(actionCreators.onClearJobId());
     } else {
       store.dispatch(actionCreators.onClearResult());
-      store.dispatch(actionCreators.updateJobId(JSON.parse(e.target.value).jobid, r2dt));
+      store.dispatch(actionCreators.updateJobId(JSON.parse(e.target.value).jobid, r2dt, rfam));
     }
   }
 
@@ -78,7 +78,8 @@ class Results extends React.Component {
     // batch queries
     const sequences = this.props.jobList;
     const sequenceError = sequences.filter(sequence => sequence.description === "Error submitting sequence. Check your fasta file and try again later.")
-    const r2dt = !!this.props.r2dt;  // true if exists, otherwise false
+    const r2dt = !!this.props.r2dt;
+    const rfam = !!this.props.rfam;
     const headers = [
       { label: "Job ID", key: "jobid" },
       { label: "Description", key: "description" },
@@ -102,12 +103,12 @@ class Results extends React.Component {
                         : <span>{sequences.length} sequences were submitted. </span>
                       }
                       <CSVLink data={csvData} headers={headers} filename={"RNAcentral jobs.csv"}>
-                        <span>Download the Ids</span>
+                        <span>Download the job IDs</span>
                       </CSVLink>
-                      <span> for future reference.</span>
+                      <span> — each can be retrieved later at <a href="https://rnacentral.org/sequence-search" target="_blank" rel="noopener noreferrer">rnacentral.org/sequence-search/?jobid=JOB_ID</a>.</span>
                     </label>
                   </div>
-                  <select className="form-select mb-3" style={{fontSize: fixCss}} id="selectJobId" onChange={(e) => this.onSeeResults(e, r2dt)}>
+                  <select className="form-select mb-3" style={{fontSize: fixCss}} id="selectJobId" onChange={(e) => this.onSeeResults(e, r2dt, rfam)}>
                     <option key={'no-job-selected'} value={JSON.stringify({})}>Select an Id to check the results</option>
                     {this.props.jobList.map((item, index) => <option key={`${index}_${item.jobid}`} value={JSON.stringify(item)}>{item.description}</option>)}
                   </select>
@@ -163,6 +164,22 @@ class Results extends React.Component {
         }
         {
           !showRfamFirst && this.props.jobId && this.props.status !== "does_not_exist" && this.props.rfam && <Rfam customStyle={this.props.customStyle} />
+        }
+        {
+          this.props.jobId && this.props.status === "loading" && this.props.searchSlow && (
+            <div className="row" key="search-slow-div">
+              <div className="col-sm-9">
+                <div className="alert alert-warning">
+                  <p><strong>Your search is taking longer than expected</strong></p>
+                  <span>EBI's servers may be under high load. Bookmark this URL to return to your results later:</span>
+                  <br />
+                  <a href={`${window.location.origin}${window.location.pathname}?jobid=${this.props.jobId}`}>
+                    {`${window.location.origin}${window.location.pathname}?jobid=${this.props.jobId}`}
+                  </a>
+                </div>
+              </div>
+            </div>
+          )
         }
         {
           this.props.jobId && (this.props.status === "loading" || this.props.status === "success" || this.props.status === "partial_success") && [
@@ -244,6 +261,7 @@ function mapStateToProps(state) {
     exactMatch: state.exactMatch,
     rnacentral: state.rnacentral,
     searchInProgress: state.searchInProgress,
+    searchSlow: state.searchSlow,
   };
 }
 

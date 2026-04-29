@@ -31,7 +31,8 @@ export function onSubmit(sequence, databases, r2dt = false, rfam = false) {
       body: JSON.stringify({
         sequence: sequence,
         databases: databases && databases.length > 0 ? databases : null,
-        url: window.location.href
+        url: window.location.href,
+        file_upload: store.getState().fileUpload || false,
       })
     })
     .then(function (response) {
@@ -41,6 +42,8 @@ export function onSubmit(sequence, databases, r2dt = false, rfam = false) {
     })
     .then(data => {
         console.log('[onSubmit] Job submitted successfully, job_id:', data.job_id);
+        // Persist sequence so it can be recovered when restoring from a ?jobid= URL
+        try { localStorage.setItem(`rnacentral_seq_${data.job_id}`, fastaSequence); } catch(e) {}
         // Proxy API returns JSON with job_id
         dispatch({type: types.SUBMIT_JOB, status: 'success', data: { job_id: data.job_id }});
         console.log('[onSubmit] Dispatching fetchStatus for job_id:', data.job_id);
@@ -74,6 +77,8 @@ export function r2dtSubmit(sequence) {
   if (/^>/.test(sequence)) { query = sequence }
   else { query = ">description\n" + sequence }
 
+  console.log('[r2dtSubmit] called, submitting to:', routes.submitR2DTJob(), 'query length:', query.length);
+
   return function(dispatch) {
     fetch(routes.submitR2DTJob(), {
       method: 'POST',
@@ -84,14 +89,17 @@ export function r2dtSubmit(sequence) {
       body: `email=rnacentral%40gmail.com&sequence=${encodeURIComponent(query)}`
     })
     .then(function (response) {
+      console.log('[r2dtSubmit] HTTP response ok:', response.ok, 'status:', response.status);
       if (response.ok) { return response.text() }
       else { throw response }
     })
     .then(data => {
+        console.log('[r2dtSubmit] submitted, EBI job ID:', data);
         dispatch({type: types.SUBMIT_R2DT_JOB, status: 'success', data: data});
         dispatch(fetchR2DTStatus(data, true));
     })
     .catch(error => {
+        console.error('[r2dtSubmit] error:', error);
         dispatch({type: types.SUBMIT_R2DT_JOB, status: 'error', response: error});
     });
   }
@@ -122,17 +130,20 @@ export function infernalSubmit(sequence) {
       else { throw response }
     })
     .then(jobId => {
+        console.log('[infernalSubmit] submitted, EBI job ID:', jobId.trim());
         dispatch({type: types.SUBMIT_INFERNAL_JOB, status: 'success', data: jobId.trim()});
-        dispatch(fetchInfernalJdStatus(jobId.trim()));
+        dispatch(fetchInfernalJdStatus(jobId.trim(), store.getState().jobId));
     })
     .catch(async (error) => {
+        console.error('[infernalSubmit] error:', error);
         dispatch({type: types.SUBMIT_INFERNAL_JOB, status: 'error', response: error});
     });
   }
 }
 
-export function fetchInfernalJdStatus(jobId) {
+export function fetchInfernalJdStatus(jobId, mainJobId) {
   return function(dispatch) {
+    if (mainJobId && store.getState().jobId !== mainJobId) return;
     fetch(routes.infernalJdJobStatus(jobId), {
       method: 'GET',
       headers: {
@@ -144,9 +155,10 @@ export function fetchInfernalJdStatus(jobId) {
       else { throw response }
     })
     .then(status => {
+      if (mainJobId && store.getState().jobId !== mainJobId) return;
       const statusText = status.trim();
       if (statusText === 'RUNNING' || statusText === 'PENDING' || statusText === 'QUEUED') {
-        let statusTimeout = setTimeout(() => store.dispatch(fetchInfernalJdStatus(jobId)), 2000);
+        let statusTimeout = setTimeout(() => store.dispatch(fetchInfernalJdStatus(jobId, mainJobId)), 2000);
         dispatch({type: types.SET_INFERNAL_STATUS_TIMEOUT, timeout: statusTimeout});
       } else if (statusText === 'FINISHED') {
         dispatch(fetchInfernalJdResults(jobId));
@@ -499,19 +511,17 @@ export function onMultipleSubmit(sequence, databases) {
     dispatch({type: types.BATCH_SEARCH, data: true});
     for (let i = 0; i < sequence.length; i++) {
       let newQuery = sequence[i];
-      newQuery && await fetch(routes.submitJob(), {
+      newQuery && await fetch(routes.proxySubmitJob(), {
         method: 'POST',
-        mode: 'cors',
-        credentials: 'include',
         headers: {
-          'Accept': 'application/json, text/plain, */*',
+          'Accept': 'application/json',
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          query: newQuery,
-          databases: databases,
+          sequence: newQuery,
+          databases: databases && databases.length > 0 ? databases : null,
           url: url,
-          priority: 'low'
+          file_upload: true,
         })
       })
       .then(function (response) {
@@ -525,6 +535,7 @@ export function onMultipleSubmit(sequence, databases) {
         let querySplit = newQuery.split("\n");
         let description = querySplit.shift();
         let seq = querySplit.join('');
+        try { localStorage.setItem(`rnacentral_seq_${data.job_id}`, newQuery); } catch(e) {}
         jobIds = [...jobIds, {"jobid": data.job_id, "description": description, "sequence": seq}];
         if (jobIds.length === sequence.length) {
           dispatch({type: types.BATCH_SEARCH, data: false});
@@ -561,10 +572,10 @@ export function updateSequence(sequence) {
   return {type: types.UPDATE_SEQUENCE, data: sequence}
 }
 
-export function updateJobId(jobId, r2dt = false) {
+export function updateJobId(jobId, r2dt = false, rfam = false) {
   return function(dispatch) {
     dispatch({type: types.UPDATE_JOB_ID, data: jobId});
-    dispatch(fetchStatus(jobId));
+    dispatch(fetchStatus(jobId, r2dt, rfam));
   }
 }
 
@@ -580,7 +591,7 @@ export function invalidSequence() {
   return {type: types.INVALID_SEQUENCE}
 }
 
-export function fetchStatus(jobId) {
+export function fetchStatus(jobId, r2dt = false, rfam = false) {
   return function(dispatch) {
     console.log('[fetchStatus] Starting status check for jobId:', jobId);
     console.log('[fetchStatus] Fetching URL:', routes.proxyJobStatus(jobId));
@@ -601,6 +612,9 @@ export function fetchStatus(jobId) {
       const status = data.status;
       console.log('[fetchStatus] Job status:', status);
 
+      // Ignore results from stale polls (user switched to a different job).
+      if (store.getState().jobId !== jobId) return;
+
       // Proxy API status values: running, pending, finished, error, not_found
       if (status === 'running' || status === 'pending') {
         console.log('[fetchStatus] Status is running/pending, scheduling next poll in 2s');
@@ -617,15 +631,21 @@ export function fetchStatus(jobId) {
         }
         dispatch({type: types.SEARCH_PROGRESS, data: newSearchInProgress });
 
+        const elapsed = Date.now() - store.getState().searchStartTime;
+        if (elapsed > 30 * 60 * 1000) {
+          dispatch({type: types.SEARCH_SLOW});
+        }
+
         let statusTimeout = setTimeout(() => {
+          if (store.getState().jobId !== jobId) return;
           console.log('[fetchStatus] Timeout fired, dispatching fetchStatus again for jobId:', jobId);
-          store.dispatch(fetchStatus(jobId));
+          store.dispatch(fetchStatus(jobId, r2dt, rfam));
         }, 2000);
         console.log('[fetchStatus] Created timeout ID:', statusTimeout);
         dispatch({type: types.SET_STATUS_TIMEOUT, statusTimeout: statusTimeout});
       } else if (status === 'finished') {
         console.log('[fetchStatus] Job finished, fetching results');
-        dispatch(fetchResults(jobId));
+        dispatch(fetchResults(jobId, r2dt, rfam));
       } else if (status === 'error' || status === 'not_found') {
         console.log('[fetchStatus] Job error or not_found, failing');
         dispatch(failedFetchResults({ status: 500 }));
@@ -654,14 +674,19 @@ export function fetchR2DTStatus(jobId, saveR2DTId = false) {
       else { throw response }
     })
     .then((data) => {
+      // Ignore results from stale R2DT polls (user switched to a different job).
+      if (store.getState().r2dtJobId !== jobId) return;
+
       const status = data.trim();
 
       if (status === 'RUNNING' || status === 'QUEUED' || status === 'PENDING') {
-        let statusTimeout = setTimeout(() => store.dispatch(fetchR2DTStatus(jobId, saveR2DTId)), 2000);
+        let statusTimeout = setTimeout(() => {
+          if (store.getState().r2dtJobId !== jobId) return;
+          store.dispatch(fetchR2DTStatus(jobId, saveR2DTId));
+        }, 2000);
         dispatch({type: types.SET_STATUS_TIMEOUT, timeout: statusTimeout});
       } else if (status === 'FINISHED') {
-        let statusTimeout = setTimeout(() => dispatch({type: types.FETCH_R2DT_STATUS, status: 'FINISHED'}), 1000);
-        dispatch({type: types.SET_STATUS_TIMEOUT, timeout: statusTimeout});
+        dispatch({type: types.FETCH_R2DT_STATUS, status: 'FINISHED'});
         dispatch(fetchR2DTThumbnail(jobId));
       } else if (status === 'NOT_FOUND') {
         dispatch({type: types.FETCH_R2DT_STATUS, status: 'NOT_FOUND'})
@@ -670,7 +695,6 @@ export function fetchR2DTStatus(jobId, saveR2DTId = false) {
       } else if (status === 'ERROR') {
         dispatch({type: types.FETCH_R2DT_STATUS, status: 'ERROR'})
       } else {
-        // Handle any unexpected status as an error
         dispatch({type: types.FETCH_R2DT_STATUS, status: 'ERROR'})
       }
     })
@@ -715,7 +739,7 @@ export function fetchInfernalStatus(jobId) {
   }
 }
 
-export function fetchResults(jobId) {
+export function fetchResults(jobId, r2dt = false, rfam = false) {
   return async function(dispatch) {
     try {
       // Fetch results from proxy API (includes facets)
@@ -729,10 +753,14 @@ export function fetchResults(jobId) {
       }
 
       const data = await response.json();
+      const storedSequence = (() => { try { return localStorage.getItem(`rnacentral_seq_${jobId}`) || ''; } catch(e) { return ''; } })();
+      const sequence = data.sequence || storedSequence;
+      console.log('[fetchResults] r2dt:', r2dt, 'rfam:', rfam, 'sequence available:', !!sequence);
 
       // Transform proxy API response to match expected format
       const results = {
         job_id: data.job_id,
+        sequence: sequence,
         entries: data.entries || [],
         hits: data.hits || data.hit_count || 0,
         hitCount: data.hit_count || 0,
@@ -743,6 +771,31 @@ export function fetchResults(jobId) {
 
       dispatch({type: types.FETCH_RESULTS, status: 'success', data: results});
       dispatch(dataForDownload());
+
+      // When restoring from a URL, re-submit R2DT/Infernal using the sequence
+      // recovered from localStorage (the API doesn't return it).
+      if (r2dt || rfam) {
+        if (sequence) {
+          const fastaSequence = /^>/.test(sequence) ? sequence : ">query\n" + sequence;
+          console.log('[fetchResults] r2dtJobId in state:', store.getState().r2dtJobId, '— will dispatch r2dt:', r2dt && !store.getState().r2dtJobId);
+          if (r2dt && !store.getState().r2dtJobId) {
+            console.log('[fetchResults] dispatching r2dtSubmit');
+            dispatch(r2dtSubmit(fastaSequence));
+          }
+          if (rfam) {
+            console.log('[fetchResults] dispatching infernalSubmit');
+            dispatch(infernalSubmit(fastaSequence));
+          }
+        } else {
+          // Sequence not in localStorage (job from a different session) — stop spinners.
+          if (r2dt) {
+            dispatch({type: types.FETCH_R2DT_STATUS, status: 'NOT_FOUND'});
+          }
+          if (rfam) {
+            dispatch({type: types.FETCH_INFERNAL_RESULTS, infernalStatus: 'does_not_exist'});
+          }
+        }
+      }
     } catch (error) {
       dispatch(failedFetchResults(error));
     }
