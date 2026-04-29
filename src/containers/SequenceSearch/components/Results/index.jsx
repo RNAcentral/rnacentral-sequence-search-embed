@@ -103,9 +103,9 @@ class Results extends React.Component {
                         : <span>{sequences.length} sequences were submitted. </span>
                       }
                       <CSVLink data={csvData} headers={headers} filename={"RNAcentral jobs.csv"}>
-                        <span>Download the Ids</span>
+                        <span>Download the job IDs</span>
                       </CSVLink>
-                      <span> for future reference.</span>
+                      <span> — each can be retrieved later at <a href="https://rnacentral.org/sequence-search" target="_blank" rel="noopener noreferrer">rnacentral.org/sequence-search/?jobid=JOB_ID</a>.</span>
                     </label>
                   </div>
                   <select className="form-select mb-3" style={{fontSize: fixCss}} id="selectJobId" onChange={(e) => this.onSeeResults(e, r2dt, rfam)}>
