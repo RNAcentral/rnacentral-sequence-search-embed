@@ -149,6 +149,9 @@ const rootReducer = function (state = initialState, action) {
       return Object.assign({}, state, { sequence: action.data });
 
     // submission form
+    case actions.SEARCH_SLOW:
+      return Object.assign({}, state, {searchSlow: true});
+
     case actions.SUBMIT_JOB:
       switch (action.status) {
         case 'success':
@@ -156,7 +159,9 @@ const rootReducer = function (state = initialState, action) {
             jobId: action.data.job_id,
             status: "loading",
             infernalStatus: "loading",
-            submissionError: ""
+            submissionError: "",
+            searchStartTime: Date.now(),
+            searchSlow: false,
           });
         case 'error':
           return Object.assign({}, state, {status: "error", submissionError: action.response});
@@ -202,7 +207,13 @@ const rootReducer = function (state = initialState, action) {
       }
 
     case actions.UPDATE_JOB_ID:
-      return Object.assign({}, state, {jobId: action.data, rnacentral: false});
+      return Object.assign({}, state, {
+        jobId: action.data,
+        rnacentral: false,
+        status: "loading",
+        searchStartTime: Date.now(),
+        searchSlow: false,
+      });
 
     case actions.CLEAR_JOB_ID:
       return Object.assign({}, state, {jobId: null, sequence: ""});
@@ -213,6 +224,8 @@ const rootReducer = function (state = initialState, action) {
         sequence: "",
         hits: null,
         status: "loading",
+        searchSlow: false,
+        searchStartTime: null,
         entries: [],
         facets: [],
         hitCount: 0,

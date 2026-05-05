@@ -20,6 +20,7 @@ class Hit extends React.Component {
 
     // show Expert DBs logos
     const expertDb = this.props.entry.fields && this.props.entry.fields.expert_db ? this.props.entry.fields.expert_db : [];
+    const description = this.props.entry.description || null;
     const newExpertDb = expertDb.map((item) => {
       return item.toLowerCase();
     });
@@ -45,14 +46,19 @@ class Hit extends React.Component {
       link = null
     }
 
+    // Build RNAcentral URL: URS_taxid -> rnacentral.org/rna/URS/taxid
+    const rnacentralUrl = `https://rnacentral.org/rna/${this.props.entry.rnacentral_id.replace('_', '/')}`;
+    const entryUrl = link ? link : rnacentralUrl;
+
     return (
       <li>
-        {exactMatchUrsId} <a className="custom-link" style={seqTitleStyle} href={link ? link : `https://rnacentral.org/rna/${this.props.entry.rnacentral_id}`} target='_blank'>
-          {this.props.entry.description}
+        {exactMatchUrsId} <a className="custom-link" style={seqTitleStyle} href={entryUrl} target='_blank'>
+          {description || this.props.entry.rnacentral_id}
         </a>
-        {database === "" ? <div className="text-muted mt-2" style={seqInfoStyle}>{ this.props.entry.rnacentral_id } {showExpertDb.map((db, index) => <img key={index} className="ml-2 desaturate" src={`https://rnacentral.org/static/img/expert-db-logos/${db.name}.png`} alt={`${db.name} logo`} style={{height: "16px"}} />)}</div>
+        {database === "" ? <div className="text-muted mt-2" style={seqInfoStyle}>{description && <a href={rnacentralUrl} target='_blank' style={{color: 'inherit'}}>{ this.props.entry.rnacentral_id }</a>} {showExpertDb.map((db, index) => <img key={index} className="ml-2 desaturate" src={`https://rnacentral.org/static/img/expert-db-logos/${db.name}.png`} alt={`${db.name} logo`} style={{height: "16px"}} />)}</div>
             : <div className="text-muted mt-2" style={seqInfoStyle}>{this.props.entry.target_length} nucleotides</div>}
         <div className={this.props.detailsCollapsed ? 'detail-collapsed' : 'mt-1'}>
+          {description && <div className="detail">{description}</div>}
           <span className="detail">E-value: { this.props.entry.e_value.toExponential() }</span>
           <span className="detail">Identity: { `${parseFloat(this.props.entry.identity).toFixed(2)}%`}</span>
           <span className="detail">Query coverage: { `${parseFloat(this.props.entry.query_coverage).toFixed(2)}%` }</span>
