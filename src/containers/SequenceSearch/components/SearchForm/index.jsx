@@ -21,6 +21,7 @@ class SearchForm extends React.Component {
   }
 
   exampleSequence(sequence) {
+    if (this.props.status === 'loading') return;
     const r2dt = !!this.props.r2dt;  // true if exists, otherwise false
     const rfam = !!this.props.rfam;  // true if exists, otherwise false
     store.dispatch(actionCreators.onExampleSequence(sequence));
