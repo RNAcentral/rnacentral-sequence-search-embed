@@ -13,9 +13,17 @@ import { MdFileUpload, MdHelpOutline } from 'react-icons/md';
 class SearchForm extends React.Component {
   showExamples(linkColor){
     const examples = this.props.examples;
+    const isLoading = this.props.status === 'loading';
     return examples.map(example =>
       <li key={example.description}>
-        <a className="custom-link" style={{color: linkColor}} onClick={() => this.exampleSequence(example.sequence)}>{example.description}</a>
+        <a
+          className="custom-link"
+          style={isLoading
+            ? {color: '#aaa', cursor: 'not-allowed', pointerEvents: 'none'}
+            : {color: linkColor, cursor: 'pointer'}
+          }
+          onClick={() => this.exampleSequence(example.sequence)}
+        >{example.description}</a>
         <small>{!!(example.urs) ? ` (${example.urs})` : " "}</small>
       </li>)
   }
@@ -120,7 +128,7 @@ class SearchForm extends React.Component {
         <form onSubmit={(e) => this.onSubmit(e)}>
           <div className="row mt-1">
             <div className="col-sm-9">
-              <textarea style={{fontSize: fixCss}} className="form-control" id="sequence" name="sequence" rows="7" value={this.props.sequence} onChange={(e) => this.props.onSequenceTextareaChange(e)} placeholder="Enter a single RNA/DNA sequence (with an optional description in FASTA format) or job id" />
+              <textarea style={{fontSize: fixCss}} className="form-control" id="sequence" name="sequence" rows="7" value={this.props.sequence} onChange={(e) => this.props.onSequenceTextareaChange(e)} placeholder="Enter a single RNA/DNA sequence (10–7000 nucleotides, with an optional description in FASTA format) or job id" />
             </div>
             <div className="col-sm-3">
               <button className="btn btn-primary mb-2" style={{background: searchButtonColor, borderColor: searchButtonColor, fontSize: fixCss, height: fixCssBtn}} type="submit" disabled={!this.props.sequence || this.props.status === 'loading' ? "disabled" : ""}>
