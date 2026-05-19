@@ -128,7 +128,7 @@ class SearchForm extends React.Component {
         <form onSubmit={(e) => this.onSubmit(e)}>
           <div className="row mt-1">
             <div className="col-sm-9">
-              <textarea style={{fontSize: fixCss}} className="form-control" id="sequence" name="sequence" rows="7" value={this.props.sequence} onChange={(e) => this.props.onSequenceTextareaChange(e)} placeholder="Enter a single RNA/DNA sequence (10–7000 nucleotides, with an optional description in FASTA format) or job id" />
+              <textarea style={{fontSize: fixCss}} className="form-control" id="sequence" name="sequence" rows="7" value={this.props.sequence} onChange={(e) => this.props.onSequenceTextareaChange(e)} placeholder="Enter a single RNA/DNA sequence (10–7000 nucleotides, with an optional description in FASTA format) or job id. Note: sequences &gt;1,000 nucleotides may take a few minutes to complete." />
             </div>
             <div className="col-sm-3">
               <button className="btn btn-primary mb-2" style={{background: searchButtonColor, borderColor: searchButtonColor, fontSize: fixCss, height: fixCssBtn}} type="submit" disabled={!this.props.sequence || this.props.status === 'loading' ? "disabled" : ""}>
