@@ -631,11 +631,6 @@ export function fetchStatus(jobId, r2dt = false, rfam = false) {
         }
         dispatch({type: types.SEARCH_PROGRESS, data: newSearchInProgress });
 
-        const elapsed = Date.now() - store.getState().searchStartTime;
-        if (elapsed > 30 * 60 * 1000) {
-          dispatch({type: types.SEARCH_SLOW});
-        }
-
         let statusTimeout = setTimeout(() => {
           if (store.getState().jobId !== jobId) return;
           console.log('[fetchStatus] Timeout fired, dispatching fetchStatus again for jobId:', jobId);
