@@ -166,12 +166,12 @@ class Results extends React.Component {
           !showRfamFirst && this.props.jobId && this.props.status !== "does_not_exist" && this.props.rfam && <Rfam customStyle={this.props.customStyle} />
         }
         {
-          this.props.jobId && this.props.status === "loading" && this.props.searchSlow && (
-            <div className="row" key="search-slow-div">
+          this.props.jobId && this.props.status === "loading" && (
+            <div className="row" key="search-running-div">
               <div className="col-sm-9">
-                <div className="alert alert-warning">
-                  <p><strong>Your search is taking longer than expected</strong></p>
-                  <span>EBI's servers may be under high load. Bookmark this URL to return to your results later:</span>
+                <div className="alert alert-secondary">
+                  <p><strong>Your search is currently running.</strong></p>
+                  <span>Sometimes our servers may be under high load. If it's taking more than a few minutes, please bookmark this URL to return to your results later:</span>
                   <br />
                   <a href={`${window.location.origin}${window.location.pathname}?jobid=${this.props.jobId}`}>
                     {`${window.location.origin}${window.location.pathname}?jobid=${this.props.jobId}`}
@@ -261,7 +261,6 @@ function mapStateToProps(state) {
     exactMatch: state.exactMatch,
     rnacentral: state.rnacentral,
     searchInProgress: state.searchInProgress,
-    searchSlow: state.searchSlow,
   };
 }
 
