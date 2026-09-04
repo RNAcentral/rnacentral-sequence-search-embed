@@ -77,6 +77,7 @@ export function onSubmit(sequence, databases, r2dt = false, rfam = false) {
           }
         } catch (e) {
           // Not a JSON body (or already consumed) -- fall back to statusText.
+          console.warn('[onSubmit] Could not parse error response body, falling back to statusText:', e);
         }
         dispatch({type: types.SUBMIT_JOB, status: 'error', response: message})
       }
