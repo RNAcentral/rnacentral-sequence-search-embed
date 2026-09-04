@@ -66,7 +66,19 @@ export function onSubmit(sequence, databases, r2dt = false, rfam = false) {
       if (error.statusText === undefined) {
         dispatch({type: types.SUBMIT_JOB, status: 'error', response: "The sequence search is temporarily unreachable. Please try again later."})
       } else {
-        dispatch({type: types.SUBMIT_JOB, status: 'error', response: error.statusText})
+        // The proxy API returns a JSON body ({"status": "error", "message": "..."})
+        // on rejections like rate limiting (429) -- prefer that specific message
+        // over the generic HTTP status text when it's available.
+        let message = error.statusText;
+        try {
+          const body = await error.json();
+          if (body && body.message) {
+            message = body.message;
+          }
+        } catch (e) {
+          // Not a JSON body (or already consumed) -- fall back to statusText.
+        }
+        dispatch({type: types.SUBMIT_JOB, status: 'error', response: message})
       }
     });
   }
