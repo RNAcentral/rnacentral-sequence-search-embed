@@ -66,7 +66,20 @@ export function onSubmit(sequence, databases, r2dt = false, rfam = false) {
       if (error.statusText === undefined) {
         dispatch({type: types.SUBMIT_JOB, status: 'error', response: "The sequence search is temporarily unreachable. Please try again later."})
       } else {
-        dispatch({type: types.SUBMIT_JOB, status: 'error', response: error.statusText})
+        // The proxy API returns a JSON body ({"status": "error", "message": "..."})
+        // on rejections like rate limiting (429) -- prefer that specific message
+        // over the generic HTTP status text when it's available.
+        let message = error.statusText;
+        try {
+          const body = await error.json();
+          if (body && body.message) {
+            message = body.message;
+          }
+        } catch (e) {
+          // Not a JSON body (or already consumed) -- fall back to statusText.
+          console.warn('[onSubmit] Could not parse error response body, falling back to statusText:', e);
+        }
+        dispatch({type: types.SUBMIT_JOB, status: 'error', response: message})
       }
     });
   }
@@ -503,48 +516,100 @@ function parseInfernalOutput(output) {
   return results;
 }
 
+// Multi-sequence FASTA uploads used to fire every submit-job call back to
+// back with only network latency between them -- for a file with more than
+// a handful of sequences this trips rnacentral-webcode's per-IP submission
+// rate/active-job limits (see rate-limit-sequence-search-by-ip) almost
+// immediately, and piles unnecessary burst load onto EBI regardless of our
+// own limits. Now a fixed-size worker pool keeps at most this many jobs in
+// flight at once; each worker only submits its next sequence once its
+// previous one reaches a terminal status. Kept comfortably under the
+// backend's active-job cap (5) to leave headroom for an interactive search
+// from the same user running alongside the upload.
+const MAX_CONCURRENT_BATCH_SUBMISSIONS = 3;
+const BATCH_POLL_INTERVAL_MS = 2000;
+
+function pollJobUntilTerminal(jobId) {
+  // Lightweight polling used only to know when a batch worker's slot frees
+  // up -- deliberately doesn't touch the single-job UI state (progress bar,
+  // fetchResults, etc.) that fetchStatus() manages for the interactive
+  // single-search flow.
+  return new Promise((resolve) => {
+    const check = () => {
+      fetch(routes.proxyJobStatus(jobId), {
+        method: 'GET',
+        headers: {'Accept': 'application/json'}
+      })
+      .then(response => response.ok ? response.json() : {status: 'error'})
+      .then(data => {
+        if (data.status === 'running' || data.status === 'pending') {
+          setTimeout(check, BATCH_POLL_INTERVAL_MS);
+        } else {
+          resolve();
+        }
+      })
+      .catch(() => resolve()); // don't let a flaky status check hang the pool forever
+    };
+    check();
+  });
+}
+
 export function onMultipleSubmit(sequence, databases) {
-  let jobIds = [];
   let url = window.location.href;
+  // Indexed by original position so results stay in file order regardless
+  // of which worker/submission actually finishes first.
+  const results = new Array(sequence.length);
 
   return async function(dispatch) {
     dispatch({type: types.BATCH_SEARCH, data: true});
-    for (let i = 0; i < sequence.length; i++) {
-      let newQuery = sequence[i];
-      newQuery && await fetch(routes.proxySubmitJob(), {
-        method: 'POST',
-        headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          sequence: newQuery,
-          databases: databases && databases.length > 0 ? databases : null,
-          url: url,
-          file_upload: true,
-        })
-      })
-      .then(function (response) {
-        if (response.ok) {
-          return response.json();
-        } else {
-          jobIds = [...jobIds, {"jobid": "", "description": "Error submitting sequence. Check your fasta file and try again later.", "sequence": ""}];
+
+    const submitOne = async (index) => {
+      const newQuery = sequence[index];
+      if (!newQuery) return;
+
+      const querySplit = newQuery.split("\n");
+      const description = querySplit.shift();
+      const seq = querySplit.join('');
+
+      try {
+        const response = await fetch(routes.proxySubmitJob(), {
+          method: 'POST',
+          headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            sequence: newQuery,
+            databases: databases && databases.length > 0 ? databases : null,
+            url: url,
+            file_upload: true,
+          })
+        });
+        if (!response.ok) {
+          results[index] = {"jobid": "", "description": "Error submitting sequence. Check your fasta file and try again later.", "sequence": ""};
+          return;
         }
-      })
-      .then(data => {
-        let querySplit = newQuery.split("\n");
-        let description = querySplit.shift();
-        let seq = querySplit.join('');
+        const data = await response.json();
         try { localStorage.setItem(`rnacentral_seq_${data.job_id}`, newQuery); } catch(e) {}
-        jobIds = [...jobIds, {"jobid": data.job_id, "description": description, "sequence": seq}];
-        if (jobIds.length === sequence.length) {
-          dispatch({type: types.BATCH_SEARCH, data: false});
-          dispatch({type: types.UPDATE_STATUS, data: "submitted"});
-          dispatch({type: types.SUBMIT_MULTIPLE_JOB, status: 'success', data: jobIds});
-        }
-      })
-      .catch(error => dispatch({type: types.SUBMIT_MULTIPLE_JOB, status: 'error', response: error}));
-    }
+        results[index] = {"jobid": data.job_id, "description": description, "sequence": seq};
+        await pollJobUntilTerminal(data.job_id);
+      } catch (error) {
+        results[index] = {"jobid": "", "description": "Error submitting sequence. Check your fasta file and try again later.", "sequence": ""};
+      }
+    };
+
+    let nextIndex = 0;
+    const worker = async () => {
+      while (nextIndex < sequence.length) {
+        await submitOne(nextIndex++);
+      }
+    };
+    const workerCount = Math.min(MAX_CONCURRENT_BATCH_SUBMISSIONS, sequence.length);
+    await Promise.all(Array.from({length: workerCount}, worker));
+
+    dispatch({type: types.BATCH_SEARCH, data: false});
+    dispatch({type: types.UPDATE_STATUS, data: "submitted"});
+    dispatch({type: types.SUBMIT_MULTIPLE_JOB, status: 'success', data: results});
   }
 }
 
