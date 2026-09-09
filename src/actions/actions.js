@@ -799,7 +799,18 @@ export function fetchInfernalStatus(jobId) {
   }
 }
 
-export function fetchResults(jobId, r2dt = false, rfam = false) {
+// A job with a very large result set (millions of hits) can take several
+// minutes to compile and compress server-side after the search itself
+// finishes -- the proxy API returns {status: "running"} while that's still
+// in progress (see rnacentral-sequence-search-api's get_job_results). Retry
+// rather than treating that as a failure or partial-failure; give up only
+// after a generous ceiling (~15 minutes) in case something is genuinely
+// stuck, matching a real ~11-minute compile observed in prod for a
+// 3.9-million-hit job.
+const RESULTS_COMPILING_RETRY_MS = 3000;
+const RESULTS_COMPILING_MAX_ATTEMPTS = 300;
+
+export function fetchResults(jobId, r2dt = false, rfam = false, attempt = 0) {
   return async function(dispatch) {
     try {
       // Fetch results from proxy API (includes facets)
@@ -813,6 +824,23 @@ export function fetchResults(jobId, r2dt = false, rfam = false) {
       }
 
       const data = await response.json();
+
+      if (data.status === 'running') {
+        // Stale request (user switched to a different job) -- drop it.
+        if (store.getState().jobId !== jobId) return;
+
+        if (attempt < RESULTS_COMPILING_MAX_ATTEMPTS) {
+          setTimeout(() => {
+            if (store.getState().jobId !== jobId) return;
+            store.dispatch(fetchResults(jobId, r2dt, rfam, attempt + 1));
+          }, RESULTS_COMPILING_RETRY_MS);
+          return;
+        }
+        // Fall through to the existing handling below after exhausting
+        // retries, so a genuinely stuck job still surfaces some feedback
+        // instead of retrying forever.
+      }
+
       const storedSequence = (() => { try { return localStorage.getItem(`rnacentral_seq_${jobId}`) || ''; } catch(e) { return ''; } })();
       const sequence = data.sequence || storedSequence;
       console.log('[fetchResults] r2dt:', r2dt, 'rfam:', rfam, 'sequence available:', !!sequence);
