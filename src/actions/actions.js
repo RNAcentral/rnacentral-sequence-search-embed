@@ -8,6 +8,15 @@ export function updateStatus() {
   return {type: types.UPDATE_STATUS, data: "loading"}
 }
 
+// window.RNACENTRAL_SEARCH_TOKEN is set by rnacentral-webcode on page render
+// (absent for standalone/embedded uses outside rnacentral.org -- fine, those
+// just don't get the extra "real page load" signal on the backend).
+function searchTokenHeader() {
+  return window.RNACENTRAL_SEARCH_TOKEN
+    ? {'X-RNAcentral-Search-Token': window.RNACENTRAL_SEARCH_TOKEN}
+    : {};
+}
+
 export function onSubmit(sequence, databases, r2dt = false, rfam = false) {
   // Format sequence for R2DT/Infernal - needs FASTA format
   let fastaSequence = sequence;
@@ -26,7 +35,8 @@ export function onSubmit(sequence, databases, r2dt = false, rfam = false) {
       method: 'POST',
       headers: {
         'Accept': 'application/json',
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        ...searchTokenHeader()
       },
       body: JSON.stringify({
         sequence: sequence,
@@ -576,7 +586,8 @@ export function onMultipleSubmit(sequence, databases) {
           method: 'POST',
           headers: {
             'Accept': 'application/json',
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            ...searchTokenHeader()
           },
           body: JSON.stringify({
             sequence: newQuery,
