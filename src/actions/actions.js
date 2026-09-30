@@ -17,6 +17,14 @@ function searchTokenHeader() {
     : {};
 }
 
+// Adds entropy to the backend's rate-limit fingerprint so distinct real
+// users sharing UA+Origin+Accept-Language don't collide.
+function screenSizeHeader() {
+  return window.screen
+    ? {'X-Screen-Size': `${window.screen.width}x${window.screen.height}`}
+    : {};
+}
+
 export function onSubmit(sequence, databases, r2dt = false, rfam = false) {
   // Format sequence for R2DT/Infernal - needs FASTA format
   let fastaSequence = sequence;
@@ -36,7 +44,8 @@ export function onSubmit(sequence, databases, r2dt = false, rfam = false) {
       headers: {
         'Accept': 'application/json',
         'Content-Type': 'application/json',
-        ...searchTokenHeader()
+        ...searchTokenHeader(),
+        ...screenSizeHeader()
       },
       body: JSON.stringify({
         sequence: sequence,
@@ -587,7 +596,8 @@ export function onMultipleSubmit(sequence, databases) {
           headers: {
             'Accept': 'application/json',
             'Content-Type': 'application/json',
-            ...searchTokenHeader()
+            ...searchTokenHeader(),
+            ...screenSizeHeader()
           },
           body: JSON.stringify({
             sequence: newQuery,
