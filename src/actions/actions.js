@@ -8,6 +8,15 @@ export function updateStatus() {
   return {type: types.UPDATE_STATUS, data: "loading"}
 }
 
+// window.RNACENTRAL_SEARCH_TOKEN is set by rnacentral-webcode on page render
+// (absent for standalone/embedded uses outside rnacentral.org -- fine, those
+// just don't get the extra "real page load" signal on the backend).
+function searchTokenHeader() {
+  return window.RNACENTRAL_SEARCH_TOKEN
+    ? {'X-RNAcentral-Search-Token': window.RNACENTRAL_SEARCH_TOKEN}
+    : {};
+}
+
 // Adds entropy to the backend's rate-limit fingerprint so distinct real
 // users sharing UA+Origin+Accept-Language don't collide.
 function screenSizeHeader() {
@@ -35,6 +44,7 @@ export function onSubmit(sequence, databases, r2dt = false, rfam = false) {
       headers: {
         'Accept': 'application/json',
         'Content-Type': 'application/json',
+        ...searchTokenHeader(),
         ...screenSizeHeader()
       },
       body: JSON.stringify({
@@ -586,6 +596,7 @@ export function onMultipleSubmit(sequence, databases) {
           headers: {
             'Accept': 'application/json',
             'Content-Type': 'application/json',
+            ...searchTokenHeader(),
             ...screenSizeHeader()
           },
           body: JSON.stringify({
