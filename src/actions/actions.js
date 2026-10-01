@@ -8,13 +8,25 @@ export function updateStatus() {
   return {type: types.UPDATE_STATUS, data: "loading"}
 }
 
-// window.RNACENTRAL_SEARCH_TOKEN is set by rnacentral-webcode on page render
-// (absent for standalone/embedded uses outside rnacentral.org -- fine, those
-// just don't get the extra "real page load" signal on the backend).
-function searchTokenHeader() {
-  return window.RNACENTRAL_SEARCH_TOKEN
-    ? {'X-RNAcentral-Search-Token': window.RNACENTRAL_SEARCH_TOKEN}
-    : {};
+// Fetched at runtime, not embedded in any page HTML -- a plain HTML scrape
+// never sees it. Absent for standalone/embedded uses outside rnacentral.org.
+const SEARCH_TOKEN_URL = 'https://rnacentral.org/sequence-search/token/';
+const SEARCH_TOKEN_REFRESH_MS = 30 * 60 * 1000;
+let cachedSearchToken = null;
+let cachedSearchTokenAt = 0;
+
+function getSearchTokenHeader() {
+  if (cachedSearchToken && Date.now() - cachedSearchTokenAt < SEARCH_TOKEN_REFRESH_MS) {
+    return Promise.resolve({'X-RNAcentral-Search-Token': cachedSearchToken});
+  }
+  return fetch(SEARCH_TOKEN_URL)
+    .then(r => r.json())
+    .then(data => {
+      cachedSearchToken = data.token || null;
+      cachedSearchTokenAt = Date.now();
+      return cachedSearchToken ? {'X-RNAcentral-Search-Token': cachedSearchToken} : {};
+    })
+    .catch(() => ({}));
 }
 
 // Adds entropy to the backend's rate-limit fingerprint so distinct real
@@ -37,69 +49,71 @@ export function onSubmit(sequence, databases, r2dt = false, rfam = false) {
   console.log('[onSubmit] r2dt:', r2dt, 'rfam:', rfam);
 
   return function(dispatch) {
-    // Submit to our proxy API which handles parallel submission to all databases
-    console.log('[onSubmit] Posting to:', routes.proxySubmitJob());
-    fetch(routes.proxySubmitJob(), {
-      method: 'POST',
-      headers: {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json',
-        ...searchTokenHeader(),
-        ...screenSizeHeader()
-      },
-      body: JSON.stringify({
-        sequence: sequence,
-        databases: databases && databases.length > 0 ? databases : null,
-        url: window.location.href,
-        file_upload: store.getState().fileUpload || false,
+    getSearchTokenHeader().then(tokenHeader => {
+      // Submit to our proxy API which handles parallel submission to all databases
+      console.log('[onSubmit] Posting to:', routes.proxySubmitJob());
+      fetch(routes.proxySubmitJob(), {
+        method: 'POST',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+          ...tokenHeader,
+          ...screenSizeHeader()
+        },
+        body: JSON.stringify({
+          sequence: sequence,
+          databases: databases && databases.length > 0 ? databases : null,
+          url: window.location.href,
+          file_upload: store.getState().fileUpload || false,
+        })
       })
-    })
-    .then(function (response) {
-      console.log('[onSubmit] Response received, ok:', response.ok, 'status:', response.status);
-      if (response.ok) { return response.json() }
-      else { throw response }
-    })
-    .then(data => {
-        console.log('[onSubmit] Job submitted successfully, job_id:', data.job_id);
-        // Persist sequence so it can be recovered when restoring from a ?jobid= URL
-        try { localStorage.setItem(`rnacentral_seq_${data.job_id}`, fastaSequence); } catch(e) {}
-        // Proxy API returns JSON with job_id
-        dispatch({type: types.SUBMIT_JOB, status: 'success', data: { job_id: data.job_id }});
-        console.log('[onSubmit] Dispatching fetchStatus for job_id:', data.job_id);
-        dispatch(fetchStatus(data.job_id));
+      .then(function (response) {
+        console.log('[onSubmit] Response received, ok:', response.ok, 'status:', response.status);
+        if (response.ok) { return response.json() }
+        else { throw response }
+      })
+      .then(data => {
+          console.log('[onSubmit] Job submitted successfully, job_id:', data.job_id);
+          // Persist sequence so it can be recovered when restoring from a ?jobid= URL
+          try { localStorage.setItem(`rnacentral_seq_${data.job_id}`, fastaSequence); } catch(e) {}
+          // Proxy API returns JSON with job_id
+          dispatch({type: types.SUBMIT_JOB, status: 'success', data: { job_id: data.job_id }});
+          console.log('[onSubmit] Dispatching fetchStatus for job_id:', data.job_id);
+          dispatch(fetchStatus(data.job_id));
 
-        // Submit R2DT job directly with the sequence we have
-        if (r2dt) {
-          console.log('[onSubmit] Submitting R2DT job');
-          dispatch(r2dtSubmit(fastaSequence));
-        }
-
-        // Submit Infernal cmscan job for Rfam classification
-        if (rfam) {
-          console.log('[onSubmit] Submitting Infernal job');
-          dispatch(infernalSubmit(fastaSequence));
-        }
-    })
-    .catch(async (error) => {
-      console.error('[onSubmit] Error caught:', error);
-      if (error.statusText === undefined) {
-        dispatch({type: types.SUBMIT_JOB, status: 'error', response: "The sequence search is temporarily unreachable. Please try again later."})
-      } else {
-        // The proxy API returns a JSON body ({"status": "error", "message": "..."})
-        // on rejections like rate limiting (429) -- prefer that specific message
-        // over the generic HTTP status text when it's available.
-        let message = error.statusText;
-        try {
-          const body = await error.json();
-          if (body && body.message) {
-            message = body.message;
+          // Submit R2DT job directly with the sequence we have
+          if (r2dt) {
+            console.log('[onSubmit] Submitting R2DT job');
+            dispatch(r2dtSubmit(fastaSequence));
           }
-        } catch (e) {
-          // Not a JSON body (or already consumed) -- fall back to statusText.
-          console.warn('[onSubmit] Could not parse error response body, falling back to statusText:', e);
+
+          // Submit Infernal cmscan job for Rfam classification
+          if (rfam) {
+            console.log('[onSubmit] Submitting Infernal job');
+            dispatch(infernalSubmit(fastaSequence));
+          }
+      })
+      .catch(async (error) => {
+        console.error('[onSubmit] Error caught:', error);
+        if (error.statusText === undefined) {
+          dispatch({type: types.SUBMIT_JOB, status: 'error', response: "The sequence search is temporarily unreachable. Please try again later."})
+        } else {
+          // The proxy API returns a JSON body ({"status": "error", "message": "..."})
+          // on rejections like rate limiting (429) -- prefer that specific message
+          // over the generic HTTP status text when it's available.
+          let message = error.statusText;
+          try {
+            const body = await error.json();
+            if (body && body.message) {
+              message = body.message;
+            }
+          } catch (e) {
+            // Not a JSON body (or already consumed) -- fall back to statusText.
+            console.warn('[onSubmit] Could not parse error response body, falling back to statusText:', e);
+          }
+          dispatch({type: types.SUBMIT_JOB, status: 'error', response: message})
         }
-        dispatch({type: types.SUBMIT_JOB, status: 'error', response: message})
-      }
+      });
     });
   }
 }
@@ -591,12 +605,13 @@ export function onMultipleSubmit(sequence, databases) {
       const seq = querySplit.join('');
 
       try {
+        const tokenHeader = await getSearchTokenHeader();
         const response = await fetch(routes.proxySubmitJob(), {
           method: 'POST',
           headers: {
             'Accept': 'application/json',
             'Content-Type': 'application/json',
-            ...searchTokenHeader(),
+            ...tokenHeader,
             ...screenSizeHeader()
           },
           body: JSON.stringify({
