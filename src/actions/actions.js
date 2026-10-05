@@ -10,7 +10,9 @@ export function updateStatus() {
 
 // Fetched at runtime, not embedded in any page HTML -- a plain HTML scrape
 // never sees it. Absent for standalone/embedded uses outside rnacentral.org.
-const SEARCH_TOKEN_URL = 'https://rnacentral.org/sequence-search/token/';
+// Relative, not hardcoded to prod -- so each environment (dev, test, prod)
+// uses its own token endpoint instead of always depending on prod's.
+const SEARCH_TOKEN_URL = '/sequence-search/token/';
 const SEARCH_TOKEN_REFRESH_MS = 30 * 60 * 1000;
 let cachedSearchToken = null;
 let cachedSearchTokenAt = 0;
