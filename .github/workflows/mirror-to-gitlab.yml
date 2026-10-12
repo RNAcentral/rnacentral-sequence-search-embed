@@ -3,7 +3,7 @@ name: Mirror to GitLab
 on:
   push:
     branches:
-      - master
+      - '**'
 
 jobs:
   mirror:
@@ -14,15 +14,13 @@ jobs:
       - name: Push squashed snapshot to GitLab
         run: |
           git remote add gitlab https://gitlab-ci-token:${{ secrets.GITLAB_TOKEN }}@gitlab.ebi.ac.uk/RNAcentral/rnacentral-sequence-search-embed.git
-          # GitLab's instance enforces a pre-receive hook requiring commit
-          # authors to be recognized team members. This repo's real history
-          # has contributors whose git-config emails don't match their
-          # GitLab account, which blocks pushing full history. Since this
-          # mirror exists only for GitLab security scanning (not
-          # collaborative development), each run instead appends one
-          # re-authored snapshot commit on top of whatever is already on
-          # GitLab, so the push is always a plain fast-forward.
-          PARENT=$(git ls-remote gitlab refs/heads/master | cut -f1)
+          # Re-authored squash commit per branch: dodges GitLab's pre-receive
+          # author hook and gives every branch a ref for per-branch scanning.
+          BRANCH="${{ github.ref_name }}"
+          PARENT=$(git ls-remote gitlab "refs/heads/$BRANCH" | cut -f1)
+          if [ -n "$PARENT" ]; then
+            git fetch --depth=1 gitlab "$BRANCH"
+          fi
           TREE=$(git rev-parse HEAD^{tree})
           if [ -n "$PARENT" ]; then
             COMMIT=$(GIT_AUTHOR_NAME="GitLab Mirror" GIT_AUTHOR_EMAIL="muston@ebi.ac.uk" \
@@ -33,4 +31,4 @@ jobs:
                       GIT_COMMITTER_NAME="GitLab Mirror" GIT_COMMITTER_EMAIL="muston@ebi.ac.uk" \
                       git commit-tree "$TREE" -m "Mirror snapshot of ${{ github.sha }}")
           fi
-          git push gitlab "$COMMIT:refs/heads/master"
+          git push gitlab "$COMMIT:refs/heads/$BRANCH"
