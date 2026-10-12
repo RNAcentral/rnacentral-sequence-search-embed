@@ -23,6 +23,14 @@ jobs:
           # re-authored snapshot commit on top of whatever is already on
           # GitLab, so the push is always a plain fast-forward.
           PARENT=$(git ls-remote gitlab refs/heads/master | cut -f1)
+          if [ -n "$PARENT" ]; then
+            # actions/checkout only fetches this repo's own (shallow)
+            # history, so a commit that only exists on GitLab (e.g. from a
+            # prior mirror run) isn't a local git object yet. Fetch it
+            # before referencing it, or commit-tree fails with "not a valid
+            # object".
+            git fetch --depth=1 gitlab master
+          fi
           TREE=$(git rev-parse HEAD^{tree})
           if [ -n "$PARENT" ]; then
             COMMIT=$(GIT_AUTHOR_NAME="GitLab Mirror" GIT_AUTHOR_EMAIL="muston@ebi.ac.uk" \
