@@ -50,25 +50,18 @@ module.exports = function(env) {
         },
         {
           test: /\.(png|jpe?g|gif)(\?v=\d+\.\d+\.\d+)?$/,
-          use: {
-            loader: 'url-loader',
-            options: {
-              limit: 150000,
-              name: '[name].[ext]',
-            }
-          }
+          type: 'asset',
+          parser: { dataUrlCondition: { maxSize: 150000 } },
+          generator: { filename: '[name][ext]' }
         },
         {
-          test: /\.(eot|com|json|ttf|woff|woff2)(\?v=\d+\.\d+\.\d+)?$/,
-          use: {
-            loader: 'url-loader?mimetype=application/octet-stream' // 'file-loader' // 'url-loader?limit=10000&mimetype=application/octet-stream'
-          }
+          test: /\.(eot|com|ttf|woff|woff2)(\?v=\d+\.\d+\.\d+)?$/,
+          type: 'asset/inline',
+          generator: { dataUrl: { mimetype: 'application/octet-stream' } }
         },
         {
           test: /\.svg(\?v=\d+\.\d+\.\d+)?$/,
-          use: {
-            loader: 'url-loader?mimetype=image/svg+xml' // 'file-loader' // 'url-loader?limit=10000&mimetype=image/svg+xml'
-          }
+          type: 'asset/inline'
         }
       ]
     },
