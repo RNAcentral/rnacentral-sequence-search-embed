@@ -21,7 +21,9 @@ jobs:
           if [ -n "$PARENT" ]; then
             git fetch --depth=1 gitlab "$BRANCH"
           fi
-          TREE=$(git rev-parse HEAD^{tree})
+          # Drop dist/ (built bundle + 4MB source map): pushing it gets a bare
+          # HTTP 406 from gitlab.ebi.ac.uk, and the scanners don't need it.
+          TREE=$(git ls-tree HEAD | grep -v $'\tdist$' | git mktree)
           if [ -n "$PARENT" ]; then
             COMMIT=$(GIT_AUTHOR_NAME="GitLab Mirror" GIT_AUTHOR_EMAIL="muston@ebi.ac.uk" \
                       GIT_COMMITTER_NAME="GitLab Mirror" GIT_COMMITTER_EMAIL="muston@ebi.ac.uk" \
