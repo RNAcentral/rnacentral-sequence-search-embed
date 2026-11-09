@@ -4,6 +4,7 @@ import {Provider} from 'react-redux';
 
 import SequenceSearch from 'containers/SequenceSearch/index.jsx';
 import configureStore from 'store/configureStore.js';
+import {setSearchToken} from 'services/searchToken.js';
 
 import bootstrap from 'styles/bootstrap.css';
 import sequenceSearchStyles from 'styles/sequence-search.scss';
@@ -44,6 +45,10 @@ class RNAcentralSequenceSearch extends HTMLElement {
     const hideFacet = JSON.parse(this.attributes.hideFacet ? this.attributes.hideFacet.nodeValue : null);
     const r2dt = JSON.parse(this.attributes.r2dt ? this.attributes.r2dt.nodeValue : null);
     const rfam = JSON.parse(this.attributes.rfam ? this.attributes.rfam.nodeValue : null);
+
+    // searchToken is a plain string (not JSON), inlined by webcode at page
+    // render time -- there's no endpoint to fetch it from, see searchToken.js.
+    setSearchToken(this.attributes.searchToken ? this.attributes.searchToken.nodeValue : null);
 
     // render React
     ReactDOM.render([
