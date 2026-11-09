@@ -1,6 +1,7 @@
 import * as types from './actionTypes';
 import routes from 'services/routes.jsx';
 import {store} from 'app.jsx';
+import {getSearchToken} from 'services/searchToken.js';
 import md5 from 'md5';
 
 
@@ -8,27 +9,9 @@ export function updateStatus() {
   return {type: types.UPDATE_STATUS, data: "loading"}
 }
 
-// Fetched at runtime, not embedded in any page HTML -- a plain HTML scrape
-// never sees it. Absent for standalone/embedded uses outside rnacentral.org.
-// Relative, not hardcoded to prod -- so each environment (dev, test, prod)
-// uses its own token endpoint instead of always depending on prod's.
-const SEARCH_TOKEN_URL = '/sequence-search/token/';
-const SEARCH_TOKEN_REFRESH_MS = 30 * 60 * 1000;
-let cachedSearchToken = null;
-let cachedSearchTokenAt = 0;
-
 function getSearchTokenHeader() {
-  if (cachedSearchToken && Date.now() - cachedSearchTokenAt < SEARCH_TOKEN_REFRESH_MS) {
-    return Promise.resolve({'X-RNAcentral-Search-Token': cachedSearchToken});
-  }
-  return fetch(SEARCH_TOKEN_URL)
-    .then(r => r.json())
-    .then(data => {
-      cachedSearchToken = data.token || null;
-      cachedSearchTokenAt = Date.now();
-      return cachedSearchToken ? {'X-RNAcentral-Search-Token': cachedSearchToken} : {};
-    })
-    .catch(() => ({}));
+  const token = getSearchToken();
+  return Promise.resolve(token ? {'X-RNAcentral-Search-Token': token} : {});
 }
 
 // Adds entropy to the backend's rate-limit fingerprint so distinct real
