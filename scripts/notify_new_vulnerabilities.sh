@@ -53,7 +53,13 @@ echo "$JOBS" | while IFS=: read -r job report; do
     | (.vulnerabilities // [])[]
     | select(.severity == "Critical")
     | select(.id as $id | $known | index($id) | not)
-    | {job: $job, severity: (.severity // "Unknown"), name: (.name // .message // "unnamed finding"),
+    | (.identifiers // [])[0] as $ident
+    | {job: $job, severity: (.severity // "Unknown"),
+       # Container/dependency findings carry no name; fall back to "<CVE> in <package>".
+       name: (.name // .message
+              // (if $ident then "\($ident.value) in \(.location.dependency.package.name // .location.file // "unknown")" else null end)
+              // "unnamed finding"),
+       url: ($ident.url // null),
        location: (.location.file // .location.image // .location.dependency.package.name // "")}
   ' "$current" >> new_findings.jsonl
 done
@@ -65,16 +71,21 @@ if [ "$count" -eq 0 ]; then
 fi
 
 if [ -n "${CI_MERGE_REQUEST_IID:-}" ]; then
-  context="MR !$CI_MERGE_REQUEST_IID ($CI_MERGE_REQUEST_SOURCE_BRANCH_NAME)"
+  mr_url="${CI_MERGE_REQUEST_PROJECT_URL:-$CI_PROJECT_URL}/-/merge_requests/$CI_MERGE_REQUEST_IID"
+  context="<$mr_url|MR !$CI_MERGE_REQUEST_IID: $CI_MERGE_REQUEST_SOURCE_BRANCH_NAME>"
 else
-  context="${CI_COMMIT_REF_NAME} @ ${CI_COMMIT_SHORT_SHA}"
+  context="<$CI_PROJECT_URL/-/tree/$CI_COMMIT_REF_NAME|$CI_COMMIT_REF_NAME>"
 fi
+commit="<$CI_PROJECT_URL/-/commit/$CI_COMMIT_SHA|${CI_COMMIT_SHORT_SHA}>"
 
-# Cap the list so the message stays readable.
-details=$(jq -rs '.[:15][] | "• \(.name) (`\(.location)`, \(.job))"' new_findings.jsonl)
+# Cap the list so the message stays readable. Link each finding to its CVE page
+# when known; strip characters that would break Slack's <url|text> syntax.
+details=$(jq -rs '.[:15][]
+  | (.name | gsub("[<>|]"; "")) as $n
+  | "• \(if .url then "<\(.url)|\($n)>" else $n end) (`\(.location)`, \(.job))"' new_findings.jsonl)
 
-text=$(printf ':rotating_light: *%s*\n*%s new critical vulnerabilit%s* in %s\n%s\n<%s|Pipeline> · <%s/-/security/vulnerability_report/|Vulnerability report>' \
-  "$CI_PROJECT_PATH" "$count" "$([ "$count" -eq 1 ] && echo y || echo ies)" "$context" "$details" \
+text=$(printf ':rotating_light: *%s*\n*%s new critical vulnerabilit%s*\n:twisted_rightwards_arrows: *Branch:* *%s* (commit %s)\n%s\n<%s|Pipeline> · <%s/-/security/vulnerability_report/|Vulnerability report>' \
+  "$CI_PROJECT_PATH" "$count" "$([ "$count" -eq 1 ] && echo y || echo ies)" "$context" "$commit" "$details" \
   "$CI_PIPELINE_URL" "$CI_PROJECT_URL")
 
 jq -n --arg text "$text" '{text: $text}' \
