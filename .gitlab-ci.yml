@@ -29,3 +29,33 @@ secret_detection:
 dependency_scanning:
   tags:
     - dind
+
+# Posts to Slack when this pipeline's scans find Critical vulnerabilities that are
+# not in the latest default-branch scan. Needs the masked CI/CD variable
+# SLACK_WEBHOOK_URL (Settings > CI/CD > Variables).
+# Runs in the built-in .post stage, so no stages list is needed.
+notify-new-vulnerabilities:
+  stage: .post
+  image: alpine:3.20
+  tags:
+    - dind
+  rules:
+    - when: always
+  needs:
+    - job: sast
+      optional: true
+    - job: gitlab-advanced-sast
+      optional: true
+    - job: semgrep-sast
+      optional: true
+    - job: kics-iac-sast
+      optional: true
+    - job: dependency_scanning
+      optional: true
+    - job: secret_detection
+      optional: true
+  before_script:
+    - apk add --no-cache curl jq
+  script:
+    - ./scripts/notify_new_vulnerabilities.sh
+  allow_failure: true
